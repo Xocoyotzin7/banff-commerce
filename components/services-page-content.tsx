@@ -25,6 +25,9 @@ type ServicesPageContentProps = {
 export function ServicesPageContent({ locale }: ServicesPageContentProps) {
   const copy = getSiteCopy(locale)
   const doc = readLocalizedMdx("services", locale) ?? readLocalizedMdx("services", "en")
+  const mobileContextCards = copy.services.cards.slice(0, 4)
+  const desktopLeftContextCards = copy.services.cards.slice(2, 4)
+  const desktopRightContextCards = copy.services.cards.slice(0, 2)
 
   if (!doc) return null
 
@@ -75,15 +78,13 @@ export function ServicesPageContent({ locale }: ServicesPageContentProps) {
                 </span>
               ))}
             </div>
-            <div className="grid gap-3">
-              {copy.services.cards.slice(2, 4).map((card, index) => {
-                const cardIndex = index + 2
+            <div className="grid gap-3 md:hidden">
+              {mobileContextCards.map((card, index) => {
+                const cardIndex = index
                 return (
                   <article
                     key={card.title}
-                    className={`rounded-[2rem] border border-border/70 bg-card/75 p-3 shadow-[0_10px_35px_-24px_rgba(2,6,23,0.55)] transition ${
-                      cardIndex === 3 ? "md:translate-y-2" : ""
-                    }`}
+                    className="rounded-[2rem] border border-border/70 bg-card/75 p-3 shadow-[0_10px_35px_-24px_rgba(2,6,23,0.55)] transition"
                   >
                     <div className={`relative h-full overflow-hidden rounded-[1.4rem] border border-border/70 bg-gradient-to-br p-4 ${serviceContextSurfaces[cardIndex % serviceContextSurfaces.length]}`}>
                       <div className="absolute -right-8 -top-8 h-20 w-20 rounded-full bg-accent/20 blur-xl" />
@@ -109,8 +110,42 @@ export function ServicesPageContent({ locale }: ServicesPageContentProps) {
               })}
             </div>
           </div>
-          <div className="grid gap-3">
-            {copy.services.cards.slice(0, 2).map((card, index) => (
+          <div className="hidden grid gap-3 md:grid">
+            {desktopLeftContextCards.map((card, index) => {
+              const cardIndex = index + 2
+              return (
+              <article
+                key={card.title}
+                className={`rounded-[2rem] border border-border/70 bg-card/75 p-3 shadow-[0_10px_35px_-24px_rgba(2,6,23,0.55)] transition ${
+                  index === 1 ? "md:translate-y-2" : ""
+                }`}
+              >
+                <div className={`relative h-full overflow-hidden rounded-[1.4rem] border border-border/70 bg-gradient-to-br p-4 ${serviceContextSurfaces[index % serviceContextSurfaces.length]}`}>
+                  <div className="absolute -right-8 -top-8 h-20 w-20 rounded-full bg-accent/20 blur-xl" />
+                  <div className="absolute -bottom-8 -left-8 h-20 w-20 rounded-full bg-primary/20 blur-xl" />
+                  <div className="relative space-y-2">
+                    <span className="inline-flex rounded-full border border-border/70 bg-background/75 px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+                      0{index + 1}
+                    </span>
+                    <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">{card.title}</h3>
+                    <p className="text-sm leading-relaxed text-muted-foreground">{card.summary}</p>
+                    <ul className="space-y-2 pt-1 text-xs leading-relaxed text-foreground">
+                      {card.deliverables.map((deliverable) => (
+                        <li key={deliverable} className="flex gap-2">
+                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--accent)]" />
+                          <span>{deliverable}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </article>
+            )
+            })}
+          </div>
+
+          <div className="hidden md:grid gap-3">
+            {desktopRightContextCards.map((card, index) => (
               <article
                 key={card.title}
                 className={`rounded-[2rem] border border-border/70 bg-card/75 p-3 shadow-[0_10px_35px_-24px_rgba(2,6,23,0.55)] transition ${
