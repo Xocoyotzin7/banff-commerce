@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home } from "lucide-react"
+import { Home, Mail, Phone } from "lucide-react"
 
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { MobileDock } from "@/components/mobile-dock"
@@ -79,6 +79,20 @@ export function SiteHeader({ locale }: SiteHeaderProps) {
           </nav>
 
           <div className="flex shrink-0 items-center gap-2">
+            <Link
+              href={`mailto:${copy.contact.emails[0]}`}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white/70 text-foreground shadow-sm backdrop-blur-xl transition-colors hover:border-[color:var(--accent)]/30 hover:text-[color:var(--accent)] dark:border-white/10 dark:bg-white/5 dark:text-white"
+              aria-label={`Email ${copy.contact.emails[0]}`}
+            >
+              <Mail className="h-4 w-4" />
+            </Link>
+            <Link
+              href={`tel:${copy.contact.phone.replace(/[^+\d]/g, "")}`}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white/70 text-foreground shadow-sm backdrop-blur-xl transition-colors hover:border-[color:var(--accent)]/30 hover:text-[color:var(--accent)] dark:border-white/10 dark:bg-white/5 dark:text-white"
+              aria-label={`Call ${copy.contact.phone}`}
+            >
+              <Phone className="h-4 w-4" />
+            </Link>
             <LanguageSwitcher locale={locale} />
             <ThemeSwitcher />
           </div>

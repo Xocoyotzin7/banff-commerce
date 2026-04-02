@@ -304,7 +304,7 @@ export const siteCopy: Record<Locale, SiteCopy> = {
     },
     footer: {
       note: "Bilingual web and mobile studio for Mexico and Canada.",
-      credit: "Made with love by Donovan Riaño.",
+      credit: "Made with 🧡 by Donovan Riaño.",
       rights: "All rights reserved.",
     },
   },
@@ -338,9 +338,9 @@ export const siteCopy: Record<Locale, SiteCopy> = {
       eyebrow: "À propos",
       title: "Un studio façonné par le produit, le design et l’exécution technique.",
       description:
-        "Banff Studio est construit à partir de la même logique que notre portfolio: UX/UI, stratégie produit, prototypage assisté par IA, Web3 et livraison bilingue pour les équipes qui travaillent entre le Mexique et le Canada.",
+        "Banff Studio est construit à partir de la même logique que notre portfolio: UX/UI, stratégie produit, prototypage assisté par IA, Web3 et livraison bilingue pour les équipes qui travaillent entre le Canada et le Mexique.",
       points: [
-        "Structure en anglais d’abord, avec le français et l’espagnol prêts pour le lancement.",
+        "Structure en anglais d’abord, avec le français et l’espagnol prêts pour le lancement entre le Canada et le Mexique.",
         "Décisions UX/UI et produit pour garder l’expérience claire, rapide et orientée conversion.",
         "Exécution IA, Web3 et crypto quand le projet a besoin d’intégrations modernes.",
         "Livraison pragmatique: périmètre clair, délais clairs, et livrables faciles à maintenir.",
@@ -447,15 +447,15 @@ export const siteCopy: Record<Locale, SiteCopy> = {
       github: "github.com/driano7",
     },
     footer: {
-      note: "Studio bilingue web et mobile pour le Mexique et le Canada.",
-      credit: "Fait avec amour par Donovan Riaño.",
+      note: "Studio bilingue web et mobile pour le Canada et le Mexique.",
+      credit: "Fait avec 🧡 par Donovan Riaño.",
       rights: "Tous droits réservés.",
     },
   },
   es: {
     brand: {
       name: "Banff Studio",
-      tagline: "Sitios web y apps móviles bilingües para México y Canadá.",
+      tagline: "Sitios web y apps móviles bilingües para Canadá y México.",
     },
     nav: {
       home: "Inicio",
@@ -482,9 +482,9 @@ export const siteCopy: Record<Locale, SiteCopy> = {
       eyebrow: "About Us",
       title: "Un estudio moldeado por producto, diseño y ejecución técnica.",
       description:
-        "Banff Studio nace de la misma lógica que ves en mi portafolio: UX/UI, estrategia de producto, prototipado con AI, Web3 y entrega bilingüe para equipos que operan entre México y Canadá.",
+        "Banff Studio nace de la misma lógica que ves en mi portafolio: UX/UI, estrategia de producto, prototipado con AI, Web3 y entrega bilingüe para equipos que operan entre Canadá y México.",
       points: [
-        "Estructura en inglés primero, con francés y español listos para salir.",
+        "Estructura en inglés primero, con francés y español listos para salir entre Canadá y México.",
         "Decisiones de UX/UI y producto para mantener la experiencia clara, rápida y enfocada en conversión.",
         "Ejecución con AI, Web3 y cripto cuando el proyecto necesita integraciones modernas.",
         "Entrega práctica: scope claro, tiempos claros y archivos que tu equipo sí pueda mantener.",
@@ -591,8 +591,8 @@ export const siteCopy: Record<Locale, SiteCopy> = {
       github: "github.com/driano7",
     },
     footer: {
-      note: "Estudio bilingüe de web y mobile para México y Canadá.",
-      credit: "Hecho con amor por Donovan Riaño.",
+      note: "Estudio bilingüe de web y mobile para Canadá y México.",
+      credit: "Hecho con 🧡 por Donovan Riaño.",
       rights: "Todos los derechos reservados.",
     },
   },
