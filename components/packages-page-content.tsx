@@ -93,7 +93,7 @@ export function PackagesPageContent({ locale }: PackagesPageContentProps) {
 
       <section className="mt-10 grid gap-4 md:grid-cols-2">
         {visiblePackages.map((card, index) => (
-          <ScrollReveal key={card.title} direction={index % 2 === 0 ? "up" : "down"} delay={0.08 + index * 0.08}>
+            <ScrollReveal key={card.title} direction={index % 2 === 0 ? "up" : "down"} delay={0.02 + index * 0.04}>
             <article
               className={`rounded-[2rem] border border-border/70 bg-card/75 p-3 shadow-[0_10px_35px_-24px_rgba(2,6,23,0.55)] transition ${
                 index === 1 ? "md:translate-y-4" : ""

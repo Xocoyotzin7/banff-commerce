@@ -16,17 +16,11 @@ export function SiteFooter({ locale }: SiteFooterProps) {
   const digitsOnlyPhone = copy.contact.phone.replace(/[^+\d]/g, "")
   const whatsappHref = `https://wa.me/${copy.contact.whatsapp.replace(/[^+\d]/g, "").replace(/^\+/, "")}`
   const contactItems = [
-    ...copy.contact.telegrams.map((telegram, index) => ({
-      href: normalizeExternalHref(telegram),
-      label: `Telegram${index === 0 && hasMultipleTelegrams ? " (main)" : ""}`,
-      icon: Send,
-      external: true,
-    })),
     {
-      href: whatsappHref,
-      label: "WhatsApp",
-      icon: MinimalWhatsappIcon,
-      external: true,
+      href: `mailto:${copy.contact.emails[0]}`,
+      label: `Email${hasMultipleEmails ? " (main)" : ""}`,
+      icon: Mail,
+      external: false,
     },
     {
       href: `tel:${digitsOnlyPhone}`,
@@ -34,12 +28,38 @@ export function SiteFooter({ locale }: SiteFooterProps) {
       icon: Phone,
       external: false,
     },
-    ...copy.contact.emails.map((email, index) => ({
-      href: `mailto:${email}`,
-      label: `Email${index === 0 && hasMultipleEmails ? " (main)" : ""}`,
-      icon: Mail,
-      external: false,
-    })),
+    {
+      href: whatsappHref,
+      label: "WhatsApp",
+      icon: MinimalWhatsappIcon,
+      external: true,
+    },
+    {
+      href: normalizeExternalHref(copy.contact.telegrams[0]),
+      label: `Telegram${hasMultipleTelegrams ? " (main)" : ""}`,
+      icon: Send,
+      external: true,
+    },
+    ...(hasMultipleEmails
+      ? [
+          {
+            href: `mailto:${copy.contact.emails[1]}`,
+            label: "Email",
+            icon: Mail,
+            external: false,
+          },
+        ]
+      : []),
+    ...(hasMultipleTelegrams
+      ? [
+          {
+            href: normalizeExternalHref(copy.contact.telegrams[1]),
+            label: "Telegram",
+            icon: Send,
+            external: true,
+          },
+        ]
+      : []),
     {
       href: "https://github.com/driano7",
       label: "GitHub",
