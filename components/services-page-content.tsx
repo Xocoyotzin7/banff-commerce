@@ -26,8 +26,7 @@ export function ServicesPageContent({ locale }: ServicesPageContentProps) {
   const copy = getSiteCopy(locale)
   const doc = readLocalizedMdx("services", locale) ?? readLocalizedMdx("services", "en")
   const mobileContextCards = copy.services.cards.slice(0, 4)
-  const desktopLeftContextCards = copy.services.cards.slice(2, 4)
-  const desktopRightContextCards = copy.services.cards.slice(0, 2)
+  const desktopContextCards = copy.services.cards.slice(0, 4)
 
   if (!doc) return null
 
@@ -43,47 +42,52 @@ export function ServicesPageContent({ locale }: ServicesPageContentProps) {
         <ServicesPhoneShowcase locale={locale} cards={copy.services.cards} />
       </div>
 
-      <ScrollReveal direction="up" once className="mt-10">
-        <section className="grid gap-5 rounded-[2rem] border border-border/60 bg-card/80 p-5 text-card-foreground dark:bg-card/70 md:grid-cols-[1.05fr_0.95fr] md:p-6">
-          <div className="space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--accent)]">
-              {locale === "es" ? "Más contexto" : locale === "fr" ? "Plus de contexte" : "More context"}
-            </p>
-            <h2 className="text-2xl font-semibold tracking-tight text-card-foreground md:text-3xl">
-              {locale === "es"
-                ? "No son solo cards: son sistemas que modernizan tu producto."
-                : locale === "fr"
-                  ? "Ce ne sont pas seulement des cartes: ce sont des systèmes qui modernisent votre produit."
-                  : "These are not just cards: they are systems that modernize your product."}
-            </h2>
-            <p className="text-sm leading-7 text-muted-foreground md:text-base">
-              {locale === "es"
-                ? "Podemos rediseñar una app existente, rehacer un sitio web viejo, añadir automatización con AI y conectar pagos o experiencias cripto donde realmente aporten valor. El objetivo es que tu presencia digital se vea moderna, funcione mejor y convierta más."
-                : locale === "fr"
-                  ? "Nous pouvons refondre une app existante, moderniser un vieux site web, ajouter de l’automatisation IA et connecter des paiements ou expériences crypto là où cela apporte réellement de la valeur. L’objectif est d’avoir une présence digitale moderne, plus efficace et plus performante."
-                  : "We can redesign an existing app, rebuild an old website, add AI automation, and connect crypto payments or experiences where they actually make sense. The goal is to make your digital presence feel modern, work better, and convert more."}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {(locale === "es"
-                ? ["Modernización de sitios", "Apps más rápidas", "AI integrada", "Cripto donde aporte"]
-                : locale === "fr"
-                  ? ["Modernisation de sites", "Apps plus rapides", "IA intégrée", "Crypto utile"]
-                  : ["Website modernization", "Faster apps", "AI integrated", "Crypto where useful"]
-              ).map((item, index) => (
-                <span
-                  key={item}
-                  className={`rounded-full border px-3 py-1 text-xs font-medium shadow-[0_10px_25px_-18px_rgba(2,6,23,0.25)] ${serviceContextChipSurfaces[index % serviceContextChipSurfaces.length]}`}
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-            <div className="grid gap-3 md:hidden">
-              {mobileContextCards.map((card, index) => {
-                const cardIndex = index + 1
-                return (
+      <section className="mt-10 grid gap-5 rounded-[2rem] border border-border/60 bg-card/80 p-5 text-card-foreground dark:bg-card/70 md:grid-cols-[1.05fr_0.95fr] md:p-6">
+        <ScrollReveal direction="up" once className="space-y-4 md:flex md:h-full md:flex-col md:justify-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--accent)]">
+            {locale === "es" ? "Más contexto" : locale === "fr" ? "Plus de contexte" : "More context"}
+          </p>
+          <h2 className="text-2xl font-semibold tracking-tight text-card-foreground md:text-3xl">
+            {locale === "es"
+              ? "No son solo cards: son sistemas que modernizan tu producto."
+              : locale === "fr"
+                ? "Ce ne sont pas seulement des cartes: ce sont des systèmes qui modernisent votre produit."
+                : "These are not just cards: they are systems that modernize your product."}
+          </h2>
+          <p className="text-sm leading-7 text-muted-foreground md:text-base">
+            {locale === "es"
+              ? "Podemos rediseñar una app existente, rehacer un sitio web viejo, añadir automatización con AI y conectar pagos o experiencias cripto donde realmente aporten valor. El objetivo es que tu presencia digital se vea moderna, funcione mejor y convierta más."
+              : locale === "fr"
+                ? "Nous pouvons refondre une app existante, moderniser un vieux site web, ajouter de l’automatisation IA et connecter des paiements ou expériences crypto là où cela apporte réellement de la valeur. L’objectif est d’avoir une présence digitale moderne, plus efficace et plus performante."
+                : "We can redesign an existing app, rebuild an old website, add AI automation, and connect crypto payments or experiences where they actually make sense. The goal is to make your digital presence feel modern, work better, and convert more."}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {(locale === "es"
+              ? ["Modernización de sitios", "Apps más rápidas", "AI integrada", "Cripto donde aporte"]
+              : locale === "fr"
+                ? ["Modernisation de sites", "Apps plus rapides", "IA intégrée", "Crypto utile"]
+                : ["Website modernization", "Faster apps", "AI integrated", "Crypto where useful"]
+            ).map((item, index) => (
+              <span
+                key={item}
+                className={`rounded-full border px-3 py-1 text-xs font-medium shadow-[0_10px_25px_-18px_rgba(2,6,23,0.25)] ${serviceContextChipSurfaces[index % serviceContextChipSurfaces.length]}`}
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        </ScrollReveal>
+
+        <ScrollReveal direction="up" delay={0.16} once className="space-y-3">
+          <div className="grid gap-3 md:hidden">
+            {mobileContextCards.map((card, index) => {
+              const cardIndex = index + 1
+              const isEven = cardIndex % 2 === 0
+              const direction = isEven ? "up" : "down"
+              const delay = 0.18 + index * 0.14
+              return (
+                <ScrollReveal key={card.title} direction={direction} delay={delay} once>
                   <article
-                    key={card.title}
                     className="rounded-[2rem] border border-border/70 bg-card/75 p-3 shadow-[0_10px_35px_-24px_rgba(2,6,23,0.55)] transition"
                   >
                     <div className={`relative h-full overflow-hidden rounded-[1.4rem] border border-border/70 bg-gradient-to-br p-4 text-center ${serviceContextSurfaces[cardIndex % serviceContextSurfaces.length]}`}>
@@ -106,76 +110,52 @@ export function ServicesPageContent({ locale }: ServicesPageContentProps) {
                       </div>
                     </div>
                   </article>
-                )
-              })}
-            </div>
-          </div>
-          <div className="hidden grid gap-3 md:grid">
-            {desktopLeftContextCards.map((card, index) => {
-              const cardIndex = index + 3
-              return (
-                <article
-                  key={card.title}
-                  className={`rounded-[2rem] border border-border/70 bg-card/75 p-3 shadow-[0_10px_35px_-24px_rgba(2,6,23,0.55)] transition ${
-                    index === 1 ? "md:translate-y-2" : ""
-                  }`}
-                >
-                  <div className={`relative h-full overflow-hidden rounded-[1.4rem] border border-border/70 bg-gradient-to-br p-4 text-center ${serviceContextSurfaces[cardIndex % serviceContextSurfaces.length]}`}>
-                    <div className="absolute -right-8 -top-8 h-20 w-20 rounded-full bg-accent/20 blur-xl" />
-                    <div className="absolute -bottom-8 -left-8 h-20 w-20 rounded-full bg-primary/20 blur-xl" />
-                    <div className="relative space-y-2">
-                      <span className="inline-flex rounded-full border border-border/70 bg-background/75 px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
-                        {String(cardIndex).padStart(2, "0")}
-                      </span>
-                      <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">{card.title}</h3>
-                      <p className="text-sm leading-relaxed text-muted-foreground">{card.summary}</p>
-                      <ul className="mx-auto max-w-xs space-y-2 pt-1 text-center text-xs leading-relaxed text-foreground">
-                        {card.deliverables.map((deliverable) => (
-                          <li key={deliverable} className="flex items-center justify-center gap-2 text-center">
-                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--accent)]" />
-                            <span>{deliverable}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </article>
+                </ScrollReveal>
               )
             })}
           </div>
 
-          <div className="hidden md:grid gap-3">
-            {desktopRightContextCards.map((card, index) => (
-              <article
-                key={card.title}
-                className={`rounded-[2rem] border border-border/70 bg-card/75 p-3 shadow-[0_10px_35px_-24px_rgba(2,6,23,0.55)] transition ${
-                  index === 1 ? "md:translate-y-2" : ""
-                }`}
-              >
-                <div className={`relative h-full overflow-hidden rounded-[1.4rem] border border-border/70 bg-gradient-to-br p-4 text-center ${serviceContextSurfaces[index % serviceContextSurfaces.length]}`}>
-                  <div className="absolute -right-8 -top-8 h-20 w-20 rounded-full bg-accent/20 blur-xl" />
-                  <div className="absolute -bottom-8 -left-8 h-20 w-20 rounded-full bg-primary/20 blur-xl" />
-                  <div className="relative space-y-2">
-                    <span className="inline-flex rounded-full border border-border/70 bg-background/75 px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">{card.title}</h3>
-                    <p className="text-sm leading-relaxed text-muted-foreground">{card.summary}</p>
-                    <ul className="mx-auto max-w-xs space-y-2 pt-1 text-center text-xs leading-relaxed text-foreground">
-                      {card.deliverables.map((deliverable) => (
-                        <li key={deliverable} className="flex items-center justify-center gap-2 text-center">
-                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--accent)]" />
-                          <span>{deliverable}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </article>
-            ))}
+          <div className="hidden md:grid gap-3 md:grid-cols-2">
+            {desktopContextCards.map((card, index) => {
+              const cardIndex = index + 1
+              const isEven = cardIndex % 2 === 0
+              const direction = isEven ? "up" : "down"
+              const delay = 0.18 + index * 0.14
+              return (
+                <ScrollReveal key={card.title} direction={direction} delay={delay} once>
+                  <article
+                    className={`rounded-[2rem] border border-border/70 bg-card/75 p-3 shadow-[0_10px_35px_-24px_rgba(2,6,23,0.55)] transition ${
+                      index % 2 === 1 ? "md:translate-y-2" : ""
+                    }`}
+                  >
+                    <div
+                      className={`relative h-full overflow-hidden rounded-[1.4rem] border border-border/70 bg-gradient-to-br p-4 text-center ${serviceContextSurfaces[index % serviceContextSurfaces.length]}`}
+                    >
+                      <div className="absolute -right-8 -top-8 h-20 w-20 rounded-full bg-accent/20 blur-xl" />
+                      <div className="absolute -bottom-8 -left-8 h-20 w-20 rounded-full bg-primary/20 blur-xl" />
+                      <div className="relative space-y-2">
+                        <span className="inline-flex rounded-full border border-border/70 bg-background/75 px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">{card.title}</h3>
+                        <p className="text-sm leading-relaxed text-muted-foreground">{card.summary}</p>
+                        <ul className="mx-auto max-w-xs space-y-2 pt-1 text-center text-xs leading-relaxed text-foreground">
+                          {card.deliverables.map((deliverable) => (
+                            <li key={deliverable} className="flex items-center justify-center gap-2 text-center">
+                              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--accent)]" />
+                              <span>{deliverable}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </article>
+                </ScrollReveal>
+              )
+            })}
           </div>
+        </ScrollReveal>
         </section>
-      </ScrollReveal>
     </main>
   )
 }

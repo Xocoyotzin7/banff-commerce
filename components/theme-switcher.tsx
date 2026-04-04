@@ -31,7 +31,7 @@ export function ThemeSwitcher() {
     const nextTheme = isDarkMode ? "light" : "dark"
     const root = document.documentElement
     const isReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    const duration = isReducedMotion ? 0 : 450
+    const duration = isReducedMotion ? 0 : 495
 
     root.classList.add("theme-transition")
     root.style.setProperty("--theme-transition-duration", `${duration}ms`)

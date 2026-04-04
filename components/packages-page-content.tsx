@@ -61,7 +61,7 @@ export function PackagesPageContent({ locale }: PackagesPageContentProps) {
             <p className="text-sm leading-7 text-muted-foreground md:text-base">{copy.packages.description}</p>
             <div className="flex flex-wrap gap-2">
               {(locale === "es"
-                ? ["Starter", "Growth", "Cotización"]
+                ? ["Inicio", "Crecimiento", "Cotización"]
                 : locale === "fr"
                   ? ["Démarrage", "Croissance", "Devis"]
                   : ["Starter", "Growth", "Quote"]
@@ -77,9 +77,9 @@ export function PackagesPageContent({ locale }: PackagesPageContentProps) {
           </div>
           <div className="grid gap-2">
             {(locale === "es"
-              ? ["Definimos el scope", "Ordenamos los entregables", "Cotizamos lo que quede fuera"]
+              ? ["Definimos el alcance", "Ordenamos los entregables", "Cotizamos lo que quede fuera"]
               : locale === "fr"
-                ? ["Nous définissons le scope", "Nous ordonnons les livrables", "Nous chiffrons le reste"]
+                ? ["Nous définissons le périmètre", "Nous ordonnons les livrables", "Nous chiffrons le reste"]
                 : ["We define the scope", "We organize the deliverables", "We quote what falls outside"]
             ).map((item, index) => (
               <div key={item} className="rounded-2xl border border-border/60 bg-background/75 p-4">
@@ -180,7 +180,7 @@ export function PackagesPageContent({ locale }: PackagesPageContentProps) {
               </h3>
               <p className="text-sm leading-7 text-muted-foreground md:text-base">
                 {locale === "es"
-                  ? "Escríbenos por email o WhatsApp y te pasamos más información con el scope adecuado."
+                  ? "Podemos modernizar tu sitio web a una nueva tecnología o volverlo más intuitivo. Escríbenos por email o WhatsApp y te pasamos más información con el scope adecuado."
                   : locale === "fr"
                     ? "Écrivez-nous par email ou WhatsApp et nous vous enverrons plus d’informations avec le bon scope."
                     : "Write to us by email or WhatsApp and we will send more details with the right scope."}

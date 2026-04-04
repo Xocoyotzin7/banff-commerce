@@ -236,6 +236,12 @@ export function ServicesPhoneShowcase({ locale, cards }: ServicesPhoneShowcasePr
   const phoneXOffset = isMobile ? 100 : 168
   const phoneYOffset = isMobile ? lerp(175, -6, progressBoost) : lerp(165, -10, progressBoost)
   const peripheralRightBias = isMobile ? 13 : 34
+  const heroChips =
+    locale === "es"
+      ? ["Podemos modernizar tu web o app", "Integraciones de IA y cripto", "Ejecución de producto y marketing"]
+      : locale === "fr"
+        ? ["Nous pouvons moderniser votre site ou votre app", "Intégrations IA et crypto", "Exécution produit et marketing"]
+        : ["We can modernize your app or website", "AI + crypto integrations", "Product and marketing execution"]
 
   const cardByLayout = (id: PeripheralKey) => peripheralCards.find((card) => card.id === id) ?? peripheralCards[0]
 
@@ -255,15 +261,14 @@ export function ServicesPhoneShowcase({ locale, cards }: ServicesPhoneShowcasePr
             {copy.description}
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs font-semibold">
-            <span className={`rounded-full border px-3 py-2 shadow-[0_10px_25px_-18px_rgba(2,6,23,0.25)] ${serviceChipSurfaces[0]}`}>
-              We can modernize your app or website
-            </span>
-            <span className={`rounded-full border px-3 py-2 shadow-[0_10px_25px_-18px_rgba(2,6,23,0.25)] ${serviceChipSurfaces[1]}`}>
-              AI + crypto integrations
-            </span>
-            <span className={`rounded-full border px-3 py-2 shadow-[0_10px_25px_-18px_rgba(2,6,23,0.25)] ${serviceChipSurfaces[2]}`}>
-              Product and marketing execution
-            </span>
+            {heroChips.map((item, index) => (
+              <span
+                key={item}
+                className={`rounded-full border px-3 py-2 shadow-[0_10px_25px_-18px_rgba(2,6,23,0.25)] ${serviceChipSurfaces[index % serviceChipSurfaces.length]}`}
+              >
+                {item}
+              </span>
+            ))}
           </div>
         </div>
       </div>
@@ -317,8 +322,8 @@ export function ServicesPhoneShowcase({ locale, cards }: ServicesPhoneShowcasePr
                 <div
                   className={cn(
                     "relative border shadow-[0_40px_120px_rgba(2,6,23,0.34)]",
-                    "bg-gradient-to-b from-slate-100 to-slate-200 border-black/10",
-                    "dark:from-slate-900 dark:to-slate-950 dark:border-white/15",
+                    "bg-gradient-to-b from-sky-950 to-slate-950 border-sky-950/45",
+                    "dark:border-white/15",
                   )}
                   style={{
                     width: phoneFrame.width,
@@ -328,22 +333,22 @@ export function ServicesPhoneShowcase({ locale, cards }: ServicesPhoneShowcasePr
                   aria-label="iPhone de servicios"
                 >
                   <div
-                    className="absolute left-1/2 top-3 -translate-x-1/2 rounded-full border border-black/10 bg-black/85 dark:border-white/10"
+                    className="absolute left-1/2 top-3 z-20 -translate-x-1/2 rounded-full border border-sky-900/20 bg-sky-950/90 shadow-[0_8px_24px_rgba(15,23,42,0.28)] dark:border-white/20 dark:bg-slate-800/95 dark:shadow-[0_8px_24px_rgba(0,0,0,0.55)]"
                     style={{
                       width: 120 + Math.round(12 * progress),
                       height: 28,
                       transition: `width 120ms ${EASE_OUT}`,
                     }}
                     aria-hidden
-                  >
-                    <div className="flex h-full items-center justify-between gap-2 px-3">
-                      <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_16px_rgba(52,211,153,0.65)]" />
-                      <span className="h-1.5 w-8 rounded-full bg-white/25" />
+                    >
+                    <div className="flex h-full items-center justify-center gap-2 px-3">
+                      <span className="h-1.5 w-8 rounded-full bg-white/35 dark:bg-white/45" />
+                      <span className="h-2 w-2 rounded-full bg-black shadow-[0_0_12px_rgba(0,0,0,0.45)] dark:bg-black" />
                     </div>
                   </div>
 
                   <div
-                    className="absolute overflow-hidden border border-black/10 bg-black/95 dark:border-white/10"
+                    className="absolute z-10 overflow-hidden border border-sky-900/10 bg-white/95 dark:border-white/10 dark:bg-black/95"
                     style={{
                       top: phoneFrame.bezel,
                       right: phoneFrame.bezel,
@@ -352,13 +357,13 @@ export function ServicesPhoneShowcase({ locale, cards }: ServicesPhoneShowcasePr
                       borderRadius: Math.max(20, phoneFrame.radius - 8),
                     }}
                   >
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_10%,rgba(255,255,255,0.55),transparent_45%)] opacity-60 dark:opacity-25" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25 dark:from-black/25 dark:to-black/45" />
-                    <div className="relative flex h-full flex-col justify-between px-4 pb-3 pt-6 text-white">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_10%,rgba(96,165,250,0.22),transparent_45%)] opacity-60 dark:opacity-25" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-transparent to-sky-900/10 dark:from-black/25 dark:to-black/45" />
+                    <div className="relative flex h-full flex-col justify-between px-4 pb-3 pt-11 text-slate-900 dark:text-white">
                       <div className="mt-2 space-y-2">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/70">Banff Studio</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-600 dark:text-white/70">Banff Studio</p>
                         <h3 className="text-lg font-semibold leading-tight">{copy.title}</h3>
-                        <p className="text-xs leading-5 text-white/68">
+                        <p className="text-xs leading-5 text-slate-600 dark:text-white/68">
                           {locale === "es"
                             ? "Diseño, desarrollo y modernización de productos digitales bilingües."
                             : locale === "fr"
@@ -369,21 +374,21 @@ export function ServicesPhoneShowcase({ locale, cards }: ServicesPhoneShowcasePr
 
                       <div className="grid gap-2 -mt-1">
                         {cards.slice(0, 3).map((card) => (
-                          <div key={card.title} className="rounded-2xl border border-white/10 bg-white/8 px-3 py-2 backdrop-blur-sm">
-                            <p className="text-[11px] font-semibold text-white">{card.title}</p>
-                            <p className="mt-1 text-[10px] leading-snug text-white/68">{card.summary}</p>
+                          <div key={card.title} className="rounded-2xl border border-sky-900/10 bg-white/80 px-3 py-2 backdrop-blur-sm dark:border-white/10 dark:bg-white/8">
+                            <p className="text-[11px] font-semibold text-slate-900 dark:text-white">{card.title}</p>
+                            <p className="mt-1 text-[10px] leading-snug text-slate-600 dark:text-white/68">{card.summary}</p>
                           </div>
                         ))}
                       </div>
 
-                      <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/8 px-3 py-2 backdrop-blur-sm">
+                      <div className="flex items-center justify-between rounded-2xl border border-sky-900/10 bg-white/80 px-3 py-2 backdrop-blur-sm dark:border-white/10 dark:bg-white/8">
                         <div className="space-y-0.5">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/68">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-600 dark:text-white/68">
                             {locale === "es" ? "Servicios" : locale === "fr" ? "Services" : "Services"}
                           </p>
-                          <p className="text-xs text-white">AI, crypto, SEO, design</p>
+                          <p className="text-xs text-slate-900 dark:text-white">AI, crypto, SEO, design</p>
                         </div>
-                        <ArrowUpRight className="h-4 w-4 text-white/75" />
+                        <ArrowUpRight className="h-4 w-4 text-slate-700 dark:text-white/75" />
                       </div>
                     </div>
                   </div>

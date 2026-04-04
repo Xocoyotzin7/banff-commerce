@@ -6,8 +6,9 @@ import { BlogArticle } from "@/components/blog-article"
 import { ScrollReveal } from "@/components/scroll-reveal"
 import { Button } from "@/components/ui/button"
 import { getLocaleFromCookies } from "@/lib/locale"
-import { getAllBlogPosts, renderMdxToHtml } from "@/lib/blog"
+import { renderMdxToHtml } from "@/lib/blog"
 import { readLocalizedMdx } from "@/lib/mdx"
+import { getSiteCopy } from "@/lib/site-content"
 
 const blogSurfaces = [
   "from-accent/20 via-background to-primary/10",
@@ -17,8 +18,9 @@ const blogSurfaces = [
 
 export default async function BlogPage() {
   const locale = await getLocaleFromCookies()
+  const copy = getSiteCopy(locale)
   const doc = readLocalizedMdx("blog", locale) ?? readLocalizedMdx("blog", "en")
-  const posts = getAllBlogPosts()
+  const posts = copy.blog.cards
 
   if (!doc) return null
 
@@ -39,19 +41,15 @@ export default async function BlogPage() {
                 <div className="absolute -bottom-8 -left-8 h-20 w-20 rounded-full bg-primary/20 blur-xl" />
                 <div className="relative space-y-3">
                   <span className="inline-flex rounded-full border border-border/70 bg-background/75 px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
-                    {post.category}
+                    {post.tag}
                   </span>
                   <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">{post.title}</h2>
                   <p className="text-sm leading-relaxed text-muted-foreground">{post.excerpt}</p>
-                  <div className="flex items-center justify-between gap-3 pt-2 text-xs font-medium text-muted-foreground">
-                    <span>{post.readTime}</span>
-                    <span>{post.date}</span>
-                  </div>
                   <Link
                     href={`/blog/${post.slug}`}
                     className="inline-flex items-center gap-2 pt-2 text-sm font-semibold text-[color:var(--accent)] hover:underline"
                   >
-                    Read article
+                    {locale === "es" ? "Leer artículo" : locale === "fr" ? "Lire l’article" : "Read article"}
                     <ArrowUpRight className="h-4 w-4" />
                   </Link>
                 </div>

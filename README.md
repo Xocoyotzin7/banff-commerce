@@ -1,6 +1,6 @@
 # Banff Studio
 
-Banff Studio is a bilingual web and mobile studio focused on Mexico and Canada. The site is built around product thinking, UX/UI, bilingual delivery, AI-assisted execution, and modern integrations when a project needs them.
+Banff Studio is a website-first studio focused on Mexico and Canada. The site is built around clear UX/UI, bilingual and multilingual delivery, SEO, practical content support, and lightweight marketing when a project needs it. AI, automation, Web3, and mobile apps remain available as selective capabilities and can be quoted separately when needed.
 
 This repository was forked from:
 https://github.com/Chatbase-co/nextjs-marketplace-template
@@ -8,10 +8,10 @@ https://github.com/Chatbase-co/nextjs-marketplace-template
 ## What we do
 
 - Bilingual websites in English, French, and Spanish.
-- Mobile apps and product-style digital experiences.
-- Website redesigns and modernization for older products.
-- SEO, social media marketing, and content systems.
-- AI and crypto integrations when they add real value.
+- SEO, content, and practical marketing support.
+- Website redesigns and modernization for older sites.
+- Selective mobile app work quoted separately when the project truly needs it.
+- AI, automation, and Web3 integrations when they add real value.
 
 ## Site structure
 
@@ -25,42 +25,42 @@ https://github.com/Chatbase-co/nextjs-marketplace-template
 
 ## English
 
-Banff Studio builds websites and mobile apps for teams that want to operate across Mexico and Canada. The studio combines design, product, and technical execution with a clear bilingual workflow.
+Banff Studio builds websites for teams that want to operate across Mexico and Canada. The studio combines design, content, SEO, and technical execution with a clear bilingual workflow.
 
 What we offer:
 
 - Launch-ready websites.
-- Conversion-focused web builds.
-- Mobile app design and development.
+- Multilingual structure in English, French, and Spanish.
 - SEO and local visibility.
-- Social media marketing support.
-- AI + crypto integration when needed.
+- Content support and light marketing.
+- Selective mobile app work quoted separately when needed.
+- AI, automation, and Web3 integration when it makes sense.
 
 ## Français
 
-Banff Studio crée des sites web et des applications mobiles pour des équipes qui veulent travailler entre le Mexique et le Canada. Le studio combine design, produit et exécution technique avec un flux de travail bilingue clair.
+Banff Studio crée des sites web pour des équipes qui veulent travailler entre le Mexique et le Canada. Le studio combine design, contenu, SEO et exécution technique avec un flux bilingue clair.
 
 Ce que nous proposons :
 
 - Sites prêts à lancer.
-- Développements web orientés conversion.
-- Design et développement d’applications mobiles.
+- Structure multilingue en anglais, français et espagnol.
 - SEO et visibilité locale.
-- Support marketing pour les réseaux sociaux.
-- Intégrations IA + crypto lorsque c’est pertinent.
+- Soutien en contenu et marketing léger.
+- Travail mobile sélectif quand le projet le demande.
+- Intégrations IA, automatisation et Web3 lorsque c’est pertinent.
 
 ## Español
 
-Banff Studio crea sitios web y aplicaciones móviles para equipos que quieren operar entre México y Canadá. El estudio combina diseño, producto y ejecución técnica con un flujo bilingüe claro.
+Banff Studio crea sitios web para equipos que quieren operar entre México y Canadá. El estudio combina diseño, contenido, SEO y ejecución técnica con un flujo bilingüe claro.
 
 Lo que ofrecemos:
 
 - Sitios listos para lanzar.
-- Desarrollos web enfocados en conversión.
-- Diseño y desarrollo de apps móviles.
+- Estructura multilingüe en inglés, francés y español.
 - SEO y visibilidad local.
-- Apoyo en marketing de redes sociales.
-- Integraciones de AI + cripto cuando aportan valor real.
+- Apoyo en contenido y marketing ligero.
+- Trabajo móvil selectivo cuando el proyecto lo necesita.
+- Integraciones de AI, automatización y Web3 cuando aportan valor real.
 
 ## Run locally
 
@@ -80,4 +80,4 @@ npm run build
 - Default language: English.
 - Default theme: Dark.
 - The site supports language switching between English, French, and Spanish.
-- The portfolio, services, packages, blog, and contact pages are all tailored to the studio’s bilingual positioning.
+- The portfolio, services, packages, blog, and contact pages are all tailored to the studio’s website-first positioning.
