@@ -54,9 +54,23 @@ export function AboutPageContent({ locale }: AboutPageContentProps) {
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 pb-12 pt-28 sm:px-6 lg:pt-32">
+      <ScrollReveal direction="up" once>
+        <div className="mx-auto max-w-3xl text-center text-white">
+          <p className="text-balance font-serif text-3xl leading-[1.02] tracking-tight text-white sm:text-4xl md:text-5xl">
+            {copy.title}
+          </p>
+        </div>
+      </ScrollReveal>
+
+      <ScrollReveal direction="up" once delay={0.12} className="mt-4">
+        <div className="mx-auto max-w-3xl text-center text-white">
+          <p className="text-sm leading-7 text-white/80 md:text-base">{copy.description}</p>
+        </div>
+      </ScrollReveal>
+
       <ScrollReveal direction="up" once className="mt-8">
         <section className="grid gap-8 rounded-[2rem] border border-border/60 bg-card/80 p-5 text-card-foreground shadow-[0_18px_55px_-28px_rgba(2,6,23,0.45)] dark:bg-card/70 lg:grid-cols-[1.1fr_minmax(280px,0.9fr)] lg:p-8">
-          <div className="flex flex-col justify-center text-left">
+          <ScrollReveal direction="down" once delay={0.24} className="flex flex-col justify-center text-left">
             <ul className="grid gap-3 sm:grid-cols-2">
               {copy.points.map((point) => (
                 <li
@@ -68,15 +82,15 @@ export function AboutPageContent({ locale }: AboutPageContentProps) {
                 </li>
               ))}
             </ul>
-          </div>
+          </ScrollReveal>
 
-          <div className="relative flex items-center justify-center">
+          <ScrollReveal direction="up" once delay={0.36} className="relative flex items-center justify-center">
             <div className="absolute inset-0 rounded-[2rem] bg-white/10 blur-3xl dark:bg-black/25" />
             <div className="relative w-full p-2 sm:p-4">
               <Image src={BanffLight} alt="Banff Studio logo" priority className="block h-auto w-full dark:hidden" />
               <Image src={BanffDark} alt="Banff Studio logo" priority className="hidden h-auto w-full dark:block" />
             </div>
-          </div>
+          </ScrollReveal>
         </section>
       </ScrollReveal>
 
