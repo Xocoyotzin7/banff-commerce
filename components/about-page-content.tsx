@@ -97,14 +97,15 @@ function AboutFeaturePanel({
           <p className="text-sm leading-7 text-card-foreground/90 md:text-base dark:text-card-foreground/85">{description}</p>
           <div className="mt-8">
             <ul className="grid gap-3 sm:grid-cols-2">
-              {points.map((point) => (
-                <li
-                  key={point}
-                  className="flex gap-3 rounded-2xl border border-border/60 bg-background/75 px-4 py-3 text-sm leading-6 text-foreground"
-                >
-                  <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 border-[color:var(--accent)]" />
-                  <span>{point}</span>
-                </li>
+              {points.map((point, index) => (
+                <ScrollReveal key={point} direction={index % 2 === 0 ? "up" : "down"} delay={0.12 + index * 0.1}>
+                  <li
+                    className="flex gap-3 rounded-2xl border border-border/60 bg-background/75 px-4 py-3 text-sm leading-6 text-foreground"
+                  >
+                    <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 border-[color:var(--accent)]" />
+                    <span>{point}</span>
+                  </li>
+                </ScrollReveal>
               ))}
             </ul>
           </div>
@@ -135,14 +136,14 @@ function AboutMapsSection({ locale }: { locale: Locale }) {
           </h3>
           <p className="mt-3 text-sm leading-7 text-muted-foreground md:text-base">
             {locale === "es"
-              ? "Abrimos ambos mapas para que puedas ver la ubicación en Google o en Apple Maps, según el dispositivo que uses."
+              ? "Abrimos Google Maps para que puedas ver la ubicación desde cualquier dispositivo."
               : locale === "fr"
-                ? "Nous ouvrons les deux cartes afin que vous puissiez voir l’emplacement dans Google ou Apple Maps, selon votre appareil."
-                : "We surface both maps so you can view the location in Google or Apple Maps, depending on your device."}
+                ? "Nous ouvrons Google Maps pour que vous puissiez voir l’emplacement depuis n’importe quel appareil."
+                : "We open Google Maps so you can view the location from any device."}
           </p>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid gap-4">
           <details
             open
             className="group rounded-[2rem] border border-border/60 bg-card/80 p-5 shadow-[0_18px_55px_-28px_rgba(2,6,23,0.35)] dark:bg-card/70 md:p-6"
@@ -170,39 +171,6 @@ function AboutMapsSection({ locale }: { locale: Locale }) {
             </div>
           </details>
 
-          <details className="group rounded-[2rem] border border-border/60 bg-card/80 p-5 shadow-[0_18px_55px_-28px_rgba(2,6,23,0.35)] dark:bg-card/70 md:p-6">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left">
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--accent)]">🍎 maps</p>
-                <h3 className="font-serif text-2xl leading-none tracking-tight text-card-foreground">Apple Maps</h3>
-              </div>
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/40 bg-background/90 text-lg text-muted-foreground shadow-sm transition-transform duration-300 dark:border-white/50 dark:bg-black/40">
-                ▾
-              </span>
-            </summary>
-            <div className="mt-5 overflow-hidden rounded-[1.6rem] border border-border/70 bg-background">
-              <div className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-4 px-6 py-8 text-center md:aspect-[16/9]">
-                <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--accent)]">Apple Maps</p>
-                  <p className="max-w-md text-sm leading-7 text-muted-foreground">
-                    {locale === "es"
-                      ? "Apple Maps no permite incrustar esta vista de forma estable aquí, así que la abrimos directo en su app o web."
-                      : locale === "fr"
-                        ? "Apple Maps ne permet pas d’intégrer cette vue ici de manière fiable, alors nous l’ouvrons directement dans l’app ou sur le web."
-                        : "Apple Maps does not allow this view to be embedded reliably here, so we open it directly in the app or on the web."}
-                  </p>
-                </div>
-                <a
-                  href="https://maps.apple/p/Gkk_E15DEXi7Ax"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card px-4 py-2 text-sm font-semibold text-card-foreground transition hover:border-[color:var(--accent)]/30 hover:text-[color:var(--accent)]"
-                >
-                  {locale === "es" ? "Abrir en Apple Maps" : locale === "fr" ? "Ouvrir dans Plans" : "Open in Apple Maps"}
-                </a>
-              </div>
-            </div>
-          </details>
         </div>
       </section>
     </ScrollReveal>
