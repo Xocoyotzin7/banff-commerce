@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 
-import { LocalizedMdxPage } from "@/components/localized-mdx-page"
+import { AboutPageContent } from "@/components/about-page-content"
 import { locales, type Locale } from "@/lib/site-content"
 
 type LocalePageProps = {
@@ -20,5 +20,5 @@ export default async function AboutPage({ params }: LocalePageProps) {
     notFound()
   }
 
-  return <LocalizedMdxPage route="about" locale={locale as Locale} />
+  return <AboutPageContent locale={locale as Locale} />
 }
