@@ -12,7 +12,7 @@ const aboutCopy = {
   en: {
     title: "About Us",
     description:
-      "Banff Studio follows the same logic you see in our portfolio: real product design, clear interfaces, and delivery that can work across Mexico and Canada.",
+      "We create bilingual websites and mobile products shaped by UX/UI, product thinking, AI, and execution that is compatible with Web3.",
     points: [
       "UX/UI and product-led decisions.",
       "Trilingual sites in English, French, and Spanish based on your needs.",
@@ -23,7 +23,7 @@ const aboutCopy = {
   fr: {
     title: "À propos de nous",
     description:
-      "Banff Studio suit la même logique que celle que vous voyez dans notre portfolio: vrai design produit, interfaces claires et une livraison capable de fonctionner entre le Mexique et le Canada.",
+      "Nous créons des sites web et des produits mobiles bilingues pensés autour de l’UX/UI, du produit, de l’IA et d’une exécution compatible avec Web3.",
     points: [
       "Décisions UX/UI et orientées produit.",
       "Sites trilingues en anglais, français et espagnol selon vos besoins.",
@@ -34,7 +34,7 @@ const aboutCopy = {
   es: {
     title: "Sobre nosotros",
     description:
-      "Banff Studio sigue la misma lógica que ves en nuestro portafolio: diseño de producto real, interfaces claras y una entrega que pueda funcionar entre Canadá y México.",
+      "Creamos sitios web y productos móviles bilingües pensados desde UX/UI, producto, AI y una ejecución compatible con Web3.",
     points: [
       "Decisiones UX/UI y orientadas a producto.",
       "Sitios trilingües en Inglés, Francés y Español de acuerdo a tus necesidades.",
@@ -55,10 +55,14 @@ export function AboutPageContent({ locale }: AboutPageContentProps) {
   return (
     <main className="mx-auto w-full max-w-6xl px-4 pb-12 pt-28 sm:px-6 lg:pt-32">
       <ScrollReveal direction="up" once>
-        <section className="mx-auto max-w-3xl rounded-[2rem] border border-white/10 bg-black/55 p-6 text-center text-white shadow-[0_18px_55px_-28px_rgba(2,6,23,0.65)] backdrop-blur-xl sm:p-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.35em] text-white">{copy.title}</p>
-          <p className="mt-4 text-sm leading-7 text-white/80 md:text-base">{copy.description}</p>
-        </section>
+        <div className="mx-auto max-w-3xl text-center text-white">
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/70">
+            {copy.title}
+          </p>
+          <p className="mt-4 text-balance font-serif text-3xl leading-[1.02] tracking-tight text-white sm:text-4xl md:text-5xl">
+            {copy.description}
+          </p>
+        </div>
       </ScrollReveal>
 
       <ScrollReveal direction="up" once className="mt-8">
