@@ -36,7 +36,7 @@ const aboutCopy = {
   es: {
     title: "Sobre nosotros",
     description:
-      "Creamos sitios web bilingües con UX/UI clara, estructura multilingüe y apoyo práctico en SEO, contenido y marketing ligero.",
+      "Diseñamos y desarrollamos sitios web para empresas y proyectos de Canadá y México que buscan comunicar mejor su valor, fortalecer su presencia digital y concretar ventas potenciales en nuevos y mejores clientes.",
     panelDescription:
       "Creamos sitios web y productos móviles bilingües pensados desde UX/UI, producto, AI y una ejecución compatible con Web3.",
     points: [
@@ -66,6 +66,66 @@ const whyMattersCopy = {
     items: ["Un mensaje claro.", "Interfaces útiles.", "Ejecución rápida con espacio para crecer."],
     quote:
       "El objetivo no es lanzar algo solo para verse bien. El objetivo es lanzar un producto fácil de entender, fácil de usar y útil para el negocio.",
+  },
+} as const
+
+const howWeWorkCopy = {
+  en: {
+    title: "How we work",
+    description:
+      "We start by understanding the project goal, define a clear direction, and develop a website solution that feels careful, functional, and ready to grow.",
+    steps: [
+      {
+        title: "We listen to the context.",
+        text: "We understand your business, your market, and what you need to communicate.",
+      },
+      {
+        title: "We define the direction.",
+        text: "We organize content, structure, and visual focus so the site has commercial clarity.",
+      },
+      {
+        title: "We build and refine.",
+        text: "We create a clean, professional experience prepared to evolve with your project.",
+      },
+    ],
+  },
+  fr: {
+    title: "Comment nous travaillons",
+    description:
+      "Nous commençons par comprendre l’objectif du projet, nous définissons une direction claire et nous développons une solution web soignée, fonctionnelle et prête à évoluer.",
+    steps: [
+      {
+        title: "Nous écoutons le contexte.",
+        text: "Nous comprenons votre entreprise, votre marché et ce que vous devez communiquer.",
+      },
+      {
+        title: "Nous définissons la direction.",
+        text: "Nous structurons le contenu, l’architecture et l’orientation visuelle pour que le site soit clair commercialement.",
+      },
+      {
+        title: "Nous développons et affinons.",
+        text: "Nous créons une expérience propre, professionnelle et prête à évoluer avec votre projet.",
+      },
+    ],
+  },
+  es: {
+    title: "Cómo trabajamos",
+    description:
+      "Empezamos por entender el objetivo del proyecto, definimos una dirección clara y desarrollamos una solución web cuidada, funcional y lista para crecer.",
+    steps: [
+      {
+        title: "Escuchamos el contexto.",
+        text: "Entendemos tu negocio, tu mercado y lo que necesitas comunicar.",
+      },
+      {
+        title: "Definimos la dirección.",
+        text: "Ordenamos contenido, estructura y enfoque visual para que el sitio tenga claridad comercial.",
+      },
+      {
+        title: "Desarrollamos y afinamos.",
+        text: "Construimos una experiencia limpia, profesional y preparada para evolucionar con tu proyecto.",
+      },
+    ],
   },
 } as const
 
@@ -128,12 +188,6 @@ function AboutMapsSection({ locale }: { locale: Locale }) {
     <ScrollReveal direction="up" className="mt-8">
       <section className="space-y-5">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--accent)]">
-            {locale === "es" ? "Ubicación" : locale === "fr" ? "Localisation" : "Location"}
-          </p>
-          <h3 className="mt-3 font-serif text-3xl leading-none tracking-tight text-card-foreground sm:text-4xl">
-            {locale === "es" ? "Dónde estamos" : locale === "fr" ? "Où nous trouver" : "Where to find us"}
-          </h3>
           <p className="mt-3 text-sm leading-7 text-muted-foreground md:text-base">
             {locale === "es"
               ? "Abrimos Google Maps para que puedas ver la ubicación desde cualquier dispositivo."
@@ -177,6 +231,43 @@ function AboutMapsSection({ locale }: { locale: Locale }) {
   )
 }
 
+function AboutHowWeWorkSection({ locale }: { locale: Locale }) {
+  const copy = howWeWorkCopy[locale]
+
+  return (
+    <ScrollReveal direction="up" className="mt-8">
+      <section className="rounded-[2rem] border border-border/60 bg-card/80 p-5 text-card-foreground shadow-[0_18px_55px_-28px_rgba(2,6,23,0.35)] dark:bg-card/70 md:p-6">
+        <div className="mx-auto max-w-4xl space-y-6">
+          <ScrollReveal direction="up">
+            <div className="max-w-3xl">
+              <h2 className="font-serif text-3xl leading-none tracking-tight text-card-foreground sm:text-4xl">
+                {copy.title}
+              </h2>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground md:text-base">{copy.description}</p>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid gap-3 md:grid-cols-3">
+            {copy.steps.map((step, index) => (
+              <ScrollReveal key={step.title} direction={index % 2 === 0 ? "up" : "down"} delay={0.1 + index * 0.08}>
+                <article className="h-full rounded-[1.5rem] border border-border/60 bg-background/75 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--accent)]">
+                    0{index + 1}
+                  </p>
+                  <h3 className="mt-2 font-serif text-xl leading-tight tracking-tight text-card-foreground">
+                    {step.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">{step.text}</p>
+                </article>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+    </ScrollReveal>
+  )
+}
+
 export function AboutPageContent({ locale }: AboutPageContentProps) {
   const copy = aboutCopy[locale]
 
@@ -184,6 +275,7 @@ export function AboutPageContent({ locale }: AboutPageContentProps) {
     <main className="mx-auto w-full max-w-6xl px-4 pb-12 pt-28 sm:px-6 lg:pt-32">
       <AboutIntroSection title={copy.title} description={copy.description} />
       <AboutFeaturePanel description={copy.panelDescription} points={copy.points} />
+      <AboutHowWeWorkSection locale={locale} />
 
       <ScrollReveal direction="up" className="mt-8">
         <section className="relative isolate overflow-hidden px-2 py-10 text-card-foreground sm:px-4 md:px-6 md:py-14">

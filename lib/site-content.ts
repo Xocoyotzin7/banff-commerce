@@ -613,7 +613,7 @@ export const siteCopy: Record<Locale, SiteCopy> = {
       eyebrow: "Sobre nosotros",
       title: "Un estudio web para equipos multilingües.",
       description:
-        "Banff Studio se enfoca primero en sitios web: UX/UI clara, entrega bilingüe y apoyo en SEO, contenido y marketing ligero. AI, automatización y Web3 siguen disponibles cuando aportan valor real.",
+        "Diseñamos y desarrollamos sitios web para empresas y proyectos de Canadá y México que buscan comunicar mejor su valor, fortalecer su presencia digital y concretar ventas potenciales en nuevos y mejores clientes.",
       points: [
         "Sitios pensados para México y Canadá.",
         "Inglés, francés y español cuando el proyecto lo pide.",
