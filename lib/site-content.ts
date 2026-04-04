@@ -390,7 +390,7 @@ export const siteCopy: Record<Locale, SiteCopy> = {
             { label: "Révisions", value: "3 rondes." },
             { label: "SEO", value: "Basic Indexing." },
           ],
-          includes: ["Jusqu’à 15 photos", "2 langues (anglais, français ou espagnol)", "5 POCs/CTAs", "Animations professionnelles"],
+          includes: ["Jusqu’à 15 images", "2 langues (anglais, français ou espagnol)", "5 POCs/CTAs", "Animations professionnelles"],
           excludes: ["Boutique e-commerce complète"],
           note: "Idéal pour soutenir un marketing continu.",
         },
