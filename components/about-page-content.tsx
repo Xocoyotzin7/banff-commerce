@@ -122,67 +122,88 @@ function AboutFeaturePanel({
   )
 }
 
-function AboutMapsSection() {
+function AboutMapsSection({ locale }: { locale: Locale }) {
   return (
     <ScrollReveal direction="up" className="mt-8">
-      <section className="space-y-4">
-        <details open className="group rounded-[2rem] border border-border/60 bg-card/80 p-5 shadow-[0_18px_55px_-28px_rgba(2,6,23,0.35)] dark:bg-card/70 md:p-6">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left">
-            <div className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--accent)]">G maps</p>
-              <h3 className="font-serif text-2xl leading-none tracking-tight text-card-foreground">Torre CN</h3>
-            </div>
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/40 bg-background/90 text-lg text-muted-foreground shadow-sm transition-transform duration-300 dark:border-white/50 dark:bg-black/40">
-              ▾
-            </span>
-          </summary>
-          <div className="mt-5 overflow-hidden rounded-[1.6rem] border border-border/70 bg-background">
-            <div className="aspect-[4/3] w-full md:aspect-[16/9]">
-              <iframe
-                title="Google Maps - Torre CN"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2887.2690643595633!2d-79.38963172384474!3d43.64257005311824!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x882b34d68bf33a9b%3A0x15edd8c4de1c7581!2sTorre%20CN!5e0!3m2!1ses-419!2smx!4v1775340491513!5m2!1ses-419!2smx"
-                className="h-full w-full border-0"
-                loading="lazy"
-                allowFullScreen
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-            </div>
-          </div>
-        </details>
+      <section className="space-y-5">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--accent)]">
+            {locale === "es" ? "Ubicación" : locale === "fr" ? "Localisation" : "Location"}
+          </p>
+          <h3 className="mt-3 font-serif text-3xl leading-none tracking-tight text-card-foreground sm:text-4xl">
+            {locale === "es" ? "Dónde estamos" : locale === "fr" ? "Où nous trouver" : "Where to find us"}
+          </h3>
+          <p className="mt-3 text-sm leading-7 text-muted-foreground md:text-base">
+            {locale === "es"
+              ? "Abrimos ambos mapas para que puedas ver la ubicación en Google o en Apple Maps, según el dispositivo que uses."
+              : locale === "fr"
+                ? "Nous ouvrons les deux cartes afin que vous puissiez voir l’emplacement dans Google ou Apple Maps, selon votre appareil."
+                : "We surface both maps so you can view the location in Google or Apple Maps, depending on your device."}
+          </p>
+        </div>
 
-        <details className="group rounded-[2rem] border border-border/60 bg-card/80 p-5 shadow-[0_18px_55px_-28px_rgba(2,6,23,0.35)] dark:bg-card/70 md:p-6">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left">
-            <div className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--accent)]">🍎 maps</p>
-              <h3 className="font-serif text-2xl leading-none tracking-tight text-card-foreground">Apple Maps</h3>
-            </div>
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/40 bg-background/90 text-lg text-muted-foreground shadow-sm transition-transform duration-300 dark:border-white/50 dark:bg-black/40">
-              ▾
-            </span>
-          </summary>
-          <div className="mt-5 overflow-hidden rounded-[1.6rem] border border-border/70 bg-background">
-            <div className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-4 px-6 py-8 text-center md:aspect-[16/9]">
-              <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--accent)]">Apple Maps</p>
-                <p className="max-w-md text-sm leading-7 text-muted-foreground">
-                  {locale === "es"
-                    ? "Apple Maps no permite incrustar esta vista de forma estable aquí, así que la abrimos directo en su app o web."
-                    : locale === "fr"
-                      ? "Apple Maps ne permet pas d’intégrer cette vue ici de manière fiable, alors nous l’ouvrons directement dans l’app ou sur le web."
-                      : "Apple Maps does not allow this view to be embedded reliably here, so we open it directly in the app or on the web."}
-                </p>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <details
+            open
+            className="group rounded-[2rem] border border-border/60 bg-card/80 p-5 shadow-[0_18px_55px_-28px_rgba(2,6,23,0.35)] dark:bg-card/70 md:p-6"
+          >
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left">
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--accent)]">G maps</p>
+                <h3 className="font-serif text-2xl leading-none tracking-tight text-card-foreground">Torre CN</h3>
               </div>
-              <a
-                href="https://maps.apple/p/Gkk_E15DEXi7Ax"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card px-4 py-2 text-sm font-semibold text-card-foreground transition hover:border-[color:var(--accent)]/30 hover:text-[color:var(--accent)]"
-              >
-                {locale === "es" ? "Abrir en Apple Maps" : locale === "fr" ? "Ouvrir dans Plans" : "Open in Apple Maps"}
-              </a>
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/40 bg-background/90 text-lg text-muted-foreground shadow-sm transition-transform duration-300 dark:border-white/50 dark:bg-black/40">
+                ▾
+              </span>
+            </summary>
+            <div className="mt-5 overflow-hidden rounded-[1.6rem] border border-border/70 bg-background">
+              <div className="aspect-[4/3] w-full md:aspect-[16/9]">
+                <iframe
+                  title="Google Maps - Torre CN"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2887.2690643595633!2d-79.38963172384474!3d43.64257005311824!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x882b34d68bf33a9b%3A0x15edd8c4de1c7581!2sTorre%20CN!5e0!3m2!1ses-419!2smx!4v1775340491513!5m2!1ses-419!2smx"
+                  className="h-full w-full border-0"
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
             </div>
-          </div>
-        </details>
+          </details>
+
+          <details className="group rounded-[2rem] border border-border/60 bg-card/80 p-5 shadow-[0_18px_55px_-28px_rgba(2,6,23,0.35)] dark:bg-card/70 md:p-6">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left">
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--accent)]">🍎 maps</p>
+                <h3 className="font-serif text-2xl leading-none tracking-tight text-card-foreground">Apple Maps</h3>
+              </div>
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/40 bg-background/90 text-lg text-muted-foreground shadow-sm transition-transform duration-300 dark:border-white/50 dark:bg-black/40">
+                ▾
+              </span>
+            </summary>
+            <div className="mt-5 overflow-hidden rounded-[1.6rem] border border-border/70 bg-background">
+              <div className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-4 px-6 py-8 text-center md:aspect-[16/9]">
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--accent)]">Apple Maps</p>
+                  <p className="max-w-md text-sm leading-7 text-muted-foreground">
+                    {locale === "es"
+                      ? "Apple Maps no permite incrustar esta vista de forma estable aquí, así que la abrimos directo en su app o web."
+                      : locale === "fr"
+                        ? "Apple Maps ne permet pas d’intégrer cette vue ici de manière fiable, alors nous l’ouvrons directement dans l’app ou sur le web."
+                        : "Apple Maps does not allow this view to be embedded reliably here, so we open it directly in the app or on the web."}
+                  </p>
+                </div>
+                <a
+                  href="https://maps.apple/p/Gkk_E15DEXi7Ax"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card px-4 py-2 text-sm font-semibold text-card-foreground transition hover:border-[color:var(--accent)]/30 hover:text-[color:var(--accent)]"
+                >
+                  {locale === "es" ? "Abrir en Apple Maps" : locale === "fr" ? "Ouvrir dans Plans" : "Open in Apple Maps"}
+                </a>
+              </div>
+            </div>
+          </details>
+        </div>
       </section>
     </ScrollReveal>
   )
@@ -224,7 +245,7 @@ export function AboutPageContent({ locale }: AboutPageContentProps) {
         </section>
       </ScrollReveal>
 
-      <AboutMapsSection />
+      <AboutMapsSection locale={locale} />
     </main>
   )
 }

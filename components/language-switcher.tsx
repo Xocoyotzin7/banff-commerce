@@ -1,5 +1,6 @@
 "use client"
 
+import type { CSSProperties } from "react"
 import { Languages } from "lucide-react"
 import { usePathname } from "next/navigation"
 
@@ -46,12 +47,13 @@ export function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="min-w-40 rounded-2xl border-black/10 bg-white/92 p-2 shadow-[0_24px_80px_rgba(15,23,42,0.18)] backdrop-blur-2xl dark:border-white/10 dark:bg-[rgba(8,10,18,0.94)] dark:text-white dark:shadow-[0_24px_90px_rgba(0,0,0,0.54)]"
+        className="dropdown-menu-open min-w-40 rounded-2xl border-black/10 bg-white/92 p-2 shadow-[0_24px_80px_rgba(15,23,42,0.18)] backdrop-blur-2xl dark:border-white/10 dark:bg-[rgba(8,10,18,0.94)] dark:text-white dark:shadow-[0_24px_90px_rgba(0,0,0,0.54)]"
       >
         {locales.map((item) => (
           <DropdownMenuItem
             key={item}
-            className="cursor-pointer rounded-xl px-3 py-2 text-sm font-medium text-foreground outline-none transition-colors focus:bg-[color:var(--accent)]/10 focus:text-foreground dark:text-white/88 dark:focus:bg-white/10 dark:focus:text-white"
+            className="language-menu-item cursor-pointer rounded-xl px-3 py-2 text-sm font-medium text-foreground outline-none transition-colors focus:bg-[color:var(--accent)]/10 focus:text-foreground dark:text-white/88 dark:focus:bg-white/10 dark:focus:text-white"
+            style={{ "--language-menu-delay": `${locales.indexOf(item) * 70}ms` } as CSSProperties}
             onClick={() => setLocale(item)}
           >
             {LABELS[item]}
