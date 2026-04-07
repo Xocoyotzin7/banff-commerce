@@ -25,7 +25,7 @@ export function getStripeClient() {
     throw new Error("Stripe secret key is not configured")
   }
 
-  // Third-party payment integration boundary. Keep all provider-specific behavior here.
+  // Third-party payment provider adapter. Keep all provider-specific behavior here.
   return new Stripe(secretKey, {
     apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion,
   })

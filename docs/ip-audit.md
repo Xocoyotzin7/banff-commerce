@@ -98,6 +98,7 @@ The application is a bilingual/trilingual marketing and commerce site with these
 | `lib/openpay.ts` | Openpay gateway placeholder | Openpay license + provider terms | Yes, within app |
 | `lib/mailer/listmonk.ts` | Transactional email transport to Listmonk | Listmonk/provider terms | Yes, within app |
 | `lib/geo.ts` | Geo lookup using external IP service | Provider/API terms | Yes, within app |
+| `app/api/geo/route.ts` | Thin API wrapper over the geo lookup adapter | Provider/API terms | Yes, within app |
 | `components/ui/*`, `src/components/ui/*` | Generated wrappers around external UI primitives | Upstream primitive licenses + project-specific adaptation | Yes, within app |
 
 ### MIXED
@@ -120,7 +121,7 @@ The application is a bilingual/trilingual marketing and commerce site with these
 | `app/api/checkout/route.ts` | Internal checkout orchestration plus Stripe/Openpay/email integrations | Mixed; requires review legal/contractual | No direct exposure |
 | `app/api/analytics/track/route.ts` | Internal analytics ingestion plus DB writes | Mixed; requires review legal/contractual | No direct exposure |
 | `app/api/cron/inventory-check/route.ts` | Cron authorization plus DB and alerting integrations | Mixed; requires review legal/contractual | No direct exposure |
-| `app/api/admin/*`, `app/api/reservations/*`, `app/api/products/*`, `app/api/metrics/*`, `app/api/geo/route.ts` | Business logic endpoints that combine reusable core with app-specific integrations | Mixed; requires review legal/contractual | No direct exposure |
+| `app/api/admin/*`, `app/api/reservations/*`, `app/api/products/*`, `app/api/metrics/*` | Business logic endpoints that combine reusable core with app-specific integrations | Mixed; requires review legal/contractual | No direct exposure |
 | `lib/blog.ts`, `lib/site-content.ts`, `lib/reservations*.ts`, `lib/inventory-alerts.ts`, `lib/admin/*` | Internal business logic that sits between reusable infrastructure and client data | Mixed; requires review legal/contractual | Internal only |
 
 ## Notes on Reuse and Licensing

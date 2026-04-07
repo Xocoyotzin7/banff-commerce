@@ -57,7 +57,7 @@ export function GeoPaymentSelector({ gateway, onGatewayChange, onCountryChange }
 
     async function load() {
       try {
-        // Internal geo endpoint decides the recommended provider without exposing provider logic to the UI.
+        // The geo endpoint provides the third-party-backed routing decision without exposing provider logic to the UI.
         const response = await fetch("/api/geo", { cache: "no-store", signal: controller.signal })
         if (!response.ok) {
           return

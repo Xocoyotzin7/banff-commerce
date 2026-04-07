@@ -9,6 +9,6 @@ export type OpenpayChargeInput = {
 }
 
 export async function createOpenpayCharge(_input: OpenpayChargeInput): Promise<never> {
-  // Placeholder third-party integration. Keep this unimplemented until Openpay credentials and flow are contracted.
+  // Third-party payment provider adapter placeholder. Keep this unimplemented until Openpay credentials and flow are contracted.
   throw new NotImplementedError("Openpay gateway is not connected yet")
 }

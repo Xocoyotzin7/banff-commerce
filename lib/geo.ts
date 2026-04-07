@@ -104,6 +104,7 @@ function getHeaderCountry(inputHeaders?: Headers | Pick<Headers, "get"> | null):
 }
 
 async function resolveCountryFromIpApi(): Promise<GeoCountry> {
+  // Third-party geo/IP provider fallback used when request headers do not carry a country code.
   try {
     const response = await fetch("http://ip-api.com/json/?fields=status,countryCode", {
       cache: "no-store",
@@ -126,6 +127,7 @@ async function resolveCountryFromIpApi(): Promise<GeoCountry> {
 }
 
 export async function detectCountry(inputHeaders?: Headers | Pick<Headers, "get"> | null): Promise<GeoConfig> {
+  // Resolve geo and gateway selection through the app-owned contract, backed by a third-party IP lookup when needed.
   const headerCountry = getHeaderCountry(inputHeaders ?? nextHeaders())
 
   if (headerCountry) {

@@ -51,10 +51,11 @@ Move reusable logic into a private package:
 
 Keep vendor-specific adapters isolated:
 
-- Stripe
-- Openpay
+- `lib/stripe.ts`
+- `lib/openpay.ts`
+- `lib/geo.ts`
+- `app/api/geo/route.ts`
 - Listmonk
-- geo/IP provider
 - DB adapters
 - UI primitive wrappers that are direct vendor adaptations
 

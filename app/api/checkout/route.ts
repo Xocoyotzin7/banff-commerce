@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     const stripeCurrency = geo.country === "MX" ? "mxn" : "cad"
 
     if ("action" in body && body.action === "finalize") {
-      // Provider boundary: Openpay and Stripe share the same internal checkout contract.
+      // Third-party providers share the same app-owned checkout contract.
       if (gateway === "openpay") {
         const adminEmail = process.env.ADMIN_EMAIL?.trim() || body.email
         if (body.email) {
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
     const orderNumber = `ORD-${randomUUID().slice(0, 8).toUpperCase()}`
 
     if (gateway === "openpay") {
-      // Third-party gateway branch: create the charge only when the geo router selects Openpay.
+      // Third-party Openpay branch: create the charge only when the geo router selects it.
       const charge = await createOpenpayCharge({
         amount: body.amount,
         currency: geo.currency,
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Stripe branch stays isolated so the rest of the checkout flow remains provider-agnostic.
+    // Stripe provider branch stays isolated so the rest of the checkout flow remains provider-agnostic.
     const stripe = getStripeClient()
       const paymentIntent = await stripe.paymentIntents.create({
         amount: body.amount,
