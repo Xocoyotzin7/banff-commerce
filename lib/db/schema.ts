@@ -11,6 +11,7 @@ import {
 } from "drizzle-orm/pg-core"
 
 export const reservationStatusEnum = pgEnum("reservation_status", ["pending", "confirmed", "cancelled", "completed"])
+export const reservationTypeEnum = pgEnum("reservation_type", ["appointment", "travel"])
 export const orderStatusEnum = pgEnum("order_status", ["pending", "confirmed", "cancelled", "completed"])
 
 export const users = pgTable("users", {
@@ -19,6 +20,7 @@ export const users = pgTable("users", {
   clientId: text("client_id").notNull(),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
+  country: text("country"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 })
 
@@ -28,10 +30,13 @@ export const reservations = pgTable("reservations", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   reservationCode: varchar("reservation_code", { length: 3 }).notNull(),
+  reservationType: reservationTypeEnum("reservation_type").notNull().default("appointment"),
   reservationDate: date("reservation_date").notNull(),
   reservationTime: varchar("reservation_time", { length: 5 }).notNull(),
   branchId: varchar("branch_id", { length: 100 }).notNull(),
   branchNumber: varchar("branch_number", { length: 8 }),
+  destinationSlug: text("destination_slug"),
+  packageId: text("package_id"),
   peopleCount: integer("people_count").notNull(),
   message: text("message"),
   preOrderItems: text("pre_order_items"),
@@ -45,10 +50,13 @@ export const reservationFailures = pgTable("reservation_failures", {
   originalReservationId: uuid("original_reservation_id"),
   userId: uuid("user_id").references(() => users.id),
   reservationCode: varchar("reservation_code", { length: 3 }),
+  reservationType: reservationTypeEnum("reservation_type"),
   reservationDate: date("reservation_date"),
   reservationTime: varchar("reservation_time", { length: 5 }),
   branchId: varchar("branch_id", { length: 100 }),
   branchNumber: varchar("branch_number", { length: 8 }),
+  destinationSlug: text("destination_slug"),
+  packageId: text("package_id"),
   peopleCount: integer("people_count"),
   message: text("message"),
   preOrderItems: text("pre_order_items"),
@@ -110,8 +118,16 @@ export const payments = pgTable("payments", {
 export const pageAnalytics = pgTable("page_analytics", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").references(() => users.id),
+  sessionId: text("session_id"),
+  visitorId: text("visitor_id"),
   pagePath: text("page_path").notNull(),
+  pageType: text("page_type"),
+  destinationSlug: text("destination_slug"),
+  packageId: text("package_id"),
   timeOnPage: integer("time_on_page").notNull().default(0),
+  scrollDepth: integer("scroll_depth").notNull().default(0),
+  locale: varchar("locale", { length: 8 }),
+  country: varchar("country", { length: 8 }),
   userAgent: text("user_agent"),
   referrerUrl: text("referrer_url"),
   conversionEvent: text("conversion_event"),

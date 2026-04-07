@@ -48,6 +48,35 @@ const fadeUpVariants = {
   },
 }
 
+const panelVariants = {
+  hidden: { opacity: 0, y: 28, scale: 0.98 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 220,
+      damping: 26,
+      staggerChildren: 0.08,
+      delayChildren: 0.12,
+    },
+  },
+}
+
+const panelItemVariants = {
+  hidden: { opacity: 0, y: 16, filter: "blur(8px)" },
+  show: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.45,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+}
+
 const chips = [
   { label: "Machu Picchu", top: "12%", left: "10%" },
   { label: "Salar de Uyuni", top: "18%", left: "72%" },
@@ -167,8 +196,10 @@ export function HeroSection({ locale }: HeroSectionProps) {
   const copy = getTravelCopy(locale)
   const sectionRef = useRef<HTMLElement | null>(null)
   const counterRef = useRef<HTMLDivElement | null>(null)
+  const panelRef = useRef<HTMLDivElement | null>(null)
   const prefersReducedMotion = useReducedMotion()
   const isCounterVisible = useInView(counterRef, { once: true, margin: "-20% 0px -20% 0px" })
+  const isPanelVisible = useInView(panelRef, { once: true, margin: "-18% 0px -18% 0px" })
   const { scrollYProgress, scrollY } = useScroll({ target: sectionRef, offset: ["start start", "end start"] })
   const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "-30%"])
   const foregroundY = useTransform(scrollYProgress, [0, 1], [0, -36])
@@ -260,7 +291,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
                   },
                 },
               }}
-              className="mt-8 grid max-w-xl gap-3 sm:grid-cols-2"
+              className="mt-8 grid max-w-2xl gap-3 sm:grid-cols-2 lg:grid-cols-3"
             >
               <MagneticButton href="/destinations" className="w-full bg-[color:var(--primary)] px-6 py-3 text-sm text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06)] hover:shadow-[0_0_30px_rgba(10,110,110,0.4)]">
                 {copy.home.primaryCta}
@@ -268,6 +299,12 @@ export function HeroSection({ locale }: HeroSectionProps) {
               <Button asChild variant="ghost" className="w-full rounded-full border border-white/12 bg-white/8 px-6 py-3 text-sm text-white backdrop-blur-xl hover:bg-white/12 hover:text-white">
                 <Link href="/packages" className="inline-flex items-center justify-center gap-2">
                   {copy.home.secondaryCta}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full rounded-full border border-[color:var(--secondary)]/30 bg-[color:rgba(212,160,23,0.1)] px-6 py-3 text-sm text-white backdrop-blur-xl hover:bg-[color:rgba(212,160,23,0.16)] hover:text-white">
+                <Link href="/reservations" className="inline-flex items-center justify-center gap-2">
+                  {copy.home.appointmentCta}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
@@ -305,23 +342,24 @@ export function HeroSection({ locale }: HeroSectionProps) {
             <div className="absolute -right-8 bottom-10 h-28 w-28 rounded-full bg-[rgba(232,93,38,0.2)] blur-3xl" />
 
             <motion.div
-              initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 28, scale: 0.97 }}
-              animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+              ref={panelRef}
+              variants={prefersReducedMotion ? undefined : panelVariants}
+              initial={prefersReducedMotion ? false : "hidden"}
+              animate={prefersReducedMotion || isPanelVisible ? "show" : "hidden"}
               className="overflow-hidden rounded-[2rem] border border-white/12 bg-white/8 p-5 text-white shadow-[0_28px_90px_rgba(0,0,0,0.38)] backdrop-blur-2xl"
             >
-              <div className="flex items-center justify-between gap-4">
-                <div>
+              <motion.div variants={prefersReducedMotion ? undefined : panelItemVariants} className="flex items-center justify-between gap-4">
+                <motion.div variants={prefersReducedMotion ? undefined : panelItemVariants}>
                   <p className="text-[10px] uppercase tracking-[0.32em] text-white/54">{copy.home.featuredEyebrow}</p>
                   <h3 className="mt-2 text-2xl font-semibold tracking-tight">{copy.home.featuredTitle}</h3>
-                </div>
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/8">
+                </motion.div>
+                <motion.span variants={prefersReducedMotion ? undefined : panelItemVariants} className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/8">
                   <Mountain className="h-5 w-5 text-[color:var(--secondary)]" />
-                </span>
-              </div>
+                </motion.span>
+              </motion.div>
 
               <div className="mt-6 grid gap-3 md:grid-cols-[1.1fr_0.9fr]">
-                <div className="relative h-80 overflow-hidden rounded-[1.5rem] border border-white/10">
+                <motion.div variants={prefersReducedMotion ? undefined : panelItemVariants} className="relative h-80 overflow-hidden rounded-[1.5rem] border border-white/10">
                   <Image
                     src={heroImage}
                     alt="Featured route"
@@ -331,29 +369,33 @@ export function HeroSection({ locale }: HeroSectionProps) {
                     className="object-cover object-center"
                   />
                   <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.7),rgba(0,0,0,0.12))]" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <motion.div variants={prefersReducedMotion ? undefined : panelItemVariants} className="absolute bottom-0 left-0 right-0 p-4">
                     <p className="text-[10px] uppercase tracking-[0.3em] text-white/62">{copy.home.featuredEyebrow}</p>
                     <p className="mt-2 text-lg font-semibold">{copy.home.featuredDescription}</p>
-                  </div>
-                </div>
+                  </motion.div>
+                </motion.div>
 
-                <div className="grid gap-3">
+                <motion.div variants={prefersReducedMotion ? undefined : panelItemVariants} className="grid gap-3">
                   {copy.home.featurePanel.metrics.map((item) => (
-                    <div key={item.label} className="rounded-[1.4rem] border border-white/10 bg-white/6 p-4 backdrop-blur-xl">
+                    <motion.div
+                      key={item.label}
+                      variants={prefersReducedMotion ? undefined : panelItemVariants}
+                      className="rounded-[1.4rem] border border-white/10 bg-white/6 p-4 backdrop-blur-xl"
+                    >
                       <p className="text-[10px] uppercase tracking-[0.3em] text-white/50">{item.label}</p>
                       <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
-                    </div>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <motion.div variants={prefersReducedMotion ? undefined : panelItemVariants} className="mt-4 grid gap-3 sm:grid-cols-3">
                 {copy.home.featurePanel.cards.map((card, index) => (
                   <motion.div
                     key={card.title}
-                    initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 14 }}
-                    whileInView={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-80px" }}
+                    variants={prefersReducedMotion ? undefined : panelItemVariants}
+                    initial={false}
+                    animate={prefersReducedMotion || isPanelVisible ? "show" : "hidden"}
                     transition={{ delay: index * 0.08, type: "spring", stiffness: 280, damping: 26 }}
                     className="rounded-[1.4rem] border border-white/10 bg-white/7 p-4 backdrop-blur-2xl"
                   >
@@ -365,7 +407,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
                     <p className="mt-1 text-xs leading-6 text-white/62">{card.body}</p>
                   </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </motion.div>
           </motion.div>
         </motion.div>

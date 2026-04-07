@@ -5,7 +5,13 @@ import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
 import { requireAdminSession } from "@/lib/admin-session"
-import { NotImplementedError, getDb, inventoryStock, inventoryStockLedger, products } from "@/lib/db"
+import {
+  adjustDemoInventory,
+  getDemoAdminProductById,
+  isAdminDemoMode,
+  listDemoProductInventoryHistory,
+} from "@/lib/admin/demo-data"
+import { getDb, inventoryStock, inventoryStockLedger, products } from "@/lib/db"
 import { getAdminProductById, listProductInventoryHistory } from "@/lib/admin/products"
 
 const AdjustmentSchema = z.object({
@@ -23,14 +29,6 @@ async function assertAdmin(request: NextRequest) {
   return null
 }
 
-function resolveDatabase() {
-  const database = getDb()
-  if (database.kind === "sqlite") {
-    throw new NotImplementedError("SQLite adapter not connected yet")
-  }
-  return database.db
-}
-
 function toNumber(value: unknown): number {
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : 0
@@ -46,18 +44,41 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const database = resolveDatabase()
-    const product = await getAdminProductById(database, productId)
+    if (isAdminDemoMode()) {
+      const product = getDemoAdminProductById(productId)
+      if (!product) {
+        return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
+      }
+
+      return NextResponse.json({ success: true, data: listDemoProductInventoryHistory(productId) }, { headers: { "Cache-Control": "no-store" } })
+    }
+
+    const database = getDb()
+    if (database.kind === "sqlite") {
+      const product = getDemoAdminProductById(productId)
+      if (!product) {
+        return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
+      }
+
+      return NextResponse.json({ success: true, data: listDemoProductInventoryHistory(productId) }, { headers: { "Cache-Control": "no-store" } })
+    }
+
+    const product = await getAdminProductById(database.db, productId)
     if (!product) {
       return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
     }
 
-    const history = await listProductInventoryHistory(database, productId)
+    const history = await listProductInventoryHistory(database.db, productId)
 
     return NextResponse.json({ success: true, data: history }, { headers: { "Cache-Control": "no-store" } })
   } catch (error) {
-    if (error instanceof NotImplementedError) {
-      return NextResponse.json({ success: false, message: error.message }, { status: 501 })
+    if (isAdminDemoMode()) {
+      const product = getDemoAdminProductById(productId)
+      if (!product) {
+        return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
+      }
+
+      return NextResponse.json({ success: true, data: listDemoProductInventoryHistory(productId) }, { headers: { "Cache-Control": "no-store" } })
     }
     const message = error instanceof Error ? error.message : "Unable to load inventory"
     return NextResponse.json({ success: false, message }, { status: 500 })
@@ -70,9 +91,25 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = AdjustmentSchema.parse(await request.json())
-    const database = resolveDatabase()
+    if (isAdminDemoMode()) {
+      const adjusted = adjustDemoInventory(body)
+      if (!adjusted) {
+        return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
+      }
 
-    const result = await database.transaction(async (tx) => {
+      return NextResponse.json({ success: true, data: adjusted })
+    }
+    const database = getDb()
+    if (database.kind === "sqlite") {
+      const adjusted = adjustDemoInventory(body)
+      if (!adjusted) {
+        return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
+      }
+
+      return NextResponse.json({ success: true, data: adjusted })
+    }
+
+    const result = await database.db.transaction(async (tx) => {
       const product = await getAdminProductById(tx, body.productId)
       if (!product) {
         return null
@@ -150,8 +187,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: result })
   } catch (error) {
-    if (error instanceof NotImplementedError) {
-      return NextResponse.json({ success: false, message: error.message }, { status: 501 })
+    if (isAdminDemoMode()) {
+      const message = error instanceof Error ? error.message : "Unable to adjust inventory"
+      return NextResponse.json({ success: false, message }, { status: 400 })
     }
     const message = error instanceof Error ? error.message : "Unable to adjust inventory"
     return NextResponse.json({ success: false, message }, { status: 400 })

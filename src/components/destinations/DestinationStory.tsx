@@ -141,7 +141,7 @@ export function DestinationStory({ destination, destinationTours, destinationPac
         </div>
 
         <div className="mt-6">
-          <StaggeredGrid className="grid-cols-1 gap-4">
+          <StaggeredGrid className="grid-cols-1 gap-4 md:!grid-cols-1 lg:!grid-cols-1 2xl:!grid-cols-1">
             {destinationTours.slice(0, 3).map((tour) => (
               <TourCard
                 key={tour.id}
@@ -170,7 +170,7 @@ export function DestinationStory({ destination, destinationTours, destinationPac
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 lg:grid-cols-3">
+        <div className="mt-6 grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
           {destinationPackages.map((travelPackage) => (
             <PackageCard
               key={travelPackage.id}
@@ -241,9 +241,19 @@ export function DestinationStory({ destination, destinationTours, destinationPac
 
           <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_0.8fr]">
             <div className="relative min-h-[22rem] overflow-hidden rounded-[1.6rem] border border-white/10 bg-black/30">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(10,110,110,0.14),transparent_34%)]" />
+              <iframe
+                title={`Google Maps preview for ${destination.name}`}
+                src={`https://www.google.com/maps?q=${destination.coordinates.latitude},${destination.coordinates.longitude}&z=12&output=embed`}
+                className="absolute inset-0 h-full w-full grayscale-[0.08] contrast-[1.06] saturate-[0.82]"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(10,110,110,0.22),transparent_34%),linear-gradient(to_bottom,rgba(6,13,13,0.18),rgba(6,13,13,0.42))]" />
+              <div className="pointer-events-none absolute left-4 top-4 rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-[10px] uppercase tracking-[0.34em] text-white/70 backdrop-blur-xl">
+                Google Maps preview
+              </div>
               <div
-                className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+                className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
                 style={{
                   transformOrigin: "center",
                 }}

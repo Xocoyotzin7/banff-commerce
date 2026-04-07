@@ -147,6 +147,7 @@ export async function getUserById(id: string) {
       clientId: users.clientId,
       firstName: users.firstName,
       lastName: users.lastName,
+      country: users.country,
     })
     .from(users)
     .where(eq(users.id, id))
@@ -154,4 +155,3 @@ export async function getUserById(id: string) {
 
   return rows[0] ?? null
 }
-

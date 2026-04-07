@@ -7,6 +7,7 @@ import { Footer } from "../src/components/layout/Footer"
 import { Navbar } from "../src/components/layout/Navbar"
 import { PageTransition } from "../src/components/layout/PageTransition"
 import { ThemeProvider } from "@/components/theme-provider"
+import { PassiveAnalyticsTracker } from "@/components/analytics/PassiveAnalyticsTracker"
 import { getLocaleFromCookies } from "@/lib/locale"
 import { Toaster as AppToaster } from "@/components/ui/toaster"
 import { Toaster as SonnerToaster } from "@/components/ui/sonner"
@@ -65,6 +66,7 @@ export default async function RootLayout({
         </a>
         <AppProviders>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+            <PassiveAnalyticsTracker />
             <Navbar locale={locale} />
             <PageTransition>{children}</PageTransition>
             <Footer locale={locale} />

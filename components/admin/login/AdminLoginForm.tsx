@@ -56,16 +56,16 @@ export function AdminLoginForm({ nextPath }: AdminLoginFormProps) {
     <Card className="w-full border-border/70 bg-card/95 shadow-sm">
       <CardHeader>
         <CardTitle className="text-2xl font-semibold tracking-tight">Admin login</CardTitle>
-        <CardDescription>Store owner access only.</CardDescription>
+        <CardDescription>Demo mode: any username and password will sign you in for now.</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
-            <Label htmlFor="admin-email">Email</Label>
+            <Label htmlFor="admin-email">Usuario o email</Label>
             <Input
               id="admin-email"
-              type="email"
-              autoComplete="email"
+              type="text"
+              autoComplete="username"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
             />

@@ -47,6 +47,11 @@ type RangeWindow = {
   previousUntil: Date
 }
 
+export type AvailableMonth = {
+  month: string
+  label: string
+}
+
 type Snapshot = {
   orders: DbRow[]
   orderItems: DbRow[]
@@ -124,6 +129,14 @@ function formatRangeLabel(range: MetricsRange): string {
   }
 }
 
+function formatMonthLabel(year: number, monthIndex: number) {
+  return new Date(Date.UTC(year, monthIndex, 1)).toLocaleDateString("es-MX", {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  })
+}
+
 function startOfUtcMonth(date: Date): Date {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1, 0, 0, 0, 0))
 }
@@ -134,18 +147,51 @@ function addUtcMonths(date: Date, months: number): Date {
   return copy
 }
 
-function resolveRangeWindow(range: MetricsRange): RangeWindow {
+export function buildAvailableMonths(count = 3, anchor = new Date()): AvailableMonth[] {
+  const months: AvailableMonth[] = []
+  const current = startOfUtcMonth(anchor)
+  for (let offset = count - 1; offset >= 0; offset -= 1) {
+    const candidate = addUtcMonths(current, -offset)
+    const month = `${candidate.getUTCFullYear()}-${String(candidate.getUTCMonth() + 1).padStart(2, "0")}`
+    months.push({
+      month,
+      label: formatMonthLabel(candidate.getUTCFullYear(), candidate.getUTCMonth()),
+    })
+  }
+  return months
+}
+
+function parseMonthSelection(selectedMonth: string | null | undefined): Date | null {
+  if (!selectedMonth) {
+    return null
+  }
+  const normalized = selectedMonth.trim()
+  if (!/^\d{4}-\d{2}$/.test(normalized)) {
+    return null
+  }
+  const [yearText, monthText] = normalized.split("-")
+  const year = Number(yearText)
+  const month = Number(monthText)
+  if (!year || !month || month < 1 || month > 12) {
+    return null
+  }
+  return new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0))
+}
+
+function resolveRangeWindow(range: MetricsRange, selectedMonth?: string | null): RangeWindow {
   const now = new Date()
   if (range === "month") {
-    const since = startOfUtcMonth(now)
+    const selected = parseMonthSelection(selectedMonth) ?? startOfUtcMonth(now)
+    const since = startOfUtcMonth(selected)
     const previousSince = startOfUtcMonth(addUtcMonths(since, -1))
     const previousUntil = since
+    const until = addUtcMonths(since, 1)
 
     return {
       range,
-      rangeLabel: formatRangeLabel(range),
+      rangeLabel: selectedMonth && parseMonthSelection(selectedMonth) ? formatMonthLabel(since.getUTCFullYear(), since.getUTCMonth()) : formatRangeLabel(range),
       since,
-      until: now,
+      until,
       previousSince,
       previousUntil,
     }
@@ -942,8 +988,19 @@ export function resolveMetricsWindow(range: string | null | undefined): RangeWin
   return resolveRangeWindow(selected)
 }
 
-export async function getMetricsPayload(db: NeonDb, range: string | null | undefined): Promise<MetricsPayload> {
-  const window = resolveMetricsWindow(range)
+export function resolveMetricsWindowWithMonth(range: string | null | undefined, selectedMonth?: string | null) {
+  const normalized = (range ?? "30d") as MetricsRange
+  const allowed: MetricsRange[] = ["1d", "3d", "7d", "14d", "30d", "90d", "365d", "month"]
+  const selected = allowed.includes(normalized) ? normalized : "30d"
+  return resolveRangeWindow(selected, selectedMonth)
+}
+
+export async function getMetricsPayload(
+  db: NeonDb,
+  range: string | null | undefined,
+  selectedMonth?: string | null,
+): Promise<MetricsPayload> {
+  const window = resolveMetricsWindowWithMonth(range, selectedMonth)
   const current = await fetchSnapshot(db, window.since, window.until)
   const previous = await fetchSnapshot(db, window.previousSince, window.previousUntil)
 
@@ -960,6 +1017,7 @@ export async function getMetricsPayload(db: NeonDb, range: string | null | undef
     rangeLabel: window.rangeLabel,
     since: window.since.toISOString(),
     until: window.until.toISOString(),
+    selectedMonth: selectedMonth ?? null,
     hasData: current.orders.length > 0 || current.payments.length > 0 || current.analytics.length > 0,
     sections,
     forecasts,
@@ -968,6 +1026,7 @@ export async function getMetricsPayload(db: NeonDb, range: string | null | undef
     salesSeries: currentSeries,
     topProducts,
     inventoryAlerts,
+    availableMonths: buildAvailableMonths(),
   }
 }
 

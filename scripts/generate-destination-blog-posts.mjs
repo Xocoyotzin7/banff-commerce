@@ -72,24 +72,36 @@ const themeCopy = {
   },
 }
 
-const unsplashIds = [
-  "1500375592092-40eb2168fd21",
-  "1507525428034-b723cf961d3e",
-  "1519046904884-53103b34b206",
-  "1506744038136-46273834b3fb",
-  "1519608487953-e999c86e7455",
-  "1519821172141-b5d8fb9b86b9",
-  "1522199710521-72d69614c702",
-  "1528127269322-5389ec865e53",
+const imageIds = [
+  ["1507525428034-b723cf961d3e", "1500375592092-40eb2168fd21", "1519046904884-53103b34b206", "1519608487953-e999c86e7455"],
+  ["1519046904884-53103b34b206", "1528127269322-5389ec865e53", "1519608487953-e999c86e7455", "1500375592092-40eb2168fd21"],
+  ["1504593811423-6dd665756598", "1500648767791-00dcc994a43e", "1488716820095-cbe80883c496", "1519821172141-b5d8fb9b86b9"],
+  ["1506744038136-46273834b3fb", "1507525428034-b723cf961d3e", "1519608487953-e999c86e7455", "1519821172141-b5d8fb9b86b9"],
+  ["aqD-ozhRRe8", "aqD-ozhRRe8", "1506744038136-46273834b3fb", "1519608487953-e999c86e7455"],
+  ["1522199710521-72d69614c702", "1528127269322-5389ec865e53", "1500375592092-40eb2168fd21", "1507525428034-b723cf961d3e"],
+  ["1522199710521-72d69614c702", "1528127269322-5389ec865e53", "1519608487953-e999c86e7455", "1500375592092-40eb2168fd21"],
+  ["9dmycbFE7mQ", "e2Jiqrl4n_g", "UoKfSYSq0Rk", "zrBl_1XPpaA"],
+  ["e2Jiqrl4n_g", "UoKfSYSq0Rk", "zrBl_1XPpaA", "9dmycbFE7mQ"],
+  ["1507525428034-b723cf961d3e", "1519046904884-53103b34b206", "1506744038136-46273834b3fb", "1519608487953-e999c86e7455"],
+  ["1504593811423-6dd665756598", "1500648767791-00dcc994a43e", "1488716820095-cbe80883c496", "1519821172141-b5d8fb9b86b9"],
+  ["1507525428034-b723cf961d3e", "1500375592092-40eb2168fd21", "1519046904884-53103b34b206", "1506744038136-46273834b3fb"],
+  ["1522199710521-72d69614c702", "1519046904884-53103b34b206", "1500375592092-40eb2168fd21", "1528127269322-5389ec865e53"],
+  ["1528127269322-5389ec865e53", "1522199710521-72d69614c702", "1519608487953-e999c86e7455", "1500375592092-40eb2168fd21"],
+  ["1507525428034-b723cf961d3e", "1500375592092-40eb2168fd21", "1519046904884-53103b34b206", "1519608487953-e999c86e7455"],
+  ["1500375592092-40eb2168fd21", "1507525428034-b723cf961d3e", "1519046904884-53103b34b206", "1519608487953-e999c86e7455"],
+  ["1506744038136-46273834b3fb", "1519608487953-e999c86e7455", "1519821172141-b5d8fb9b86b9", "1522199710521-72d69614c702"],
+  ["r6EhNvqAXFc", "5wEOxYhCm2U", "AheSMRAVY44", "r6EhNvqAXFc"],
+  ["cFPTHl6s5uY", "R0t-YRIot0Q", "cFPTHl6s5uY", "R0t-YRIot0Q"],
+  ["KzAOPQ8j4UA", "wGron63O8fw", "F0BWVl3pRoE", "KzAOPQ8j4UA"],
 ]
 
-function unsplashImage(seed) {
-  const id = unsplashIds[seed % unsplashIds.length]
+function destinationImage(seed, variant) {
+  const id = imageIds[seed % imageIds.length]?.[variant - 1] ?? imageIds[0][0]
   return `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1920&q=90`
 }
 
 function imageSet(seed) {
-  return [unsplashImage(seed), unsplashImage(seed + 1), unsplashImage(seed + 2), unsplashImage(seed + 3)]
+  return [1, 2, 3, 4].map((variant) => destinationImage(seed, variant))
 }
 
 const toneCopy = {
@@ -222,7 +234,7 @@ const destinations = [
 
 function buildBody(locale, entry) {
   const copy = themeCopy[locale]
-  const images = imageSet(entry.seed)
+  const images = imageSet(entry.seed, entry.overrideIds ?? [])
   const heroAlt = `${entry.name} hero image`
   const galleryAlt = `${entry.name} gallery image`
   const tone = toneCopy[locale][entry.tone] ?? entry.tone

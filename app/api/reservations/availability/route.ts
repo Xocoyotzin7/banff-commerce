@@ -32,8 +32,10 @@ export const fetchCache = "force-no-store"
 import { type NextRequest, NextResponse } from "next/server"
 import { and, eq } from "drizzle-orm"
 
+import { isAdminDemoMode } from "@/lib/admin/demo-data"
 import { getDb, reservations } from "@/lib/db"
 import { DEFAULT_BRANCH_ID, isDateWithinRange, normalizeDateOnly, trimTimeToMinutes } from "@/lib/reservations"
+import { listDemoReservationsByBranchAndDate } from "@/lib/reservations-demo-state"
 
 export async function GET(request: NextRequest) {
   try {
@@ -48,6 +50,14 @@ export async function GET(request: NextRequest) {
     const reservationDate = normalizeDateOnly(dateParam)
     if (!isDateWithinRange(reservationDate)) {
       return NextResponse.json({ success: false, message: "Fecha fuera del rango permitido." }, { status: 400 })
+    }
+
+    if (isAdminDemoMode()) {
+      const slots = listDemoReservationsByBranchAndDate(branchId, reservationDate)
+        .map((entry) => trimTimeToMinutes(entry.reservationTime))
+        .filter((value): value is string => Boolean(value))
+
+      return NextResponse.json(slots)
     }
 
     const database = getDb().db

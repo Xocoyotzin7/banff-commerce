@@ -9,6 +9,30 @@ function resolveAdminEmail() {
   return process.env.ADMIN_EMAIL?.trim() || null
 }
 
+function buildReservationEmailData(input: {
+  reservationCode: string
+  date: string
+  time: string
+  peopleCount: number
+  branchLabel?: string | null
+  destinationName?: string | null
+  packageName?: string | null
+  reservationType: "appointment" | "travel"
+}) {
+  return {
+    reservationCode: input.reservationCode,
+    date: input.date,
+    time: input.time,
+    peopleCount: input.peopleCount,
+    branchLabel: input.branchLabel ?? null,
+    destinationName: input.destinationName ?? null,
+    packageName: input.packageName ?? null,
+    reservationType: input.reservationType,
+    isAppointment: input.reservationType === "appointment",
+    isTravel: input.reservationType === "travel",
+  }
+}
+
 export async function sendOrderConfirmation(input: {
   to: string
   orderNumber: string
@@ -32,28 +56,113 @@ export async function sendOrderConfirmation(input: {
   })
 }
 
-export async function sendReservationConfirmed(input: {
-  to: string
-  reservationCode: string
-  date: string
-  time: string
-  peopleCount: number
-}): Promise<void> {
-  const templateId = parseTemplateId(process.env.LISTMONK_TPL_RESERVATION)
+async function sendReservationTemplateEmail(
+  input: {
+    to: string
+    reservationCode: string
+    date: string
+    time: string
+    peopleCount: number
+    branchLabel?: string | null
+    destinationName?: string | null
+    packageName?: string | null
+    reservationType: "appointment" | "travel"
+  },
+  templateId: number | null,
+  templateName: string,
+): Promise<void> {
   if (!templateId) {
-    console.warn("[listmonk] LISTMONK_TPL_RESERVATION is not configured")
+    console.warn(`[listmonk] ${templateName} is not configured`)
     return
   }
 
   await sendTransactionalEmail({
     to: input.to,
     templateId,
-    data: {
+    data: buildReservationEmailData(input),
+  })
+}
+
+export async function sendAppointmentReservationConfirmed(input: {
+  to: string
+  reservationCode: string
+  date: string
+  time: string
+  peopleCount: number
+  branchLabel?: string | null
+  destinationName?: string | null
+  packageName?: string | null
+}): Promise<void> {
+  const templateId =
+    parseTemplateId(process.env.LISTMONK_TPL_RESERVATION_APPOINTMENT) ??
+    parseTemplateId(process.env.LISTMONK_TPL_RESERVATION)
+
+  await sendReservationTemplateEmail(
+    {
+      ...input,
+      reservationType: "appointment",
+    },
+    templateId,
+    "LISTMONK_TPL_RESERVATION_APPOINTMENT",
+  )
+}
+
+export async function sendTravelReservationConfirmed(input: {
+  to: string
+  reservationCode: string
+  date: string
+  time: string
+  peopleCount: number
+  branchLabel?: string | null
+  destinationName?: string | null
+  packageName?: string | null
+}): Promise<void> {
+  const templateId = parseTemplateId(process.env.LISTMONK_TPL_RESERVATION_TRAVEL)
+
+  await sendReservationTemplateEmail(
+    {
+      ...input,
+      reservationType: "travel",
+    },
+    templateId,
+    "LISTMONK_TPL_RESERVATION_TRAVEL",
+  )
+}
+
+export async function sendReservationConfirmed(input: {
+  to: string
+  reservationCode: string
+  date: string
+  time: string
+  peopleCount: number
+  reservationType?: "appointment" | "travel"
+  branchLabel?: string | null
+  destinationName?: string | null
+  packageName?: string | null
+}): Promise<void> {
+  if (input.reservationType === "travel") {
+    await sendTravelReservationConfirmed({
+      to: input.to,
       reservationCode: input.reservationCode,
       date: input.date,
       time: input.time,
       peopleCount: input.peopleCount,
-    },
+      branchLabel: input.branchLabel,
+      destinationName: input.destinationName,
+      packageName: input.packageName,
+    })
+    return
+  }
+
+  await sendAppointmentReservationConfirmed({
+    to: input.to,
+    reservationCode: input.reservationCode,
+    date: input.date,
+    time: input.time,
+    peopleCount: input.peopleCount,
+    branchLabel: input.branchLabel,
+    destinationName: input.destinationName,
+    packageName: input.packageName,
   })
 }
 

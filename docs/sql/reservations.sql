@@ -30,10 +30,14 @@ CREATE TABLE IF NOT EXISTS reservations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   "reservationCode" CHAR(3) NOT NULL UNIQUE,
+  "reservationType" VARCHAR(20) NOT NULL DEFAULT 'appointment'
+    CHECK ("reservationType" IN ('appointment','travel')),
   "reservationDate" DATE NOT NULL,
   "reservationTime" VARCHAR(5) NOT NULL,
   "branchId" VARCHAR(100) NOT NULL,
   "branchNumber" VARCHAR(8),
+  "destinationSlug" TEXT,
+  "packageId" TEXT,
   "peopleCount" INT NOT NULL CHECK ("peopleCount" BETWEEN 1 AND 15),
   message TEXT,
   "preOrderItems" TEXT,
@@ -53,10 +57,13 @@ CREATE TABLE IF NOT EXISTS reservation_failures (
   "originalReservationId" UUID,
   "userId" UUID REFERENCES users(id),
   "reservationCode" CHAR(3),
+  "reservationType" VARCHAR(20),
   "reservationDate" DATE,
   "reservationTime" VARCHAR(5),
   "branchId" VARCHAR(100),
   "branchNumber" VARCHAR(8),
+  "destinationSlug" TEXT,
+  "packageId" TEXT,
   "peopleCount" INT,
   message TEXT,
   "preOrderItems" TEXT,
@@ -64,4 +71,3 @@ CREATE TABLE IF NOT EXISTS reservation_failures (
   "archivedAt" TIMESTAMPTZ DEFAULT NOW(),
   "cleanupAt" TIMESTAMPTZ
 );
-

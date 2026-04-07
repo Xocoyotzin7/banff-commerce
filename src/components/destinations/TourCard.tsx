@@ -42,7 +42,7 @@ const categoryMap: Record<string, string> = {
 export function TourCard({ tour, imageSrc, href }: TourCardProps) {
   return (
     <Card className="overflow-hidden border border-white/10 bg-white/7 backdrop-blur-xl">
-      <div className="grid gap-0 lg:grid-cols-[200px_1fr]">
+      <div className="grid gap-0 lg:grid-cols-[240px_minmax(0,1fr)]">
         <div className="relative min-h-[220px] lg:min-h-full">
           <Image src={imageSrc ?? "/serene-nature-sharp.jpg"} alt={tour.title} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 200px" />
           <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(6,13,13,0.8),rgba(6,13,13,0.12))]" />
@@ -51,16 +51,18 @@ export function TourCard({ tour, imageSrc, href }: TourCardProps) {
           </Badge>
         </div>
 
-        <CardContent className="flex flex-col justify-between gap-4 p-5">
-          <div className="space-y-4">
+        <CardContent className="flex min-w-0 flex-col justify-between gap-4 p-5">
+          <div className="min-w-0 space-y-4">
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-2xl font-semibold tracking-tight text-text">{tour.title}</h3>
-                <p className="mt-2 text-sm uppercase tracking-[0.28em] text-text-muted">
+              <div className="min-w-0">
+                <h3 className="text-2xl font-semibold tracking-tight text-text break-words sm:text-[2rem]">
+                  {tour.title}
+                </h3>
+                <p className="mt-2 text-sm uppercase tracking-[0.22em] text-text-muted">
                   {tour.duration} · hasta {tour.maxGroupSize} personas
                 </p>
               </div>
-              <Badge className="rounded-full bg-[color:var(--secondary)] text-black">
+              <Badge className="shrink-0 rounded-full bg-[color:var(--secondary)] text-black">
                 ${tour.price.toLocaleString()} USD
               </Badge>
             </div>
@@ -75,8 +77,8 @@ export function TourCard({ tour, imageSrc, href }: TourCardProps) {
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-sm text-text-muted">{tour.included.slice(0, 3).join(" · ")}</p>
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <p className="max-w-xl text-sm leading-6 text-text-muted">{tour.included.slice(0, 3).join(" · ")}</p>
             <Button asChild className={cn("rounded-full bg-[color:var(--primary)] text-white", href ? "inline-flex" : "opacity-80")}>
               <Link href={href ?? "#"}>
                 Reservar tour

@@ -4,9 +4,13 @@ import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
 import { requireAdminSession } from "@/lib/admin-session"
+import {
+  createDemoAdminProduct,
+  isAdminDemoMode,
+  listDemoAdminProducts,
+} from "@/lib/admin/demo-data"
 import { getDb, inventoryItems, inventoryStock, products } from "@/lib/db"
 import { listAdminProducts } from "@/lib/admin/products"
-import { NotImplementedError } from "@/lib/db"
 
 const ProductInputSchema = z.object({
   name: z.string().min(1),
@@ -32,9 +36,19 @@ export async function GET(request: NextRequest) {
   if (unauthorized) return unauthorized
 
   try {
+    if (isAdminDemoMode()) {
+      return NextResponse.json(
+        { success: true, data: listDemoAdminProducts() },
+        { headers: { "Cache-Control": "no-store" } },
+      )
+    }
+
     const database = getDb()
     if (database.kind === "sqlite") {
-      throw new NotImplementedError("SQLite adapter not connected yet")
+      return NextResponse.json(
+        { success: true, data: listDemoAdminProducts() },
+        { headers: { "Cache-Control": "no-store" } },
+      )
     }
 
     return NextResponse.json(
@@ -45,8 +59,11 @@ export async function GET(request: NextRequest) {
       { headers: { "Cache-Control": "no-store" } },
     )
   } catch (error) {
-    if (error instanceof NotImplementedError) {
-      return NextResponse.json({ success: false, message: error.message }, { status: 501 })
+    if (isAdminDemoMode()) {
+      return NextResponse.json(
+        { success: true, data: listDemoAdminProducts() },
+        { headers: { "Cache-Control": "no-store" } },
+      )
     }
     const message = error instanceof Error ? error.message : "Unable to load products"
     return NextResponse.json({ success: false, message }, { status: 500 })
@@ -59,9 +76,27 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = ProductInputSchema.parse(await request.json())
+    if (isAdminDemoMode()) {
+      const product = createDemoAdminProduct(body)
+      return NextResponse.json(
+        {
+          success: true,
+          data: { id: product.id },
+        },
+        { headers: { "Cache-Control": "no-store" } },
+      )
+    }
+
     const database = getDb()
     if (database.kind === "sqlite") {
-      throw new NotImplementedError("SQLite adapter not connected yet")
+      const product = createDemoAdminProduct(body)
+      return NextResponse.json(
+        {
+          success: true,
+          data: { id: product.id },
+        },
+        { headers: { "Cache-Control": "no-store" } },
+      )
     }
     const productId = randomUUID()
 
@@ -97,9 +132,6 @@ export async function POST(request: NextRequest) {
       data: { id: productId },
     }, { headers: { "Cache-Control": "no-store" } })
   } catch (error) {
-    if (error instanceof NotImplementedError) {
-      return NextResponse.json({ success: false, message: error.message }, { status: 501 })
-    }
     const message = error instanceof Error ? error.message : "Unable to create product"
     return NextResponse.json({ success: false, message }, { status: 400 })
   }

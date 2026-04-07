@@ -10,6 +10,7 @@ export type ReservationStatus = "pending" | "confirmed" | "cancelled" | "complet
 export type ReservationRecord = {
   id: string
   reservationCode: string
+  reservationType: "appointment" | "travel"
   reservationDate: string
   reservationTime: string
   branchId: string
@@ -46,6 +47,7 @@ export type ReservationListResponse = {
 
 export type CreateReservationInput = {
   numPeople: number
+  reservationType?: "appointment" | "travel"
   reservationDate: string
   reservationTime: string
   branchId?: string
@@ -57,10 +59,35 @@ export type CreateReservationInput = {
 export type CreateReservationResult = {
   reservationId: string
   reservationCode: string
+  receipt?: {
+    reservationId: string
+    reservationCode: string
+    reservationType: "appointment" | "travel"
+    reservationDate: string
+    reservationTime: string
+    branchId: string
+    branchNumber: string | null
+    branchLabel: string
+    destinationSlug: string | null
+    destinationName: string
+    packageId: string | null
+    packageName: string | null
+    peopleCount: number
+    status: string
+    createdAt: string | null
+    updatedAt: string | null
+    clientName: string | null
+    clientEmail: string | null
+    clientCountry: string | null
+    message: string | null
+    preOrderItems: string | null
+    qrPayload: string | null
+  }
 }
 
 const reservationFormSchema = z.object({
   numPeople: z.coerce.number().int().min(1).max(15),
+  reservationType: z.enum(["appointment", "travel"]).optional().default("appointment"),
   reservationDate: z.string().min(1, "Selecciona una fecha"),
   reservationTime: z.string().regex(/^\d{2}:\d{2}$/, "Selecciona un horario válido"),
   branchId: z.string().min(1),
@@ -76,6 +103,7 @@ type ReservationCacheEntry = {
 }
 
 const reservationCache = new Map<string, ReservationCacheEntry>()
+const DEMO_CACHE_KEY = "demo-anon"
 
 function getCacheEntry(token: string) {
   let entry = reservationCache.get(token)
@@ -128,9 +156,7 @@ async function readJson<T>(response: Response): Promise<T> {
 async function fetchReservations(token: string): Promise<ReservationListResponse> {
   const response = await fetch("/api/reservations", {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   })
 
   const payload = (await readJson<{ success?: boolean; data?: ReservationRecord[]; failed?: ReservationFailureRecord[]; message?: string }>(response))
@@ -149,11 +175,12 @@ async function postReservation(token: string, input: CreateReservationInput): Pr
   const response = await fetch("/api/reservations", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${token}`,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
       numPeople: input.numPeople,
+      reservationType: input.reservationType ?? "appointment",
       reservationDate: input.reservationDate,
       reservationTime: input.reservationTime,
       branchId: input.branchId ?? DEFAULT_BRANCH_ID,
@@ -197,13 +224,7 @@ export function useReservations() {
   }, [])
 
   React.useEffect(() => {
-    if (!token) {
-      setIsLoading(false)
-      setError("No encontramos un token de acceso.")
-      return
-    }
-
-    const cacheEntry = getCacheEntry(token)
+    const cacheEntry = getCacheEntry(token ?? DEMO_CACHE_KEY)
     const syncFromCache = () => {
       setReservations([...cacheEntry.reservations])
       setFailed([...cacheEntry.failed])
@@ -244,13 +265,9 @@ export function useReservations() {
   }, [token])
 
   const refetch = async () => {
-    if (!token) {
-      throw new Error("No encontramos un token de acceso.")
-    }
-
     setIsLoading(true)
     try {
-      const snapshot = await fetchReservations(token)
+      const snapshot = await fetchReservations(token ?? "")
       upsertCacheSnapshot(token, snapshot)
       setError(null)
       return snapshot
@@ -278,12 +295,9 @@ export function useCreateReservation() {
   }, [])
 
   const createReservation = async (input: CreateReservationInput): Promise<CreateReservationResult> => {
-    if (!token) {
-      throw new Error("No encontramos un token de acceso.")
-    }
-
     const parsed = reservationFormSchema.safeParse({
       numPeople: input.numPeople,
+      reservationType: input.reservationType ?? "appointment",
       reservationDate: input.reservationDate,
       reservationTime: input.reservationTime,
       branchId: input.branchId ?? DEFAULT_BRANCH_ID,
@@ -301,6 +315,7 @@ export function useCreateReservation() {
     const optimisticReservation: ReservationRecord = {
       id: optimisticId,
       reservationCode: "---",
+      reservationType: parsed.data.reservationType ?? "appointment",
       reservationDate: parsed.data.reservationDate,
       reservationTime: parsed.data.reservationTime,
       branchId: parsed.data.branchId,
@@ -313,7 +328,9 @@ export function useCreateReservation() {
       updatedAt: nowIso,
     }
 
-    updateReservationCache(token, (entry) => {
+    const cacheKey = token ?? DEMO_CACHE_KEY
+
+    updateReservationCache(cacheKey, (entry) => {
       entry.reservations = [optimisticReservation, ...entry.reservations]
     })
 
@@ -321,7 +338,7 @@ export function useCreateReservation() {
     setError(null)
 
     try {
-      const result = await postReservation(token, {
+      const result = await postReservation(token ?? "", {
         numPeople: parsed.data.numPeople,
         reservationDate: parsed.data.reservationDate,
         reservationTime: parsed.data.reservationTime,
@@ -331,7 +348,7 @@ export function useCreateReservation() {
         preOrderItems: parsed.data.preOrderItems ?? null,
       })
 
-      updateReservationCache(token, (entry) => {
+      updateReservationCache(cacheKey, (entry) => {
         entry.reservations = entry.reservations.map((reservation) =>
           reservation.id === optimisticId
             ? {
@@ -345,7 +362,7 @@ export function useCreateReservation() {
 
       return result
     } catch (mutationError) {
-      updateReservationCache(token, (entry) => {
+      updateReservationCache(cacheKey, (entry) => {
         entry.reservations = entry.reservations.filter((reservation) => reservation.id !== optimisticId)
       })
       const message = mutationError instanceof Error ? mutationError.message : "No pudimos crear tu reservación."

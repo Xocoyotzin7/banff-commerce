@@ -17,12 +17,12 @@ import {
 } from "@/components/ui/sheet"
 import {
   Table,
-  TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { TableScrollRevealRows } from "@/components/admin/TableScrollRevealRows"
 import type { AdminProductRecord } from "@/lib/admin/products"
 import { useAdminProducts, useDeleteProduct } from "@/hooks/use-admin-products"
 import { cn } from "@/lib/utils"
@@ -143,7 +143,7 @@ export function ProductManagementPanel({ initialProducts }: ProductManagementPan
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableScrollRevealRows>
                 {products.length ? (
                   products.map((product) => {
                     const tone = getStockBadge(product.stock, product.minStock)
@@ -187,7 +187,7 @@ export function ProductManagementPanel({ initialProducts }: ProductManagementPan
                     </TableCell>
                   </TableRow>
                 )}
-              </TableBody>
+              </TableScrollRevealRows>
             </Table>
           </div>
         </CardContent>

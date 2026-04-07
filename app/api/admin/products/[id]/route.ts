@@ -5,8 +5,14 @@ import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
 import { requireAdminSession } from "@/lib/admin-session"
+import {
+  deleteDemoAdminProduct,
+  getDemoAdminProductById,
+  isAdminDemoMode,
+  updateDemoAdminProduct,
+} from "@/lib/admin/demo-data"
 import { getAdminProductById } from "@/lib/admin/products"
-import { NotImplementedError, getDb, inventoryItems, inventoryStock, products } from "@/lib/db"
+import { getDb, inventoryItems, inventoryStock, products } from "@/lib/db"
 
 const ProductInputSchema = z.object({
   name: z.string().min(1),
@@ -27,14 +33,6 @@ async function assertAdmin(request: NextRequest) {
   return null
 }
 
-function resolveDatabase() {
-  const database = getDb()
-  if (database.kind === "sqlite") {
-    throw new NotImplementedError("SQLite adapter not connected yet")
-  }
-  return database.db
-}
-
 export async function GET(request: NextRequest, { params }: { params: { id?: string } }) {
   const unauthorized = await assertAdmin(request)
   if (unauthorized) return unauthorized
@@ -45,8 +43,25 @@ export async function GET(request: NextRequest, { params }: { params: { id?: str
   }
 
   try {
-    const database = resolveDatabase()
-    const product = await getAdminProductById(database, id)
+    if (isAdminDemoMode()) {
+      const product = getDemoAdminProductById(id)
+      if (!product) {
+        return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
+      }
+
+      return NextResponse.json({ success: true, data: product }, { headers: { "Cache-Control": "no-store" } })
+    }
+
+    const database = getDb()
+    if (database.kind === "sqlite") {
+      const product = getDemoAdminProductById(id)
+      if (!product) {
+        return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
+      }
+
+      return NextResponse.json({ success: true, data: product }, { headers: { "Cache-Control": "no-store" } })
+    }
+    const product = await getAdminProductById(database.db, id)
 
     if (!product) {
       return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
@@ -54,8 +69,12 @@ export async function GET(request: NextRequest, { params }: { params: { id?: str
 
     return NextResponse.json({ success: true, data: product }, { headers: { "Cache-Control": "no-store" } })
   } catch (error) {
-    if (error instanceof NotImplementedError) {
-      return NextResponse.json({ success: false, message: error.message }, { status: 501 })
+    if (isAdminDemoMode()) {
+      const product = getDemoAdminProductById(id)
+      if (!product) {
+        return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
+      }
+      return NextResponse.json({ success: true, data: product }, { headers: { "Cache-Control": "no-store" } })
     }
     const message = error instanceof Error ? error.message : "Unable to load product"
     return NextResponse.json({ success: false, message }, { status: 500 })
@@ -73,9 +92,25 @@ export async function PATCH(request: NextRequest, { params }: { params: { id?: s
 
   try {
     const body = ProductInputSchema.parse(await request.json())
-    const database = resolveDatabase()
+    if (isAdminDemoMode()) {
+      const updated = updateDemoAdminProduct(id, body)
+      if (!updated) {
+        return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
+      }
 
-    const result = await database.transaction(async (tx) => {
+      return NextResponse.json({ success: true, data: { id: updated.id } })
+    }
+    const database = getDb()
+    if (database.kind === "sqlite") {
+      const updated = updateDemoAdminProduct(id, body)
+      if (!updated) {
+        return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
+      }
+
+      return NextResponse.json({ success: true, data: { id: updated.id } })
+    }
+
+    const result = await database.db.transaction(async (tx) => {
       const productUpdate = await tx
         .update(products)
         .set({
@@ -139,8 +174,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id?: s
 
     return NextResponse.json({ success: true, data: result })
   } catch (error) {
-    if (error instanceof NotImplementedError) {
-      return NextResponse.json({ success: false, message: error.message }, { status: 501 })
+    if (isAdminDemoMode()) {
+      const message = error instanceof Error ? error.message : "Unable to update product"
+      return NextResponse.json({ success: false, message }, { status: 400 })
     }
     const message = error instanceof Error ? error.message : "Unable to update product"
     return NextResponse.json({ success: false, message }, { status: 400 })
@@ -157,10 +193,26 @@ export async function DELETE(request: NextRequest, { params }: { params: { id?: 
   }
 
   try {
-    const database = resolveDatabase()
+    if (isAdminDemoMode()) {
+      const deleted = deleteDemoAdminProduct(id)
+      if (!deleted) {
+        return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
+      }
+
+      return NextResponse.json({ success: true, data: { id: deleted.id } })
+    }
+
+    const database = getDb()
+    if (database.kind === "sqlite") {
+      const deleted = deleteDemoAdminProduct(id)
+      if (!deleted) {
+        return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
+      }
+      return NextResponse.json({ success: true, data: { id: deleted.id } })
+    }
     const deletedAt = new Date()
 
-    const result = await database
+    const result = await database.db
       .update(products)
       .set({ deletedAt })
       .where(eq(products.id, id))
@@ -172,8 +224,12 @@ export async function DELETE(request: NextRequest, { params }: { params: { id?: 
 
     return NextResponse.json({ success: true, data: result[0] })
   } catch (error) {
-    if (error instanceof NotImplementedError) {
-      return NextResponse.json({ success: false, message: error.message }, { status: 501 })
+    if (isAdminDemoMode()) {
+      const deleted = deleteDemoAdminProduct(id)
+      if (!deleted) {
+        return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
+      }
+      return NextResponse.json({ success: true, data: { id: deleted.id } })
     }
     const message = error instanceof Error ? error.message : "Unable to delete product"
     return NextResponse.json({ success: false, message }, { status: 400 })

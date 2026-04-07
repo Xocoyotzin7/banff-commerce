@@ -8,6 +8,9 @@ export type ReservationCreatedEmailPayload = {
   reservationTime: string
   peopleCount: number
   branchLabel: string
+  reservationType?: "appointment" | "travel"
+  destinationName?: string | null
+  packageName?: string | null
   message?: string | null
   preOrderItems?: string | null
 }
@@ -26,5 +29,9 @@ export async function sendReservationCreatedEmail(payload: ReservationCreatedEma
     date: payload.reservationDate,
     time: payload.reservationTime,
     peopleCount: payload.peopleCount,
+    reservationType: payload.reservationType ?? "appointment",
+    branchLabel: payload.branchLabel,
+    destinationName: payload.destinationName,
+    packageName: payload.packageName,
   })
 }

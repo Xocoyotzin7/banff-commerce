@@ -14,7 +14,7 @@ export function BlogArticle({ title, excerpt, html }: BlogArticleProps) {
         quantity={140}
         accentRatio={0.28}
         baseColor="125, 112, 100"
-        accentColor="217, 159, 104"
+        accentColor="10, 110, 110"
         opacity={0.95}
       />
       <div className="relative space-y-5">

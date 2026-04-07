@@ -69,20 +69,60 @@
 
 import { NextRequest, NextResponse } from "next/server"
 
-import { getDb, NotImplementedError } from "@/lib/db"
+import { getDb } from "@/lib/db"
+import { getDemoMetricsPayload, isAdminDemoMode } from "@/lib/admin/demo-data"
 import { getMetricsPayload, resolveMetricsWindow } from "@/lib/metrics/service"
 
 export async function GET(request: NextRequest) {
   const range = request.nextUrl.searchParams.get("range")
+  const month = request.nextUrl.searchParams.get("month")
 
   try {
+    if (isAdminDemoMode()) {
+      const payload = getDemoMetricsPayload(resolveMetricsWindow(range).range, month)
+      return NextResponse.json({
+        success: true,
+        data: {
+          ...payload,
+          rangeAvailability: {
+            "1d": true,
+            "3d": true,
+            "7d": true,
+            "14d": true,
+            "30d": true,
+            "90d": true,
+            "365d": true,
+            month: true,
+          },
+          selectedRange: resolveMetricsWindow(range).range,
+        },
+      })
+    }
+
     const database = getDb()
 
     if (database.kind === "sqlite") {
-      throw new NotImplementedError("SQLite adapter not connected yet")
+      const payload = getDemoMetricsPayload(resolveMetricsWindow(range).range, month)
+      return NextResponse.json({
+        success: true,
+        data: {
+          ...payload,
+          rangeAvailability: {
+            "1d": true,
+            "3d": true,
+            "7d": true,
+            "14d": true,
+            "30d": true,
+            "90d": true,
+            "365d": true,
+            month: true,
+          },
+          selectedRange: resolveMetricsWindow(range).range,
+        },
+      })
     }
 
-    const payload = await getMetricsPayload(database.db, range)
+    const payload = await getMetricsPayload(database.db, range, month)
     return NextResponse.json({
       success: true,
       data: {
@@ -101,6 +141,26 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
+    if (isAdminDemoMode()) {
+      const payload = getDemoMetricsPayload(resolveMetricsWindow(range).range, month)
+      return NextResponse.json({
+        success: true,
+        data: {
+          ...payload,
+          rangeAvailability: {
+            "1d": true,
+            "3d": true,
+            "7d": true,
+            "14d": true,
+            "30d": true,
+            "90d": true,
+            "365d": true,
+            month: true,
+          },
+          selectedRange: resolveMetricsWindow(range).range,
+        },
+      })
+    }
     const message = error instanceof Error ? error.message : "No pudimos calcular las métricas."
     return NextResponse.json({ success: false, error: message }, { status: 500 })
   }

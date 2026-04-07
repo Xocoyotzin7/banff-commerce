@@ -376,6 +376,38 @@ export function CheckoutFlow() {
   const cabinFactor = 1 + cabinPriceDelta[cabin]
   const totalUsd = useMemo(() => selectedPackage.price * travelFactor * cabinFactor, [cabinFactor, selectedPackage.price, travelFactor])
 
+  function sendConversionEvent() {
+    const payload = {
+      pagePath: `/checkout?packageId=${encodeURIComponent(selectedPackage.id)}`,
+      pageType: "checkout",
+      destinationSlug: selectedPackage.destinationId,
+      packageId: selectedPackage.id,
+      sessionId: window.sessionStorage.getItem("banff_session_id") ?? "",
+      visitorId: window.localStorage.getItem("banff_visitor_id") ?? "",
+      timeOnPage: 0,
+      scrollDepth: 100,
+      locale: document.documentElement.lang || "es-MX",
+      referrerUrl: document.referrer || window.location.href,
+      conversionEvent: "booking_confirmed",
+      conversionValue: Math.round(totalUsd),
+    }
+
+    const body = JSON.stringify(payload)
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon("/api/analytics/track", new Blob([body], { type: "application/json" }))
+      return
+    }
+
+    void fetch("/api/analytics/track", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body,
+      keepalive: true,
+    })
+  }
+
   const handleTravelerSubmit = travelerForm.handleSubmit(() => setStep(3))
 
   const confirmPayment = async () => {
@@ -383,6 +415,7 @@ export function CheckoutFlow() {
     await new Promise((resolve) => window.setTimeout(resolve, 1400))
     setLoading(false)
     setCompleted(true)
+    sendConversionEvent()
     toast.success(`Pago confirmado con ${gateway === "openpay" ? "BBVA Openpay" : "Stripe"}`)
     window.setTimeout(() => setCompleted(false), 2400)
   }

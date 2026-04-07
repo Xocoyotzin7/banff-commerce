@@ -158,6 +158,7 @@ export type MetricsPayload = {
   rangeLabel: string
   since: string
   until: string
+  selectedMonth?: string | null
   hasData: boolean
   sections: Record<SectionId, SectionPayload>
   forecasts: ForecastPayload
@@ -166,6 +167,7 @@ export type MetricsPayload = {
   salesSeries: MetricsSeriesPoint[]
   topProducts: MetricsProductPoint[]
   inventoryAlerts: MetricsInventoryAlert[]
+  availableMonths?: Array<{ month: string; label: string }>
 }
 
 export type ProductStockSnapshot = {

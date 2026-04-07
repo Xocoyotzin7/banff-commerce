@@ -2,6 +2,7 @@
 
 import * as React from "react"
 
+import { ReservationReceiptDialog } from "@/components/reservations/ReservationReceiptDialog"
 import { Button } from "@/components/ui/button"
 import { toast } from "@/hooks/use-toast"
 import { DEFAULT_BRANCH_ID, MAX_MONTHS_IN_ADVANCE } from "@/lib/reservations"
@@ -15,6 +16,9 @@ import {
 type ReservationFormProps = {
   branchId?: string
   branchLabel?: string
+  reservationType?: "appointment" | "travel"
+  title?: string
+  description?: string
 }
 
 type FieldErrors = Partial<Record<"reservationDate" | "reservationTime" | "numPeople" | "message" | "preOrderItems" | "root", string>>
@@ -25,13 +29,44 @@ function addMonthsToDate(date: Date, months: number) {
   return nextDate
 }
 
-export function ReservationForm({ branchId = DEFAULT_BRANCH_ID, branchLabel }: ReservationFormProps) {
+export function ReservationForm({
+  branchId = DEFAULT_BRANCH_ID,
+  branchLabel,
+  reservationType = "appointment",
+  title = "Reservar cita",
+  description = "Agenda una fecha y horario para tu cita o consulta.",
+}: ReservationFormProps) {
   const [reservationDate, setReservationDate] = React.useState("")
   const [reservationTime, setReservationTime] = React.useState("")
   const [numPeople, setNumPeople] = React.useState("2")
   const [message, setMessage] = React.useState("")
   const [preOrderItems, setPreOrderItems] = React.useState("")
   const [errors, setErrors] = React.useState<FieldErrors>({})
+  const [receipt, setReceipt] = React.useState<{
+    reservationId: string
+    reservationCode: string
+    reservationType: "appointment" | "travel"
+    reservationDate: string
+    reservationTime: string
+    branchId: string
+    branchNumber: string | null
+    branchLabel: string
+    destinationSlug: string | null
+    destinationName: string
+    packageId: string | null
+    packageName: string | null
+    peopleCount: number
+    status: string
+    createdAt: string | null
+    updatedAt: string | null
+    clientName: string | null
+    clientEmail: string | null
+    clientCountry: string | null
+    message: string | null
+    preOrderItems: string | null
+    qrPayload: string | null
+  } | null>(null)
+  const [receiptOpen, setReceiptOpen] = React.useState(false)
 
   const { availableSlots, isLoading: isAvailabilityLoading } = useAvailability(branchId, reservationDate)
   const { createReservation, isPending } = useCreateReservation()
@@ -83,6 +118,7 @@ export function ReservationForm({ branchId = DEFAULT_BRANCH_ID, branchLabel }: R
       setErrors({})
       const result = await createReservation({
         numPeople: Number(numPeople),
+        reservationType,
         reservationDate,
         reservationTime,
         branchId,
@@ -94,6 +130,10 @@ export function ReservationForm({ branchId = DEFAULT_BRANCH_ID, branchLabel }: R
         title: "Reservación creada",
         description: `Código: ${result.reservationCode}`,
       })
+      if (result.receipt) {
+        setReceipt(result.receipt)
+        setReceiptOpen(true)
+      }
 
       setReservationDate("")
       setReservationTime("")
@@ -110,8 +150,9 @@ export function ReservationForm({ branchId = DEFAULT_BRANCH_ID, branchLabel }: R
   return (
     <form onSubmit={handleSubmit} className="space-y-5 rounded-[2rem] border border-border/70 bg-card/80 p-6 text-card-foreground shadow-[0_18px_55px_-28px_rgba(2,6,23,0.35)] dark:bg-card/70">
       <div className="space-y-2">
-        <h2 className="text-2xl font-semibold tracking-tight">Reservar mesa</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
         <p className="text-sm leading-6 text-muted-foreground">
+          {description}{" "}
           {branchLabel ? `Sucursal: ${branchLabel}` : `Sucursal: ${branchId}`}
         </p>
       </div>
@@ -205,7 +246,19 @@ export function ReservationForm({ branchId = DEFAULT_BRANCH_ID, branchLabel }: R
           Los horarios van de {getAvailableTimeSlots()[0]} a {getAvailableTimeSlots()[getAvailableTimeSlots().length - 1]}
         </p>
       </div>
+
+      <ReservationReceiptDialog
+        open={receiptOpen}
+        onOpenChange={setReceiptOpen}
+        receipt={receipt}
+        title={reservationType === "travel" ? "Tu viaje quedó confirmado" : "Tu cita quedó confirmada"}
+        description={
+          reservationType === "travel"
+            ? "Guarda este comprobante para consultar tu itinerario y mostrarlo en el momento del embarque o atención."
+            : "Guarda este comprobante para tu cita. El panel del admin también puede localizarla con el mismo QR."
+        }
+        actionLabel="Copiar"
+      />
     </form>
   )
 }
-

@@ -31,10 +31,14 @@
  *   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
  *   "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
  *   "reservationCode" CHAR(3) NOT NULL UNIQUE,
+ *   "reservationType" VARCHAR(20) NOT NULL DEFAULT 'appointment'
+ *     CHECK ("reservationType" IN ('appointment','travel')),
  *   "reservationDate" DATE NOT NULL,
  *   "reservationTime" VARCHAR(5) NOT NULL,
  *   "branchId" VARCHAR(100) NOT NULL,
  *   "branchNumber" VARCHAR(8),
+ *   "destinationSlug" TEXT,
+ *   "packageId" TEXT,
  *   "peopleCount" INT NOT NULL CHECK ("peopleCount" BETWEEN 1 AND 15),
  *   message TEXT,
  *   "preOrderItems" TEXT,
@@ -54,10 +58,13 @@
  *   "originalReservationId" UUID,
  *   "userId" UUID REFERENCES users(id),
  *   "reservationCode" CHAR(3),
+ *   "reservationType" VARCHAR(20),
  *   "reservationDate" DATE,
  *   "reservationTime" VARCHAR(5),
  *   "branchId" VARCHAR(100),
  *   "branchNumber" VARCHAR(8),
+ *   "destinationSlug" TEXT,
+ *   "packageId" TEXT,
  *   "peopleCount" INT,
  *   message TEXT,
  *   "preOrderItems" TEXT,
@@ -74,14 +81,21 @@ import { type NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
 import { verifyToken, getUserById } from "@/lib/auth"
+import { isAdminDemoMode } from "@/lib/admin/demo-data"
+import {
+  createDemoReservation,
+  listDemoReservationsByBranchAndDate,
+  listDemoReservationsByUser,
+} from "@/lib/reservations-demo-state"
 import { getDb, reservationFailures, reservations } from "@/lib/db"
 import { DEFAULT_BRANCH_ID, isDateWithinRange, normalizeDateOnly } from "@/lib/reservations"
+import { buildReservationReceipt } from "@/lib/reservations-receipt"
 import {
   archiveExpiredReservations,
   cleanupFailedReservations,
   isMissingReservationFailuresTableError,
 } from "@/lib/reservations-server"
-import { sendReservationConfirmed } from "@/lib/mailer/triggers"
+import { sendAppointmentReservationConfirmed, sendTravelReservationConfirmed } from "@/lib/mailer/triggers"
 
 class HttpError extends Error {
   status: number
@@ -97,11 +111,17 @@ const authenticateRequest = (request: NextRequest) => {
   const token = authHeader?.replace("Bearer ", "")
 
   if (!token) {
+    if (isAdminDemoMode()) {
+      return { token: "demo-token", decoded: { userId: "demo-client-1" } }
+    }
     throw new HttpError(401, "Token requerido")
   }
 
   const decoded = verifyToken(token)
   if (!decoded) {
+    if (isAdminDemoMode()) {
+      return { token: "demo-token", decoded: { userId: "demo-client-1" } }
+    }
     throw new HttpError(401, "Token inválido")
   }
 
@@ -110,10 +130,13 @@ const authenticateRequest = (request: NextRequest) => {
 
 const ReservationPayloadSchema = z.object({
   numPeople: z.coerce.number().int().min(1).max(15),
+  reservationType: z.enum(["appointment", "travel"]).optional().default("appointment"),
   reservationDate: z.string().min(1),
   reservationTime: z.string().regex(/^\d{2}:\d{2}$/, "Formato de hora inválido. Usa HH:MM"),
   branchId: z.string().min(1),
   branchNumber: z.string().trim().max(8, "El número de sucursal es demasiado largo").optional().nullable(),
+  destinationSlug: z.string().trim().min(1).optional().nullable(),
+  packageId: z.string().trim().min(1).optional().nullable(),
   message: z.string().trim().max(500, "Mensaje demasiado largo").optional().nullable(),
   preOrderItems: z
     .string()
@@ -173,6 +196,15 @@ async function generateReservationCode(): Promise<string> {
 export async function GET(request: NextRequest) {
   try {
     const { decoded } = authenticateRequest(request)
+
+    if (isAdminDemoMode()) {
+      return NextResponse.json({
+        success: true,
+        data: listDemoReservationsByUser(decoded.userId),
+        failed: [],
+      })
+    }
+
     void archiveExpiredReservations()
     void cleanupFailedReservations()
 
@@ -182,10 +214,13 @@ export async function GET(request: NextRequest) {
       .select({
         id: reservations.id,
         reservationCode: reservations.reservationCode,
+        reservationType: reservations.reservationType,
         reservationDate: reservations.reservationDate,
         reservationTime: reservations.reservationTime,
         branchId: reservations.branchId,
         branchNumber: reservations.branchNumber,
+        destinationSlug: reservations.destinationSlug,
+        packageId: reservations.packageId,
         peopleCount: reservations.peopleCount,
         message: reservations.message,
         preOrderItems: reservations.preOrderItems,
@@ -203,10 +238,13 @@ export async function GET(request: NextRequest) {
         originalReservationId: reservationFailures.originalReservationId,
         userId: reservationFailures.userId,
         reservationCode: reservationFailures.reservationCode,
+        reservationType: reservationFailures.reservationType,
         reservationDate: reservationFailures.reservationDate,
         reservationTime: reservationFailures.reservationTime,
         branchId: reservationFailures.branchId,
         branchNumber: reservationFailures.branchNumber,
+        destinationSlug: reservationFailures.destinationSlug,
+        packageId: reservationFailures.packageId,
         peopleCount: reservationFailures.peopleCount,
         message: reservationFailures.message,
         preOrderItems: reservationFailures.preOrderItems,
@@ -245,6 +283,59 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { decoded } = authenticateRequest(request)
+    if (isAdminDemoMode()) {
+      const body: unknown = await request.json()
+      const parsed = ReservationPayloadSchema.safeParse(body)
+
+      if (!parsed.success) {
+        const firstError = parsed.error.issues[0]?.message ?? "Datos de reservación inválidos"
+        return NextResponse.json({ success: false, message: firstError }, { status: 400 })
+      }
+
+      const payload = parsed.data
+      const reservationDate = normalizeDateOnly(payload.reservationDate)
+      if (!isDateWithinRange(reservationDate)) {
+        return NextResponse.json(
+          { success: false, message: "Selecciona una fecha válida dentro del rango permitido." },
+          { status: 400 },
+        )
+      }
+
+      const branchId = payload.branchId || DEFAULT_BRANCH_ID
+      const slotConflict = listDemoReservationsByBranchAndDate(branchId, reservationDate).some(
+        (reservation) => reservation.reservationTime === payload.reservationTime && reservation.status !== "cancelled",
+      )
+      if (slotConflict) {
+        return NextResponse.json(
+          { success: false, message: "Ese horario ya fue reservado. Elige otro." },
+          { status: 409 },
+        )
+      }
+
+      const reservation = createDemoReservation({
+        userId: decoded.userId,
+        reservationType: payload.reservationType ?? "appointment",
+        reservationDate,
+        reservationTime: payload.reservationTime,
+        branchId,
+        branchNumber: payload.branchNumber?.trim() || null,
+        destinationSlug: payload.destinationSlug ?? null,
+        packageId: payload.packageId ?? null,
+        peopleCount: payload.numPeople,
+        message: payload.message ?? null,
+        preOrderItems: payload.preOrderItems ?? null,
+      })
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          reservationId: reservation.id,
+          reservationCode: reservation.reservationCode,
+          receipt: buildReservationReceipt(reservation),
+        },
+      })
+    }
+
     const database = getDb().db
 
     const body: unknown = await request.json()
@@ -297,10 +388,13 @@ export async function POST(request: NextRequest) {
           id: randomUUID(),
           userId: decoded.userId,
           peopleCount: payload.numPeople,
+          reservationType: payload.reservationType ?? "appointment",
           reservationDate,
           reservationTime: slotTime,
           branchId,
           branchNumber: normalizedBranchNumber,
+          destinationSlug: payload.destinationSlug ?? null,
+          packageId: payload.packageId ?? null,
           message: payload.message ?? null,
           preOrderItems: payload.preOrderItems ?? null,
           reservationCode,
@@ -321,14 +415,44 @@ export async function POST(request: NextRequest) {
     }
 
     const profile = await getUserById(decoded.userId).catch(() => null)
+    const receipt = buildReservationReceipt({
+      id: data.id,
+      reservationCode: data.reservationCode,
+      reservationType: payload.reservationType ?? "appointment",
+      reservationDate,
+      reservationTime: slotTime,
+      branchId,
+      branchNumber: normalizedBranchNumber,
+      destinationSlug: payload.destinationSlug ?? null,
+      packageId: payload.packageId ?? null,
+      peopleCount: payload.numPeople,
+      status: "pending",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      clientName: profile ? `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim() || profile.email : null,
+      clientEmail: profile?.email ?? null,
+      clientCountry: profile?.country ?? null,
+      message: payload.message ?? null,
+      preOrderItems: payload.preOrderItems ?? null,
+    })
+
     if (profile?.email) {
-      void sendReservationConfirmed({
+      const mailInput = {
         to: profile.email,
         reservationCode: data.reservationCode,
         date: reservationDate,
         time: slotTime,
         peopleCount: payload.numPeople,
-      })
+        branchLabel: receipt.branchLabel,
+        destinationName: receipt.destinationName,
+        packageName: receipt.packageName,
+      }
+
+      if ((payload.reservationType ?? "appointment") === "travel") {
+        void sendTravelReservationConfirmed(mailInput)
+      } else {
+        void sendAppointmentReservationConfirmed(mailInput)
+      }
     }
 
     return NextResponse.json({
@@ -336,6 +460,7 @@ export async function POST(request: NextRequest) {
       data: {
         reservationId: data.id,
         reservationCode: data.reservationCode,
+        receipt,
       },
     })
   } catch (error: unknown) {
