@@ -1,14 +1,15 @@
 import type { Locale } from "@/lib/site-content"
 
 export type TravelCopy = {
-  nav: {
-    destinations: string
-    packages: string
-    tours: string
-    about: string
-    reserve: string
-    viewAll: string
-    close: string
+    nav: {
+      destinations: string
+      packages: string
+      tours: string
+      about: string
+      login: string
+      reserve: string
+      viewAll: string
+      close: string
     highlightedDestinations: string
     exploreByRegion: string
   }
@@ -88,6 +89,7 @@ export const travelCopy: Record<Locale, TravelCopy> = {
       packages: "Packages",
       tours: "Tours",
       about: "About us",
+      login: "Login",
       reserve: "Reserve",
       viewAll: "View all",
       close: "Close",
@@ -206,6 +208,7 @@ export const travelCopy: Record<Locale, TravelCopy> = {
       packages: "Forfaits",
       tours: "Circuits",
       about: "À propos",
+      login: "Connexion",
       reserve: "Réserver",
       viewAll: "Tout voir",
       close: "Fermer",
@@ -324,6 +327,7 @@ export const travelCopy: Record<Locale, TravelCopy> = {
       packages: "Paquetes",
       tours: "Tours",
       about: "Sobre nosotros",
+      login: "Entrar",
       reserve: "Reservar",
       viewAll: "Ver todos",
       close: "Cerrar",

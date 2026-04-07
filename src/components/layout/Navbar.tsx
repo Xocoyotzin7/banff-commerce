@@ -368,6 +368,17 @@ export function Navbar({ locale }: NavbarProps) {
         </nav>
 
         <div className="flex items-center gap-2">
+          <Link
+            href="/admin/login"
+            className={cn(
+              "hidden items-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-2 text-sm font-medium transition-colors hover:border-white/20 hover:bg-white/12 sm:inline-flex",
+              isGlass ? "text-text" : "text-white",
+            )}
+          >
+            <ArrowUpRight className="h-4 w-4" />
+            {copy.nav.login}
+          </Link>
+
           <button
             type="button"
             aria-label="Cambiar tema"

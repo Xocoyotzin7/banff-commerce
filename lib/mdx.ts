@@ -71,6 +71,15 @@ function renderInline(source: string) {
     .replace(/`(.+?)`/g, '<code class="rounded bg-black/5 px-1.5 py-0.5 text-[0.92em] font-medium text-foreground">$1</code>')
 }
 
+function renderImageBlock(alt: string, src: string) {
+  return `
+    <figure class="my-10 overflow-hidden rounded-[2rem] border border-border/70 bg-card/70 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
+      <img src="${src}" alt="${escapeHtml(alt)}" class="h-auto w-full object-cover" loading="lazy" />
+      <figcaption class="px-5 py-4 text-sm leading-6 text-muted-foreground">${escapeHtml(alt)}</figcaption>
+    </figure>
+  `.trim()
+}
+
 export function renderMdxToHtml(
   source: string,
   options?: {
@@ -128,6 +137,13 @@ export function renderMdxToHtml(
           quote.join(" "),
         )}</p></blockquote>`,
       )
+      continue
+    }
+
+    const imageMatch = trimmed.match(/^!\[(.*?)\]\((.+?)\)$/)
+    if (imageMatch) {
+      html.push(renderImageBlock(imageMatch[1] || "Travel image", imageMatch[2]))
+      index += 1
       continue
     }
 
