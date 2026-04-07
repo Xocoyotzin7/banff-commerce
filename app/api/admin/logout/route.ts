@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { ADMIN_COOKIE_NAME } from "@/lib/admin-auth"
+import { ADMIN_COOKIE_NAME } from "@banff/agency-core/lib/admin-auth"
 
 export async function POST() {
   const response = NextResponse.json({ success: true })

@@ -10,7 +10,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { destinations } from "../../lib/data/destinations"
 import { getTravelCopy } from "@/lib/travel-copy"
 import type { Locale } from "../../lib/site-content"
-import { MagneticButton } from "../shared/MagneticButton"
+import { MagneticButton } from "@banff/agency-core/components/shared/MagneticButton"
 import { cn } from "../../lib/utils"
 import { Button } from "../../../components/ui/button"
 

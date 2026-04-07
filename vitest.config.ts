@@ -9,6 +9,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": rootDir,
+      "@banff/agency-core": path.join(rootDir, "agency-core"),
     },
   },
   test: {

@@ -4,12 +4,12 @@ import { ArrowUpRight } from "lucide-react"
 
 import { HeadingTypewriter } from "@/components/heading-typewriter"
 import { BlogArticle } from "@/components/blog-article"
-import { Seo } from "@/components/seo/Seo"
-import { ScrollReveal } from "@/components/scroll-reveal"
+import { Seo } from "@banff/agency-core/components/seo/Seo"
+import { ScrollReveal } from "@banff/agency-core/components/shared/ScrollReveal"
 import { Button } from "@/components/ui/button"
-import { getLocaleFromCookies } from "@/lib/locale"
+import { getLocaleFromCookies } from "@/lib/locale.server"
 import { getBlogPostBySlug, getAllBlogPosts, renderMdxToHtml } from "@/lib/blog"
-import { buildArticleJsonLd, buildBreadcrumbList, buildCanonicalUrl, buildPageMetadata } from "@/lib/seo"
+import { buildArticleJsonLd, buildBreadcrumbList, buildCanonicalUrl, buildPageMetadata } from "@banff/agency-core/seo"
 
 type PageProps = {
   params: Promise<{

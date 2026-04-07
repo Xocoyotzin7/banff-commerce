@@ -15,11 +15,13 @@ import { ChartHoverDownloadArea } from "@/components/admin/charts/ChartHoverDown
 import { ChartPngButton } from "@/components/admin/charts/ChartPngButton"
 import { TableScrollRevealRows } from "@/components/admin/TableScrollRevealRows"
 import { ReservationReceiptDialog } from "@/components/reservations/ReservationReceiptDialog"
+import { SequentialBarShape } from "@banff/agency-core/components/shared/SequentialBarShape"
+import { SequentialChartDataRenderer } from "@banff/agency-core/components/shared/SequentialChartDataRenderer"
 import type { AdminReservationRange, AdminReservationsPayload } from "@/lib/admin/reservations"
 import { buildReservationsCsv, buildReservationsWorkbook } from "@/lib/admin/reservations-export"
 import { buildReservationReceipt, type ReservationReceiptPayload } from "@/lib/reservations-receipt"
 import { useAdminReservations } from "@/hooks/use-admin-reservations"
-import { ScrollRevealStagger } from "@/components/scroll-reveal-stagger"
+import { ScrollRevealStagger } from "@banff/agency-core/components/shared/ScrollRevealStagger"
 
 type AdminReservationsPanelProps = {
   initialData: AdminReservationsPayload
@@ -38,6 +40,19 @@ function formatDate(dateValue: string) {
     month: "short",
     timeZone: "UTC",
   })
+}
+
+function createSequentialBarShape(shouldReduceMotion: boolean, orientation: "vertical" | "horizontal") {
+  return function SequentialBarShapeRenderer(props: {
+    x?: number
+    y?: number
+    width?: number
+    height?: number
+    fill?: string
+    index?: number
+  }) {
+    return <SequentialBarShape {...props} reduceMotion={shouldReduceMotion} orientation={orientation} />
+  }
 }
 
 export function AdminReservationsPanel({ initialData, initialRange }: AdminReservationsPanelProps) {
@@ -197,17 +212,33 @@ export function AdminReservationsPanel({ initialData, initialRange }: AdminReser
                 </CardHeader>
                 <CardContent className="h-80">
                   <ChartBuildFrame className="h-full">
-                    <ChartHoverDownloadArea targetRef={byDayRef} filename={`reservas-por-dia-${chartExportSuffix}`} className="h-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={data.charts.byDay} margin={{ left: -8 }}>
-                          <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.12} />
-                          <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                          <YAxis tick={{ fontSize: 12 }} />
-                          <Tooltip />
-                          <Line type="monotone" dataKey="value" stroke="#0A6E6E" strokeWidth={2.5} dot={{ r: 3 }} />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </ChartHoverDownloadArea>
+                    {({ isVisible, shouldReduceMotion }) => (
+                      <ChartHoverDownloadArea targetRef={byDayRef} filename={`reservas-por-dia-${chartExportSuffix}`} className="h-full">
+                        <SequentialChartDataRenderer data={data.charts.byDay} active={isVisible} reduceMotion={shouldReduceMotion} stepMs={110}>
+                          {({ data: chartData }) => (
+                            <ResponsiveContainer width="100%" height="100%">
+                              <LineChart key={`reservas-dia-${chartData.length}`} data={chartData} margin={{ left: -8 }}>
+                                <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.12} />
+                                <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                                <YAxis tick={{ fontSize: 12 }} />
+                                <Tooltip />
+                                <Line
+                                  type="monotone"
+                                  dataKey="value"
+                                  stroke="#0A6E6E"
+                                  strokeWidth={3}
+                                  dot={{ r: 4, fill: "#0A6E6E", strokeWidth: 0 }}
+                                  baseLine={0}
+                                  isAnimationActive={!shouldReduceMotion}
+                                  animationBegin={0}
+                                  animationDuration={900}
+                                />
+                              </LineChart>
+                            </ResponsiveContainer>
+                          )}
+                        </SequentialChartDataRenderer>
+                      </ChartHoverDownloadArea>
+                    )}
                   </ChartBuildFrame>
                 </CardContent>
               </Card>
@@ -227,17 +258,34 @@ export function AdminReservationsPanel({ initialData, initialRange }: AdminReser
                 </CardHeader>
                 <CardContent className="h-80">
                   <ChartBuildFrame className="h-full">
-                    <ChartHoverDownloadArea targetRef={byHourRef} filename={`reservas-por-hora-${chartExportSuffix}`} className="h-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data.charts.byHour} margin={{ left: -4 }}>
-                          <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.12} />
-                          <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                          <YAxis tick={{ fontSize: 12 }} />
-                          <Tooltip />
-                          <Bar dataKey="value" fill="#D4A017" radius={[8, 8, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </ChartHoverDownloadArea>
+                    {({ isVisible, shouldReduceMotion }) => (
+                      <ChartHoverDownloadArea targetRef={byHourRef} filename={`reservas-por-hora-${chartExportSuffix}`} className="h-full">
+                        <SequentialChartDataRenderer
+                          data={data.charts.byHour}
+                          active={isVisible}
+                          reduceMotion={shouldReduceMotion}
+                          stepMs={75}
+                        >
+                          {({ data: chartData }) => (
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart data={chartData} margin={{ left: -4 }}>
+                                <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.12} />
+                                <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                                <YAxis tick={{ fontSize: 12 }} />
+                                <Tooltip />
+                                <Bar
+                                  dataKey="value"
+                                  fill="#D4A017"
+                                  radius={[8, 8, 0, 0]}
+                                  isAnimationActive={false}
+                                  shape={createSequentialBarShape(shouldReduceMotion, "vertical")}
+                                />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          )}
+                        </SequentialChartDataRenderer>
+                      </ChartHoverDownloadArea>
+                    )}
                   </ChartBuildFrame>
                 </CardContent>
               </Card>
@@ -259,17 +307,34 @@ export function AdminReservationsPanel({ initialData, initialRange }: AdminReser
                 </CardHeader>
                 <CardContent className="h-72">
                   <ChartBuildFrame className="h-full">
-                    <ChartHoverDownloadArea targetRef={byStatusRef} filename={`reservas-por-estado-${chartExportSuffix}`} className="h-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data.charts.byStatus} margin={{ left: -4 }}>
-                          <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.12} />
-                          <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                          <YAxis tick={{ fontSize: 12 }} />
-                          <Tooltip />
-                          <Bar dataKey="value" fill="#E85D26" radius={[8, 8, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </ChartHoverDownloadArea>
+                    {({ isVisible, shouldReduceMotion }) => (
+                      <ChartHoverDownloadArea targetRef={byStatusRef} filename={`reservas-por-estado-${chartExportSuffix}`} className="h-full">
+                        <SequentialChartDataRenderer
+                          data={data.charts.byStatus}
+                          active={isVisible}
+                          reduceMotion={shouldReduceMotion}
+                          stepMs={75}
+                        >
+                          {({ data: chartData }) => (
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart data={chartData} margin={{ left: -4 }}>
+                                <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.12} />
+                                <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                                <YAxis tick={{ fontSize: 12 }} />
+                                <Tooltip />
+                                <Bar
+                                  dataKey="value"
+                                  fill="#E85D26"
+                                  radius={[8, 8, 0, 0]}
+                                  isAnimationActive={false}
+                                  shape={createSequentialBarShape(shouldReduceMotion, "vertical")}
+                                />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          )}
+                        </SequentialChartDataRenderer>
+                      </ChartHoverDownloadArea>
+                    )}
                   </ChartBuildFrame>
                 </CardContent>
               </Card>
@@ -289,17 +354,34 @@ export function AdminReservationsPanel({ initialData, initialRange }: AdminReser
                 </CardHeader>
                 <CardContent className="h-72">
                   <ChartBuildFrame className="h-full">
-                    <ChartHoverDownloadArea targetRef={byTypeRef} filename={`reservas-por-tipo-${chartExportSuffix}`} className="h-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data.charts.byType} margin={{ left: -4 }}>
-                          <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.12} />
-                          <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                          <YAxis tick={{ fontSize: 12 }} />
-                          <Tooltip />
-                          <Bar dataKey="value" fill="#0A6E6E" radius={[8, 8, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </ChartHoverDownloadArea>
+                    {({ isVisible, shouldReduceMotion }) => (
+                      <ChartHoverDownloadArea targetRef={byTypeRef} filename={`reservas-por-tipo-${chartExportSuffix}`} className="h-full">
+                        <SequentialChartDataRenderer
+                          data={data.charts.byType}
+                          active={isVisible}
+                          reduceMotion={shouldReduceMotion}
+                          stepMs={75}
+                        >
+                          {({ data: chartData }) => (
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart data={chartData} margin={{ left: -4 }}>
+                                <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.12} />
+                                <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                                <YAxis tick={{ fontSize: 12 }} />
+                                <Tooltip />
+                                <Bar
+                                  dataKey="value"
+                                  fill="#0A6E6E"
+                                  radius={[8, 8, 0, 0]}
+                                  isAnimationActive={false}
+                                  shape={createSequentialBarShape(shouldReduceMotion, "vertical")}
+                                />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          )}
+                        </SequentialChartDataRenderer>
+                      </ChartHoverDownloadArea>
+                    )}
                   </ChartBuildFrame>
                 </CardContent>
               </Card>

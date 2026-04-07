@@ -1,5 +1,5 @@
 import { PortfolioPageContent } from "@/components/portfolio-page-content"
-import { getLocaleFromCookies } from "@/lib/locale"
+import { getLocaleFromCookies } from "@/lib/locale.server"
 
 export const dynamic = "force-dynamic"
 

@@ -52,6 +52,7 @@ type PaymentFormProps = {
 }
 
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim() || null
+// Third-party client SDK is loaded once at module scope to keep the checkout form lightweight.
 const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null
 
 function countryFlag(country: string) {
@@ -90,6 +91,7 @@ function StripeGatewayForm({
     orderNumber: string
     customerName: string
   }) {
+    // Internal API handoff after a successful provider confirmation.
     await fetch("/api/checkout", {
       method: "POST",
       headers: {

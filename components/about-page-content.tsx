@@ -1,6 +1,6 @@
 import Image from "next/image"
 
-import { ScrollReveal } from "@/components/scroll-reveal"
+import { ScrollReveal } from "@banff/agency-core/components/shared/ScrollReveal"
 import type { Locale } from "@/lib/site-content"
 
 import BanffLight from "../BanffClaro.jpeg"

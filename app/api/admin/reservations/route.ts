@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-import { requireAdminSession } from "@/lib/admin-session"
+import { requireAdminSession } from "@banff/agency-core/lib/admin-session"
 import { isAdminDemoMode } from "@/lib/admin/demo-data"
 import { getAdminReservationsPayload } from "@/lib/admin/reservations"
 import { getDemoAdminReservationsPayload } from "@/lib/admin/reservations-demo"

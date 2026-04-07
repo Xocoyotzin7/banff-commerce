@@ -23,6 +23,7 @@ export {
 } from "@/lib/mailer/triggers"
 
 export async function sendReservationCreatedEmail(payload: ReservationCreatedEmailPayload): Promise<void> {
+  // Mail delivery is routed through the transactional email adapter; page code should not talk to the provider directly.
   await sendReservationConfirmed({
     to: payload.to,
     reservationCode: payload.reservationCode,

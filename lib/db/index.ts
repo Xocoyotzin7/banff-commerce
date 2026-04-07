@@ -20,6 +20,7 @@ export function getDb(): DbAdapter {
 
   const databaseUrl = resolveDatabaseUrl()
 
+  // Adapter selection is a runtime boundary: file URLs stay local, remote URLs go through Neon.
   if (databaseUrl.startsWith("file:")) {
     cachedDb = createSqliteAdapter()
     return cachedDb
@@ -32,4 +33,3 @@ export function getDb(): DbAdapter {
 export { createNeonAdapter, createSqliteAdapter }
 export { NotImplementedError } from "@/lib/db/errors"
 export * from "@/lib/db/schema"
-

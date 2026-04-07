@@ -3,9 +3,9 @@ import { notFound } from "next/navigation"
 import { DestinationStory } from "../../../components/destinations/DestinationStory"
 import { destinations } from "../../../lib/data/destinations"
 import { packages } from "../../../lib/data/packages"
-import { JsonLd } from "@/components/seo/JsonLd"
-import { buildPageMetadata } from "@/lib/seo/buildMetadata"
-import { buildCanonicalUrl } from "@/lib/seo/url"
+import { JsonLd } from "@banff/agency-core/components/seo/JsonLd"
+import { buildPageMetadata } from "@banff/agency-core/seo/buildMetadata"
+import { buildCanonicalUrl } from "@banff/agency-core/seo/url"
 import type { Testimonial } from "../../../types/travel"
 
 type PageProps = {

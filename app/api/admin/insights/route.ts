@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-import { requireAdminSession } from "@/lib/admin-session"
+import { requireAdminSession } from "@banff/agency-core/lib/admin-session"
 import { getDb } from "@/lib/db"
 import { getAdminTravelInsightsPayload } from "@/lib/admin/travel-insights"
 import { getDemoTravelInsightsPayload } from "@/lib/admin/travel-insights-demo"

@@ -29,6 +29,7 @@ export async function sendTransactionalEmail(opts: TransactionalEmailInput): Pro
       return
     }
 
+    // Third-party email boundary: the only responsibility here is request shaping and error logging.
     const response = await fetch(`${url}/api/tx`, {
       method: "POST",
       headers: {

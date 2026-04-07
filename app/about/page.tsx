@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 
-import { getLocaleFromCookies } from "@/lib/locale"
+import { getLocaleFromCookies } from "@/lib/locale.server"
 
 export default async function AboutRedirectPage() {
   const locale = await getLocaleFromCookies()

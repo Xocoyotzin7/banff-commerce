@@ -1,10 +1,10 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import { Seo } from "@/components/seo/Seo"
+import { Seo } from "@banff/agency-core/components/seo/Seo"
 import { Button } from "@/components/ui/button"
-import { buildBreadcrumbList, buildCanonicalUrl, buildPageMetadata, buildServiceJsonLd, seoConfig } from "@/lib/seo"
-import { getServicePageExample, servicePageExamples } from "@/lib/seo/example-pages"
+import { buildBreadcrumbList, buildCanonicalUrl, buildPageMetadata, buildServiceJsonLd, seoConfig } from "@banff/agency-core/seo"
+import { getServicePageExample, servicePageExamples } from "@banff/agency-core/seo/example-pages"
 
 type PageProps = {
   params: Promise<{

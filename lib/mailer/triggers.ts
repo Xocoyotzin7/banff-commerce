@@ -19,6 +19,7 @@ function buildReservationEmailData(input: {
   packageName?: string | null
   reservationType: "appointment" | "travel"
 }) {
+  // Template payload stays provider-agnostic so the same data can feed multiple transactional templates.
   return {
     reservationCode: input.reservationCode,
     date: input.date,

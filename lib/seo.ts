@@ -1,2 +1,1 @@
-export * from "@/lib/seo/index"
-
+export * from "@banff/agency-core/seo"

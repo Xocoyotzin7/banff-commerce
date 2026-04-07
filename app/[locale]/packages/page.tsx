@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 
 import { PackagesPageContent } from "@/components/packages-page-content"
 import { getSiteCopy, locales, type Locale } from "@/lib/site-content"
-import { buildLocaleMetadataPath, buildPageMetadata } from "@/lib/seo"
+import { buildLocaleMetadataPath, buildPageMetadata } from "@banff/agency-core/seo"
 
 type LocalePageProps = {
   params: Promise<{

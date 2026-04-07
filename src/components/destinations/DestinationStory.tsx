@@ -6,7 +6,7 @@ import { motion } from "framer-motion"
 import { ArrowRight, Check, MapPinned, Star } from "lucide-react"
 
 import type { Destination, Testimonial, Tour, TravelPackage } from "../../types/travel"
-import { StaggeredGrid } from "../shared/StaggeredGrid"
+import { StaggeredGrid } from "@banff/agency-core/components/shared/StaggeredGrid"
 import { DestinationHero } from "./DestinationHero"
 import { TourCard } from "./TourCard"
 import { PackageCard } from "../packages/PackageCard"

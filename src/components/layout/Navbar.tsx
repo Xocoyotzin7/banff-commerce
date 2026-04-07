@@ -13,8 +13,8 @@ import { destinations } from "../../lib/data/destinations"
 import { getTravelCopy } from "@/lib/travel-copy"
 import type { Locale } from "@/lib/site-content"
 import { cn } from "../../lib/utils"
-import { fadeInUp, staggerContainer } from "../shared/animations"
-import { MagneticButton } from "../shared/MagneticButton"
+import { fadeInUp, staggerContainer } from "@banff/agency-core/components/shared/animations"
+import { MagneticButton } from "@banff/agency-core/components/shared/MagneticButton"
 
 type MenuColumn = {
   title: string
@@ -157,6 +157,7 @@ export function Navbar({ locale }: NavbarProps) {
     const isReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     const duration = isReducedMotion ? 0 : 495
 
+    // Global header interaction: keep the branded theme flip consistent with the rest of the motion system.
     root.classList.add("theme-transition")
     root.style.setProperty("--theme-transition-duration", `${duration}ms`)
 

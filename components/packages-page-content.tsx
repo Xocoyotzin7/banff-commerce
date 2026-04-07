@@ -2,7 +2,7 @@ import { ArrowUpRight, CheckCircle2, LayoutGrid, Mail, RefreshCw, Search, Target
 
 import { HeadingTypewriter } from "@/components/heading-typewriter"
 import { MinimalWhatsappIcon } from "@/components/icons/minimal-whatsapp-icon"
-import { ScrollReveal } from "@/components/scroll-reveal"
+import { ScrollReveal } from "@banff/agency-core/components/shared/ScrollReveal"
 import { Button } from "@/components/ui/button"
 import { getSiteCopy, type Locale } from "@/lib/site-content"
 

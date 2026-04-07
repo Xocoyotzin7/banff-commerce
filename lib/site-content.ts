@@ -1,6 +1,6 @@
-export type Locale = "en" | "fr" | "es"
+import { locales, type Locale } from "@/lib/locale"
 
-export const locales: readonly Locale[] = ["en", "fr", "es"] as const
+export { locales, type Locale } from "@/lib/locale"
 
 export type NavLink = {
   label: string

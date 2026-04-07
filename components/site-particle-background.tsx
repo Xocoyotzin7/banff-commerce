@@ -1,4 +1,4 @@
-import { DotBackground } from "@/components/dot-background"
+import { DotBackground } from "@banff/agency-core/components/shared/DotBackground"
 import type { ThemeMode } from "@/lib/theme"
 
 type SiteParticleBackgroundProps = {

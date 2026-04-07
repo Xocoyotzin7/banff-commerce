@@ -10,7 +10,7 @@ import { destinations } from "../../lib/data/destinations"
 import { getTravelCopy } from "@/lib/travel-copy"
 import type { Locale } from "../../lib/site-content"
 import { cn } from "../../lib/utils"
-import { fadeInUp, staggerContainer } from "../shared/animations"
+import { fadeInUp, staggerContainer } from "@banff/agency-core/components/shared/animations"
 
 const featuredDestinations = destinations.slice(0, 5)
 const featuredBlogSlugs: Record<(typeof featuredDestinations)[number]["id"], string> = {

@@ -1,10 +1,10 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import { Seo } from "@/components/seo/Seo"
+import { Seo } from "@banff/agency-core/components/seo/Seo"
 import { Button } from "@/components/ui/button"
-import { buildArticleJsonLd, buildBreadcrumbList, buildCanonicalUrl, buildPageMetadata, seoConfig } from "@/lib/seo"
-import { casePageExamples, getCasePageExample } from "@/lib/seo/example-pages"
+import { buildArticleJsonLd, buildBreadcrumbList, buildCanonicalUrl, buildPageMetadata, seoConfig } from "@banff/agency-core/seo"
+import { casePageExamples, getCasePageExample } from "@banff/agency-core/seo/example-pages"
 
 type PageProps = {
   params: Promise<{
@@ -86,4 +86,3 @@ export default async function CaseExamplePage({ params }: PageProps) {
     </main>
   )
 }
-

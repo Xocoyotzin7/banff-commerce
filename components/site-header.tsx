@@ -29,6 +29,7 @@ export function SiteHeader({ locale }: SiteHeaderProps) {
 
   return (
     <>
+      {/* Agency-owned header shell: language switcher, theme switcher, and mobile dock are shared UI layers. */}
       <div className="pointer-events-none fixed inset-x-0 top-4 z-50 flex justify-center px-4 sm:px-6">
         <header className="pointer-events-auto relative flex w-full max-w-[1180px] items-center justify-between gap-2 rounded-3xl border px-3 py-3 text-sm font-semibold shadow-2xl transition-all duration-500 backdrop-blur-md text-gray-900 dark:text-white border-black/5 bg-white/80 dark:border-white/10 dark:bg-black/60 sm:px-4">
           <Link href="/" className="flex min-w-0 items-center gap-2 leading-tight">

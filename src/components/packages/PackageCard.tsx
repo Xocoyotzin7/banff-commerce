@@ -12,7 +12,7 @@ import { cn } from "../../lib/utils"
 import { Badge } from "../../../components/ui/badge"
 import { Button } from "../../../components/ui/button"
 import { Card, CardContent } from "../../../components/ui/card"
-import { MagneticButton } from "../shared/MagneticButton"
+import { MagneticButton } from "@banff/agency-core/components/shared/MagneticButton"
 import { getTravelCopy } from "@/lib/travel-copy"
 import type { Locale } from "../../lib/site-content"
 

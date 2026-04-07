@@ -17,7 +17,9 @@ import { ChartHoverDownloadArea } from "@/components/admin/charts/ChartHoverDown
 import { ChartPngButton } from "@/components/admin/charts/ChartPngButton"
 import { InventoryAlert } from "@/components/metrics/InventoryAlert"
 import { KPICard } from "@/components/metrics/KPICard"
-import { ScrollRevealStagger } from "@/components/scroll-reveal-stagger"
+import { SequentialBarShape } from "@banff/agency-core/components/shared/SequentialBarShape"
+import { ScrollRevealStagger } from "@banff/agency-core/components/shared/ScrollRevealStagger"
+import { SequentialChartDataRenderer } from "@banff/agency-core/components/shared/SequentialChartDataRenderer"
 import { buildMetricsCsv, buildMetricsWorkbook } from "@/lib/metrics/export"
 import type { MetricsPayload, MetricsRange } from "@/lib/metrics/types"
 
@@ -30,6 +32,19 @@ type MetricsResponse = {
   success: boolean
   data?: MetricsPayload & {
     selectedRange?: MetricsRange
+  }
+}
+
+function createSequentialBarShape(shouldReduceMotion: boolean, orientation: "vertical" | "horizontal") {
+  return function SequentialBarShapeRenderer(props: {
+    x?: number
+    y?: number
+    width?: number
+    height?: number
+    fill?: string
+    index?: number
+  }) {
+    return <SequentialBarShape {...props} reduceMotion={shouldReduceMotion} orientation={orientation} />
   }
 }
 
@@ -274,28 +289,44 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
               </CardHeader>
               <CardContent className="h-[320px]">
                 <ChartBuildFrame className="h-full">
+                  {({ isVisible, shouldReduceMotion }) => (
                   <ChartHoverDownloadArea targetRef={salesChartRef} filename={`sales-chart-${chartExportSuffix}`} className="h-full">
-                  {salesSeries.length ? (
-                    <ChartContainer config={salesChartConfig} className="h-full w-full">
-                      <LineChart data={salesSeries} margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                        <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={10} />
-                        <YAxis
-                          tickLine={false}
-                          axisLine={false}
-                          width={48}
-                          tickFormatter={(value) => `$${Number(value).toLocaleString("es-MX")}`}
-                        />
-                        <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
-                        <Line type="monotone" dataKey="revenue" stroke="var(--color-revenue)" strokeWidth={2.5} dot={false} />
-                      </LineChart>
-                    </ChartContainer>
-                  ) : (
-                    <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-border/70 text-sm text-muted-foreground">
-                      No sales data for this range.
-                    </div>
+                      {salesSeries.length ? (
+                        <SequentialChartDataRenderer data={salesSeries} active={isVisible} reduceMotion={shouldReduceMotion} stepMs={110}>
+                          {({ data: chartData }) => (
+                            <ChartContainer config={salesChartConfig} className="h-full w-full">
+                              <LineChart key={`sales-line-${chartData.length}`} data={chartData} margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={10} />
+                                <YAxis
+                                  tickLine={false}
+                                  axisLine={false}
+                                  width={48}
+                                  tickFormatter={(value) => `$${Number(value).toLocaleString("es-MX")}`}
+                                />
+                                <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
+                                <Line
+                                  type="monotone"
+                                  dataKey="revenue"
+                                  stroke="var(--color-revenue)"
+                                  strokeWidth={3}
+                                  dot={{ r: 4, fill: "var(--color-revenue)", strokeWidth: 0 }}
+                                  baseLine={0}
+                                  isAnimationActive={!shouldReduceMotion}
+                                  animationBegin={0}
+                                  animationDuration={900}
+                                />
+                              </LineChart>
+                            </ChartContainer>
+                          )}
+                        </SequentialChartDataRenderer>
+                      ) : (
+                        <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-border/70 text-sm text-muted-foreground">
+                          No sales data for this range.
+                        </div>
+                      )}
+                    </ChartHoverDownloadArea>
                   )}
-                  </ChartHoverDownloadArea>
                 </ChartBuildFrame>
               </CardContent>
             </Card>
@@ -312,23 +343,40 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
               </CardHeader>
               <CardContent className="h-[320px]">
                 <ChartBuildFrame className="h-full">
-                  <ChartHoverDownloadArea targetRef={topProductsChartRef} filename={`top-products-${chartExportSuffix}`} className="h-full">
-                  {topProducts.length ? (
-                    <ChartContainer config={productChartConfig} className="h-full w-full">
-                      <BarChart data={topProducts} layout="vertical" margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
-                        <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                        <XAxis type="number" tickLine={false} axisLine={false} />
-                        <YAxis dataKey="name" type="category" width={120} tickLine={false} axisLine={false} />
-                        <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
-                        <Bar dataKey="units" fill="var(--color-units)" radius={[0, 8, 8, 0]} />
-                      </BarChart>
-                    </ChartContainer>
-                  ) : (
-                    <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-border/70 text-sm text-muted-foreground">
-                      No sold products yet.
-                    </div>
+                  {({ isVisible, shouldReduceMotion }) => (
+                    <ChartHoverDownloadArea targetRef={topProductsChartRef} filename={`top-products-${chartExportSuffix}`} className="h-full">
+                      {topProducts.length ? (
+                        <SequentialChartDataRenderer
+                          data={topProducts}
+                          active={isVisible}
+                          reduceMotion={shouldReduceMotion}
+                          stepMs={80}
+                        >
+                          {({ data: chartData, complete }) => (
+                            <ChartContainer config={productChartConfig} className="h-full w-full">
+                              <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
+                                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                                <XAxis type="number" tickLine={false} axisLine={false} />
+                                <YAxis dataKey="name" type="category" width={120} tickLine={false} axisLine={false} />
+                                <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
+                                <Bar
+                                  dataKey="units"
+                                  fill="var(--color-units)"
+                                  radius={[0, 8, 8, 0]}
+                                  isAnimationActive={false}
+                                  shape={createSequentialBarShape(shouldReduceMotion, "horizontal")}
+                                />
+                              </BarChart>
+                            </ChartContainer>
+                          )}
+                        </SequentialChartDataRenderer>
+                      ) : (
+                        <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-border/70 text-sm text-muted-foreground">
+                          No sold products yet.
+                        </div>
+                      )}
+                    </ChartHoverDownloadArea>
                   )}
-                  </ChartHoverDownloadArea>
                 </ChartBuildFrame>
               </CardContent>
             </Card>
@@ -347,28 +395,45 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
               </CardHeader>
               <CardContent className="h-[280px]">
                 <ChartBuildFrame className="h-full">
-                  <ChartHoverDownloadArea targetRef={branchRevenueChartRef} filename={`revenue-by-branch-${chartExportSuffix}`} className="h-full">
-                  {branchRevenue.length ? (
-                    <ChartContainer config={branchChartConfig} className="h-full w-full">
-                      <BarChart data={branchRevenue} margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                        <XAxis dataKey="branch" tickLine={false} axisLine={false} tickMargin={10} />
-                        <YAxis
-                          tickLine={false}
-                          axisLine={false}
-                          width={52}
-                          tickFormatter={(value) => `$${Number(value).toLocaleString("es-MX")}`}
-                        />
-                        <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
-                        <Bar dataKey="revenue" fill="var(--color-revenue)" radius={[8, 8, 0, 0]} />
-                      </BarChart>
-                    </ChartContainer>
-                  ) : (
-                    <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-border/70 text-sm text-muted-foreground">
-                      No branch data available.
-                    </div>
+                  {({ isVisible, shouldReduceMotion }) => (
+                    <ChartHoverDownloadArea targetRef={branchRevenueChartRef} filename={`revenue-by-branch-${chartExportSuffix}`} className="h-full">
+                      {branchRevenue.length ? (
+                        <SequentialChartDataRenderer
+                          data={branchRevenue}
+                          active={isVisible}
+                          reduceMotion={shouldReduceMotion}
+                          stepMs={80}
+                        >
+                          {({ data: chartData }) => (
+                            <ChartContainer config={branchChartConfig} className="h-full w-full">
+                              <BarChart data={chartData} margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                <XAxis dataKey="branch" tickLine={false} axisLine={false} tickMargin={10} />
+                                <YAxis
+                                  tickLine={false}
+                                  axisLine={false}
+                                  width={52}
+                                  tickFormatter={(value) => `$${Number(value).toLocaleString("es-MX")}`}
+                                />
+                                <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
+                                <Bar
+                                  dataKey="revenue"
+                                  fill="var(--color-revenue)"
+                                  radius={[8, 8, 0, 0]}
+                                  isAnimationActive={false}
+                                  shape={createSequentialBarShape(shouldReduceMotion, "vertical")}
+                                />
+                              </BarChart>
+                            </ChartContainer>
+                          )}
+                        </SequentialChartDataRenderer>
+                      ) : (
+                        <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-border/70 text-sm text-muted-foreground">
+                          No branch data available.
+                        </div>
+                      )}
+                    </ChartHoverDownloadArea>
                   )}
-                  </ChartHoverDownloadArea>
                 </ChartBuildFrame>
               </CardContent>
             </Card>
@@ -385,23 +450,40 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
               </CardHeader>
               <CardContent className="h-[280px]">
                 <ChartBuildFrame className="h-full">
-                  <ChartHoverDownloadArea targetRef={restockChartRef} filename={`restock-pressure-${chartExportSuffix}`} className="h-full">
-                  {restockChart.length ? (
-                    <ChartContainer config={restockChartConfig} className="h-full w-full">
-                      <BarChart data={restockChart} layout="vertical" margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
-                        <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                        <XAxis type="number" tickLine={false} axisLine={false} />
-                        <YAxis dataKey="name" type="category" width={140} tickLine={false} axisLine={false} />
-                        <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
-                        <Bar dataKey="daysRemaining" fill="var(--color-days)" radius={[0, 8, 8, 0]} />
-                      </BarChart>
-                    </ChartContainer>
-                  ) : (
-                    <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-border/70 text-sm text-muted-foreground">
-                      No restock issues detected.
-                    </div>
+                  {({ isVisible, shouldReduceMotion }) => (
+                    <ChartHoverDownloadArea targetRef={restockChartRef} filename={`restock-pressure-${chartExportSuffix}`} className="h-full">
+                      {restockChart.length ? (
+                        <SequentialChartDataRenderer
+                          data={restockChart}
+                          active={isVisible}
+                          reduceMotion={shouldReduceMotion}
+                          stepMs={80}
+                        >
+                          {({ data: chartData }) => (
+                            <ChartContainer config={restockChartConfig} className="h-full w-full">
+                              <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
+                                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                                <XAxis type="number" tickLine={false} axisLine={false} />
+                                <YAxis dataKey="name" type="category" width={140} tickLine={false} axisLine={false} />
+                                <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
+                                <Bar
+                                  dataKey="daysRemaining"
+                                  fill="var(--color-days)"
+                                  radius={[0, 8, 8, 0]}
+                                  isAnimationActive={false}
+                                  shape={createSequentialBarShape(shouldReduceMotion, "horizontal")}
+                                />
+                              </BarChart>
+                            </ChartContainer>
+                          )}
+                        </SequentialChartDataRenderer>
+                      ) : (
+                        <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-border/70 text-sm text-muted-foreground">
+                          No restock issues detected.
+                        </div>
+                      )}
+                    </ChartHoverDownloadArea>
                   )}
-                  </ChartHoverDownloadArea>
                 </ChartBuildFrame>
               </CardContent>
             </Card>

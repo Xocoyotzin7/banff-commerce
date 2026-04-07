@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
-import { ADMIN_COOKIE_NAME, signAdminToken } from "@/lib/admin-auth"
+import { ADMIN_COOKIE_NAME, signAdminToken } from "@banff/agency-core/lib/admin-auth"
 
 const LoginSchema = z.object({
   email: z.string().catch("demo@latamviajes.local"),

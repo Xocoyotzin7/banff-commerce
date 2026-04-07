@@ -1,14 +1,15 @@
 import type { MetadataRoute } from "next"
 
 import { getAllBlogPosts } from "@/lib/blog"
-import { casePageExamples, servicePageExamples } from "@/lib/seo/example-pages"
-import { buildCanonicalUrl, seoConfig } from "@/lib/seo"
-import { locales } from "@/lib/site-content"
+import { casePageExamples, servicePageExamples } from "@banff/agency-core/seo/example-pages"
+import { buildCanonicalUrl, seoConfig } from "@banff/agency-core/seo"
+import { locales } from "@banff/agency-core/lib/locale"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
   const siteUrl = seoConfig.siteUrl
 
+  // Sitemap stays server-generated so the search index reflects current content and locale routes.
   const localePages = locales.flatMap((locale) => [
     {
       url: buildCanonicalUrl(`/${locale}/about`, siteUrl),

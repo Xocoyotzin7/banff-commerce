@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { getLocaleFromCookies } from "@/lib/locale"
+import { getLocaleFromCookies } from "@/lib/locale.server"
 import { getTravelCopy } from "@/lib/travel-copy"
 import { PackagesPageClient } from "../../components/packages/PackagesPageClient"
 

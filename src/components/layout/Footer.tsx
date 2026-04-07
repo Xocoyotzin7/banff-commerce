@@ -20,7 +20,7 @@ import { destinations } from "../../lib/data/destinations"
 import { cn } from "../../lib/utils"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
-import { fadeInUp, staggerContainer } from "../shared/animations"
+import { fadeInUp, staggerContainer } from "@banff/agency-core/components/shared/animations"
 import { getTravelCopy } from "@/lib/travel-copy"
 import type { Locale } from "@/lib/site-content"
 

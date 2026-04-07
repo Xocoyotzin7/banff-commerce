@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
-import { requireAdminSession } from "@/lib/admin-session"
+import { requireAdminSession } from "@banff/agency-core/lib/admin-session"
 import {
   deleteDemoAdminProduct,
   getDemoAdminProductById,

@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og"
 
-import { getSiteUrl, SITE_DESCRIPTION, SITE_NAME } from "@/lib/seo"
+import { getSiteUrl, SITE_DESCRIPTION, SITE_NAME } from "@banff/agency-core/seo"
 import BanffDark from "../BanffOscuro.jpeg"
 
 export const runtime = "edge"

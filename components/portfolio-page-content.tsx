@@ -2,7 +2,7 @@ import Link from "next/link"
 import { ArrowUpRight, CalendarClock, ChevronDown, GitFork, Globe2, LockKeyhole, MessageSquareText, RefreshCw, ShieldCheck, Star, Workflow } from "lucide-react"
 
 import { HeadingTypewriter } from "@/components/heading-typewriter"
-import { ScrollReveal } from "@/components/scroll-reveal"
+import { ScrollReveal } from "@banff/agency-core/components/shared/ScrollReveal"
 import { getFeaturedGitHubProjects, summarizeGitHubProjects, type GitHubRepository } from "@/lib/github-projects"
 import { type Locale } from "@/lib/site-content"
 

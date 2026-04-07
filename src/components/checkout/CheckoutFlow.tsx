@@ -377,6 +377,7 @@ export function CheckoutFlow() {
   const totalUsd = useMemo(() => selectedPackage.price * travelFactor * cabinFactor, [cabinFactor, selectedPackage.price, travelFactor])
 
   function sendConversionEvent() {
+    // Conversion analytics stays decoupled from checkout confirmation so the payment UX remains stable.
     const payload = {
       pagePath: `/checkout?packageId=${encodeURIComponent(selectedPackage.id)}`,
       pageType: "checkout",

@@ -1,6 +1,3 @@
 "use client"
 
-export function SiteThemeTransition() {
-  return null
-}
-
+export { SiteThemeTransition } from "@banff/agency-core/components/site-theme-transition"

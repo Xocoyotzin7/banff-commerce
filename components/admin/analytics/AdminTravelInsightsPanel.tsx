@@ -14,7 +14,9 @@ import { ChartBuildFrame } from "@/components/admin/charts/ChartBuildFrame"
 import { ChartHoverDownloadArea } from "@/components/admin/charts/ChartHoverDownloadArea"
 import { ChartPngButton } from "@/components/admin/charts/ChartPngButton"
 import { TableScrollRevealRows } from "@/components/admin/TableScrollRevealRows"
-import { ScrollRevealStagger } from "@/components/scroll-reveal-stagger"
+import { SequentialBarShape } from "@banff/agency-core/components/shared/SequentialBarShape"
+import { ScrollRevealStagger } from "@banff/agency-core/components/shared/ScrollRevealStagger"
+import { SequentialChartDataRenderer } from "@banff/agency-core/components/shared/SequentialChartDataRenderer"
 import type { TravelInsightsPayload, TravelInsightsRange } from "@/lib/admin/travel-insights"
 import { buildTravelInsightsCsv, buildTravelInsightsWorkbook } from "@/lib/admin/travel-insights-export"
 import { useAdminInsights } from "@/hooks/use-admin-insights"
@@ -25,6 +27,19 @@ type AdminTravelInsightsPanelProps = {
 }
 
 const chartColors = ["#0A6E6E", "#D4A017", "#E85D26", "#5b8def", "#8b5cf6", "#14b8a6"]
+
+function createSequentialBarShape(shouldReduceMotion: boolean, orientation: "vertical" | "horizontal") {
+  return function SequentialBarShapeRenderer(props: {
+    x?: number
+    y?: number
+    width?: number
+    height?: number
+    fill?: string
+    index?: number
+  }) {
+    return <SequentialBarShape {...props} reduceMotion={shouldReduceMotion} orientation={orientation} />
+  }
+}
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("es-MX").format(Math.round(value))
@@ -223,25 +238,42 @@ export function AdminTravelInsightsPanel({ initialData, initialRange }: AdminTra
                 </CardHeader>
                 <CardContent className="h-80">
                   <ChartBuildFrame className="h-full">
-                    <ChartHoverDownloadArea
-                      targetRef={reservationsByDestinationRef}
-                      filename={`reservations-by-destination-${chartExportSuffix}`}
-                      className="h-full"
-                    >
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data.charts.reservationsByDestination} margin={{ left: -12 }}>
-                          <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.12} />
-                          <XAxis dataKey="label" tick={{ fontSize: 12 }} interval={0} />
-                          <YAxis tick={{ fontSize: 12 }} />
-                          <Tooltip />
-                          <Bar dataKey="value" fill="#0A6E6E" radius={[8, 8, 0, 0]}>
-                            {data.charts.reservationsByDestination.map((entry, index) => (
-                              <Cell key={entry.label} fill={chartColors[index % chartColors.length]} />
-                            ))}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </ChartHoverDownloadArea>
+                    {({ isVisible, shouldReduceMotion }) => (
+                      <ChartHoverDownloadArea
+                        targetRef={reservationsByDestinationRef}
+                        filename={`reservations-by-destination-${chartExportSuffix}`}
+                        className="h-full"
+                      >
+                        <SequentialChartDataRenderer
+                          data={data.charts.reservationsByDestination}
+                          active={isVisible}
+                          reduceMotion={shouldReduceMotion}
+                          stepMs={80}
+                        >
+                          {({ data: chartData }) => (
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart data={chartData} margin={{ left: -12 }}>
+                                <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.12} />
+                                <XAxis dataKey="label" tick={{ fontSize: 12 }} interval={0} />
+                                <YAxis tick={{ fontSize: 12 }} />
+                                <Tooltip />
+                                <Bar
+                                  dataKey="value"
+                                  fill="#0A6E6E"
+                                  radius={[8, 8, 0, 0]}
+                                  isAnimationActive={false}
+                                  shape={createSequentialBarShape(shouldReduceMotion, "vertical")}
+                                >
+                                  {chartData.map((entry, index) => (
+                                    <Cell key={entry.label} fill={chartColors[index % chartColors.length]} />
+                                  ))}
+                                </Bar>
+                              </BarChart>
+                            </ResponsiveContainer>
+                          )}
+                        </SequentialChartDataRenderer>
+                      </ChartHoverDownloadArea>
+                    )}
                   </ChartBuildFrame>
                 </CardContent>
               </Card>
@@ -261,17 +293,34 @@ export function AdminTravelInsightsPanel({ initialData, initialRange }: AdminTra
                 </CardHeader>
                 <CardContent className="h-80">
                   <ChartBuildFrame className="h-full">
-                    <ChartHoverDownloadArea targetRef={passivePagesRef} filename={`passive-top-pages-${chartExportSuffix}`} className="h-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data.charts.passivePages} layout="vertical" margin={{ left: 16 }}>
-                          <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.12} />
-                          <XAxis type="number" tick={{ fontSize: 12 }} />
-                          <YAxis dataKey="label" type="category" tick={{ fontSize: 12 }} width={120} />
-                          <Tooltip />
-                          <Bar dataKey="value" fill="#D4A017" radius={[0, 8, 8, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </ChartHoverDownloadArea>
+                    {({ isVisible, shouldReduceMotion }) => (
+                      <ChartHoverDownloadArea targetRef={passivePagesRef} filename={`passive-top-pages-${chartExportSuffix}`} className="h-full">
+                        <SequentialChartDataRenderer
+                          data={data.charts.passivePages}
+                          active={isVisible}
+                          reduceMotion={shouldReduceMotion}
+                          stepMs={85}
+                        >
+                          {({ data: chartData }) => (
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart data={chartData} layout="vertical" margin={{ left: 16 }}>
+                                <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.12} />
+                                <XAxis type="number" tick={{ fontSize: 12 }} />
+                                <YAxis dataKey="label" type="category" tick={{ fontSize: 12 }} width={120} />
+                                <Tooltip />
+                                <Bar
+                                  dataKey="value"
+                                  fill="#D4A017"
+                                  radius={[0, 8, 8, 0]}
+                                  isAnimationActive={false}
+                                  shape={createSequentialBarShape(shouldReduceMotion, "horizontal")}
+                                />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          )}
+                        </SequentialChartDataRenderer>
+                      </ChartHoverDownloadArea>
+                    )}
                   </ChartBuildFrame>
                 </CardContent>
               </Card>
@@ -293,17 +342,33 @@ export function AdminTravelInsightsPanel({ initialData, initialRange }: AdminTra
                 </CardHeader>
                 <CardContent className="h-72">
                   <ChartBuildFrame className="h-full">
-                    <ChartHoverDownloadArea targetRef={seasonalityRef} filename={`seasonality-by-month-${chartExportSuffix}`} className="h-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={monthlySeries} margin={{ left: -12 }}>
-                          <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.12} />
-                          <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                          <YAxis tick={{ fontSize: 12 }} />
-                          <Tooltip />
-                          <Line type="monotone" dataKey="value" stroke="#E85D26" strokeWidth={2.5} dot={{ r: 3 }} />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </ChartHoverDownloadArea>
+                    {({ isVisible, shouldReduceMotion }) => (
+                      <ChartHoverDownloadArea targetRef={seasonalityRef} filename={`seasonality-by-month-${chartExportSuffix}`} className="h-full">
+                        <SequentialChartDataRenderer data={monthlySeries} active={isVisible} reduceMotion={shouldReduceMotion} stepMs={110}>
+                          {({ data: chartData }) => (
+                            <ResponsiveContainer width="100%" height="100%">
+                              <LineChart key={`seasonality-line-${chartData.length}`} data={chartData} margin={{ left: -12 }}>
+                                <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.12} />
+                                <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                                <YAxis tick={{ fontSize: 12 }} />
+                                <Tooltip />
+                                <Line
+                                  type="monotone"
+                                  dataKey="value"
+                                  stroke="#E85D26"
+                                  strokeWidth={3}
+                                  dot={{ r: 4, fill: "#E85D26", strokeWidth: 0 }}
+                                  baseLine={0}
+                                  isAnimationActive={!shouldReduceMotion}
+                                  animationBegin={0}
+                                  animationDuration={900}
+                                />
+                              </LineChart>
+                            </ResponsiveContainer>
+                          )}
+                        </SequentialChartDataRenderer>
+                      </ChartHoverDownloadArea>
+                    )}
                   </ChartBuildFrame>
                 </CardContent>
               </Card>
@@ -329,17 +394,34 @@ export function AdminTravelInsightsPanel({ initialData, initialRange }: AdminTra
                   </div>
                   <div className="h-40">
                     <ChartBuildFrame className="h-full">
-                      <ChartHoverDownloadArea targetRef={topCountriesRef} filename={`geo-and-conversion-${chartExportSuffix}`} className="h-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={data.charts.topCountries} layout="vertical" margin={{ left: 16 }}>
-                            <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.12} />
-                            <XAxis type="number" tick={{ fontSize: 12 }} />
-                            <YAxis dataKey="label" type="category" tick={{ fontSize: 12 }} width={90} />
-                            <Tooltip />
-                            <Bar dataKey="value" fill="#0A6E6E" radius={[0, 8, 8, 0]} />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </ChartHoverDownloadArea>
+                      {({ isVisible, shouldReduceMotion }) => (
+                        <ChartHoverDownloadArea targetRef={topCountriesRef} filename={`geo-and-conversion-${chartExportSuffix}`} className="h-full">
+                          <SequentialChartDataRenderer
+                            data={data.charts.topCountries}
+                            active={isVisible}
+                            reduceMotion={shouldReduceMotion}
+                            stepMs={80}
+                          >
+                            {({ data: chartData }) => (
+                              <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={chartData} layout="vertical" margin={{ left: 16 }}>
+                                  <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.12} />
+                                  <XAxis type="number" tick={{ fontSize: 12 }} />
+                                  <YAxis dataKey="label" type="category" tick={{ fontSize: 12 }} width={90} />
+                                  <Tooltip />
+                                  <Bar
+                                    dataKey="value"
+                                    fill="#0A6E6E"
+                                    radius={[0, 8, 8, 0]}
+                                    isAnimationActive={false}
+                                    shape={createSequentialBarShape(shouldReduceMotion, "horizontal")}
+                                  />
+                                </BarChart>
+                              </ResponsiveContainer>
+                            )}
+                          </SequentialChartDataRenderer>
+                        </ChartHoverDownloadArea>
+                      )}
                     </ChartBuildFrame>
                   </div>
                 </div>

@@ -5,8 +5,13 @@ import { motion, useReducedMotion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 
+type ChartBuildFrameState = {
+  isVisible: boolean
+  shouldReduceMotion: boolean
+}
+
 type ChartBuildFrameProps = {
-  children: ReactNode
+  children: ReactNode | ((state: ChartBuildFrameState) => ReactNode)
   className?: string
 }
 
@@ -31,6 +36,10 @@ export function ChartBuildFrame({ children, className }: ChartBuildFrameProps) {
   }, [])
 
   const visible = shouldReduceMotion || isVisible
+  const renderedChildren =
+    typeof children === "function"
+      ? children({ isVisible: visible, shouldReduceMotion: !!shouldReduceMotion })
+      : children
 
   return (
     <motion.div
@@ -65,7 +74,7 @@ export function ChartBuildFrame({ children, className }: ChartBuildFrameProps) {
               }
         }
       />
-      <div className="relative z-0 h-full w-full">{children}</div>
+      <div className="relative z-0 h-full w-full">{renderedChildren}</div>
     </motion.div>
   )
 }

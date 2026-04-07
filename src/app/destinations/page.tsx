@@ -2,8 +2,8 @@ import type { Metadata } from "next"
 
 import { DestinationCard } from "../../components/destinations/DestinationCard"
 import { destinations } from "../../lib/data/destinations"
-import { StaggeredGrid } from "../../components/shared/StaggeredGrid"
-import { getLocaleFromCookies } from "@/lib/locale"
+import { StaggeredGrid } from "@banff/agency-core/components/shared/StaggeredGrid"
+import { getLocaleFromCookies } from "@/lib/locale.server"
 import { getTravelCopy } from "@/lib/travel-copy"
 import type { Locale } from "@/lib/site-content"
 

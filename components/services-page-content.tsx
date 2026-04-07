@@ -1,5 +1,5 @@
 import { HeadingTypewriter } from "@/components/heading-typewriter"
-import { ScrollReveal } from "@/components/scroll-reveal"
+import { ScrollReveal } from "@banff/agency-core/components/shared/ScrollReveal"
 import { MdxArticle } from "@/components/mdx-article"
 import { ServicesPhoneShowcase } from "@/components/services-phone-showcase"
 import { readLocalizedMdx, renderMdxToHtml } from "@/lib/mdx"

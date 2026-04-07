@@ -1,4 +1,4 @@
-import { DotBackground } from "@/components/dot-background"
+import { DotBackground } from "@banff/agency-core/components/shared/DotBackground"
 
 type MdxArticleProps = {
   title: string

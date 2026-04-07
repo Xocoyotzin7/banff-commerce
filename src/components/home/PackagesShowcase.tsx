@@ -7,10 +7,10 @@ import { Sparkles } from "lucide-react"
 
 import { PackageCard } from "../packages/PackageCard"
 import { packages } from "../../lib/data/packages"
-import { MagneticButton } from "../shared/MagneticButton"
+import { MagneticButton } from "@banff/agency-core/components/shared/MagneticButton"
 import { Button } from "../../../components/ui/button"
 import { cn } from "../../lib/utils"
-import { staggerContainer } from "../shared/animations"
+import { staggerContainer } from "@banff/agency-core/components/shared/animations"
 import { getTravelCopy } from "@/lib/travel-copy"
 import type { Locale } from "../../lib/site-content"
 
