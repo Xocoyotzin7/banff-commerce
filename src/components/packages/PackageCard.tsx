@@ -13,12 +13,15 @@ import { Badge } from "../../../components/ui/badge"
 import { Button } from "../../../components/ui/button"
 import { Card, CardContent } from "../../../components/ui/card"
 import { MagneticButton } from "../shared/MagneticButton"
+import { getTravelCopy } from "@/lib/travel-copy"
+import type { Locale } from "../../lib/site-content"
 
 type PackageCardProps = {
   travelPackage: TravelPackage
   layout?: "vertical" | "horizontal"
   highlighted?: boolean
   layoutId?: string
+  locale?: Locale
 }
 
 const currencyLabels = ["USD", "MXN", "CAD"] as const
@@ -32,10 +35,58 @@ function money(value: number) {
   return value.toLocaleString("en-US")
 }
 
-export function PackageCard({ travelPackage, layout = "vertical", highlighted = false, layoutId }: PackageCardProps) {
+function getTierFromPackageId(packageId: string) {
+  if (packageId.endsWith("-starter")) return "starter"
+  if (packageId.endsWith("-explorer")) return "explorer"
+  return "premium"
+}
+
+function getLocalizedBadge(badge: string | undefined, locale: Locale) {
+  const copy = getTravelCopy(locale).home.packageCard.badges
+  if (!badge) return copy.starter
+  if (badge === "Más vendido") return copy.explorer
+  if (badge === "Mejor valor") return copy.starter
+  if (badge === "Exclusivo") return copy.premium
+  return badge
+}
+
+function localizeItineraryStep(step: string, destinationName: string, locale: Locale) {
+  const copy = getTravelCopy(locale).home.packageCard.itinerary
+  const translatedDay = step.match(/^Day (\d+):\s*(.*)$/i)
+  if (translatedDay) {
+    const dayNumber = translatedDay[1]
+    const rest = translatedDay[2]
+    const localizedRest =
+      rest === `Arrival in ${destinationName}`
+        ? `${copy.arrival} ${destinationName}`
+        : rest === `Private arrival at ${destinationName}`
+          ? `${copy.privateArrival} ${destinationName}`
+          : rest === "Departure with airport assistance"
+            ? copy.departureAssist
+            : rest === "Departure"
+              ? copy.departure
+              : rest === "leisure and transfer buffer"
+                ? copy.leisure
+                : rest === "curated downtime"
+                  ? copy.curatedDowntime
+                  : rest
+
+    return `${copy.day} ${dayNumber}: ${localizedRest}`
+  }
+
+  if (step === `Arrival in ${destinationName}`) return `${copy.arrival} ${destinationName}`
+  if (step === `Private arrival at ${destinationName}`) return `${copy.privateArrival} ${destinationName}`
+  if (step === "Departure with airport assistance") return copy.departureAssist
+  if (step === "Departure") return copy.departure
+
+  return step
+}
+
+export function PackageCard({ travelPackage, layout = "vertical", highlighted = false, layoutId, locale = "en" }: PackageCardProps) {
   const [currency, setCurrency] = useState<Currency>("USD")
   const [imageLoaded, setImageLoaded] = useState(false)
   const reduceMotion = useReducedMotion() ?? false
+  const copy = getTravelCopy(locale)
   const destination = useMemo(() => getDestination(travelPackage.destinationId), [travelPackage.destinationId])
   const priceMap = travelPackage.pricing ?? {
     usd: travelPackage.price,
@@ -44,6 +95,7 @@ export function PackageCard({ travelPackage, layout = "vertical", highlighted = 
   }
   const displayPrice = currency === "USD" ? priceMap.usd : currency === "MXN" ? priceMap.mxn : priceMap.cad
   const isHorizontal = layout === "horizontal"
+  const tier = getTierFromPackageId(travelPackage.id)
 
   return (
     <motion.article
@@ -72,8 +124,15 @@ export function PackageCard({ travelPackage, layout = "vertical", highlighted = 
           <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(6,13,13,0.9)_0%,rgba(6,13,13,0.26)_54%,rgba(6,13,13,0.04)_100%)]" />
 
           <div className="absolute left-4 right-4 top-4 flex items-start justify-between gap-3">
-            <Badge className={cn("rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-black", travelPackage.badge === "Más vendido" ? "bg-[color:var(--secondary)]" : "bg-white")}>
-              {travelPackage.badge ?? "Starter"}
+            <Badge
+              className={cn(
+                "rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-black",
+                travelPackage.badge === "Más vendido" || travelPackage.badge === "Mejor valor"
+                  ? "bg-[color:var(--secondary)]"
+                  : "bg-white",
+              )}
+            >
+              {getLocalizedBadge(travelPackage.badge, locale)}
             </Badge>
             <Badge className="rounded-full border border-white/15 bg-black/40 px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-white backdrop-blur-xl">
               {destination?.country ?? "LATAM"}
@@ -83,12 +142,19 @@ export function PackageCard({ travelPackage, layout = "vertical", highlighted = 
           <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
             <p className="text-[10px] uppercase tracking-[0.34em] text-white/58">{destination?.name ?? travelPackage.destinationId}</p>
             <h3 className="mt-2 max-w-md font-display text-[2rem] font-bold leading-[0.95] text-white">
-              {travelPackage.title}
+              {destination?.name ?? travelPackage.title}{" "}
+              <span className="text-white/82">
+                {copy.home.packageTabs[tier]}
+              </span>
             </h3>
             <div className="mt-3 flex items-center gap-2 text-xs uppercase tracking-[0.28em] text-white/60">
-              <span>{travelPackage.days} days</span>
+              <span>
+                {travelPackage.days} {copy.home.packageCard.days}
+              </span>
               <span>·</span>
-              <span>{travelPackage.nights} nights</span>
+              <span>
+                {travelPackage.nights} {copy.home.packageCard.nights}
+              </span>
             </div>
           </div>
         </div>
@@ -118,7 +184,7 @@ export function PackageCard({ travelPackage, layout = "vertical", highlighted = 
               </div>
 
               <div className="text-right">
-                <p className="text-[10px] uppercase tracking-[0.34em] text-text-muted">From</p>
+                <p className="text-[10px] uppercase tracking-[0.34em] text-text-muted">{copy.home.packageCard.from}</p>
                 <motion.div
                   key={`${currency}-${displayPrice}`}
                   initial={{ opacity: 0, y: 10 }}
@@ -135,37 +201,43 @@ export function PackageCard({ travelPackage, layout = "vertical", highlighted = 
               <div className="rounded-2xl border border-white/10 bg-black/18 p-4 text-white">
                 <div className="flex items-center gap-2 text-xs uppercase tracking-[0.28em] text-white/54">
                   <PlaneTakeoff className="h-3.5 w-3.5" />
-                  Flights
+                  {copy.home.packageCard.flights}
                 </div>
-                <p className="mt-2 text-sm font-medium">{travelPackage.includes.flights ? "Included" : "Optional"}</p>
+                <p className="mt-2 text-sm font-medium">
+                  {travelPackage.includes.flights ? copy.home.packageCard.included : copy.home.packageCard.optional}
+                </p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/18 p-4 text-white">
                 <div className="flex items-center gap-2 text-xs uppercase tracking-[0.28em] text-white/54">
                   <BedDouble className="h-3.5 w-3.5" />
-                  Hotel
+                  {copy.home.packageCard.hotel}
                 </div>
-                <p className="mt-2 text-sm font-medium">3★ / 4★ / 5★ by tier</p>
+                <p className="mt-2 text-sm font-medium">{copy.home.packageCard.hotelByTier}</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/18 p-4 text-white">
                 <div className="flex items-center gap-2 text-xs uppercase tracking-[0.28em] text-white/54">
                   <Ticket className="h-3.5 w-3.5" />
-                  Tours
+                  {copy.home.packageCard.tours}
                 </div>
-                <p className="mt-2 text-sm font-medium">{travelPackage.includes.tours.length} curated experiences</p>
+                <p className="mt-2 text-sm font-medium">
+                  {travelPackage.includes.tours.length} {copy.home.packageCard.curatedExperiences}
+                </p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/18 p-4 text-white">
                 <div className="flex items-center gap-2 text-xs uppercase tracking-[0.28em] text-white/54">
                   <Check className="h-3.5 w-3.5" />
-                  Breakfast
+                  {copy.home.packageCard.breakfast}
                 </div>
-                <p className="mt-2 text-sm font-medium">{travelPackage.includes.breakfast ? "Included" : "Not included"}</p>
+                <p className="mt-2 text-sm font-medium">
+                  {travelPackage.includes.breakfast ? copy.home.packageCard.included : copy.home.packageCard.notIncluded}
+                </p>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-2">
               {travelPackage.itinerary.slice(0, 3).map((step) => (
                 <span key={step} className="rounded-full border border-white/10 bg-black/18 px-3 py-1 text-xs text-white/74">
-                  {step}
+                  {localizeItineraryStep(step, destination?.name ?? travelPackage.destinationId, locale)}
                 </span>
               ))}
             </div>
@@ -173,12 +245,12 @@ export function PackageCard({ travelPackage, layout = "vertical", highlighted = 
             <div className="mt-auto grid gap-3 sm:grid-cols-2">
               <Button asChild variant="outline" className="rounded-full border-white/12 bg-white/6 text-white hover:bg-white/12">
                 <Link href={`/packages/${travelPackage.id}`}>
-                  Ver detalles
+                  {copy.home.packageCard.details}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
               <MagneticButton href={`/checkout?packageId=${travelPackage.id}`} className="w-full bg-[color:var(--primary)] text-white">
-                Reservar
+                {copy.home.packageCard.reserve}
               </MagneticButton>
             </div>
           </CardContent>

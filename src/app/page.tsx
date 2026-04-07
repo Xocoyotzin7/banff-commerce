@@ -4,20 +4,28 @@ import { HeroSection } from "../components/home/HeroSection"
 import { FeaturedDestinations } from "../components/home/FeaturedDestinations"
 import { PackagesShowcase } from "../components/home/PackagesShowcase"
 import { TestimonialsSection } from "../components/home/TestimonialsSection"
+import { getLocaleFromCookies } from "@/lib/locale"
+import { getTravelCopy } from "@/lib/travel-copy"
 
-export const metadata: Metadata = {
-  title: "Descubre Latinoamérica",
-  description:
-    "Paquetes de viaje premium a 20 destinos de Latinoamérica. Cancún, Cartagena, Machu Picchu, Salar de Uyuni y más.",
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocaleFromCookies()
+  const copy = getTravelCopy(locale)
+
+  return {
+    title: "LATAM Viajes | Descubre Latinoamérica",
+    description: copy.home.subtitle,
+  }
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const locale = await getLocaleFromCookies()
+
   return (
     <main id="main-content" className="bg-background">
-      <HeroSection />
-      <FeaturedDestinations />
-      <PackagesShowcase />
-      <TestimonialsSection />
+      <HeroSection locale={locale} />
+      <FeaturedDestinations locale={locale} />
+      <PackagesShowcase locale={locale} />
+      <TestimonialsSection locale={locale} />
     </main>
   )
 }

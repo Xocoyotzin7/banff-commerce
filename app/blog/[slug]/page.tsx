@@ -43,6 +43,9 @@ export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params
   const locale = await getLocaleFromCookies()
   const post = getBlogPostBySlug(slug, locale)
+  const backLabel = locale === "es" ? "Volver al blog" : locale === "fr" ? "Retour au blog" : "Back to blog"
+  const breadcrumbHome = locale === "es" ? "Inicio" : locale === "fr" ? "Accueil" : "Home"
+  const breadcrumbBlog = locale === "es" ? "Blog" : locale === "fr" ? "Blog" : "Blog"
 
   if (!post) notFound()
 
@@ -50,8 +53,8 @@ export default async function BlogPostPage({ params }: PageProps) {
   const ctaClassName = "rounded-full bg-[color:var(--foreground)] px-5 text-sm font-semibold text-white hover:bg-[color:var(--foreground)]/90 dark:text-black"
   const jsonLd = [
     buildBreadcrumbList([
-      { name: "Home", pathname: "/" },
-      { name: "Blog", pathname: "/blog" },
+      { name: breadcrumbHome, pathname: "/" },
+      { name: breadcrumbBlog, pathname: "/blog" },
       { name: post.title, pathname: `/blog/${post.slug}` },
     ]),
     buildArticleJsonLd({
@@ -85,7 +88,7 @@ export default async function BlogPostPage({ params }: PageProps) {
           <div className="flex flex-wrap justify-center gap-3">
             <Button asChild className={ctaClassName}>
               <Link href="/blog">
-                Back to blog
+                {backLabel}
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
             </Button>

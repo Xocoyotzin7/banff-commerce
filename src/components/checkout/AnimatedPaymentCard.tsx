@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { useMemo } from "react"
 
 import { cn } from "../../lib/utils"
 
@@ -17,7 +18,7 @@ type AnimatedPaymentCardProps = {
 function detectBrand(number: string): CardBrand {
   const digits = number.replace(/\D/g, "")
   if (digits.startsWith("4")) return "visa"
-  if (/^(5[1-5])/.test(digits)) return "mastercard"
+  if (/^(5[1-5]|2[2-7])/.test(digits)) return "mastercard"
   if (/^(34|37)/.test(digits)) return "amex"
   if (/^(6011|622|64|65)/.test(digits)) return "discover"
   return "default"
@@ -88,84 +89,88 @@ function SideDots() {
 }
 
 export function AnimatedPaymentCard({ cardNumber, holderName, expiry, cvv, cvvFocused }: AnimatedPaymentCardProps) {
-  const brand = detectBrand(cardNumber)
-  const groups = formatCardNumber(cardNumber)
-  const formattedHolder = formatHolderName(holderName)
+  const brand = useMemo(() => detectBrand(cardNumber), [cardNumber])
+  const groups = useMemo(() => formatCardNumber(cardNumber), [cardNumber])
+  const formattedHolder = useMemo(() => formatHolderName(holderName), [holderName])
   const displayExpiry = expiry || "MM/YY"
 
   return (
-    <div className="perspective-[1000px]">
+    <div className="w-full max-w-sm mx-auto" style={{ perspective: 1200 }}>
       <motion.div
         animate={{ rotateY: cvvFocused ? 180 : 0 }}
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
         style={{ transformStyle: "preserve-3d" }}
-        className="relative h-56 w-full"
+        className="relative h-52 rounded-[32px] transition-transform duration-700"
       >
         <div
-          className={cn(
-            "absolute inset-0 overflow-hidden rounded-[1.8rem] border border-white/12 p-5 text-white shadow-[0_30px_80px_rgba(0,0,0,0.45)]",
-            brandStyle(brand),
-          )}
+          className={cn("absolute inset-0 overflow-hidden rounded-[32px] border border-white/12 p-6 text-white shadow-2xl", brandStyle(brand))}
           style={{ backfaceVisibility: "hidden" }}
         >
-          <div className="flex items-start justify-between gap-4">
-            <div className="space-y-1">
-              <p className="text-[10px] uppercase tracking-[0.34em] text-white/58">Payment card</p>
-              <CardLogo brand={brand} />
-            </div>
-            <div className="flex items-center gap-3">
-              <ContactlessIcon />
-              <Chip />
-            </div>
-          </div>
-
-          <div className="mt-8 space-y-6">
-            <div className="grid grid-cols-4 gap-2 text-[1.55rem] tracking-[0.2em]">
-              {groups.map((group, groupIndex) => (
-                <div key={`${group}-${groupIndex}`} className="flex gap-1">
-                  {group.split("").map((digit, digitIndex) => (
-                    <motion.span
-                      key={`${digit}-${groupIndex}-${digitIndex}`}
-                      initial={{ y: 14, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: (groupIndex * 4 + digitIndex) * 0.03, type: "spring", stiffness: 320, damping: 22 }}
-                    >
-                      {digit}
-                    </motion.span>
-                  ))}
-                </div>
-              ))}
-            </div>
-
-            <div className="flex items-end justify-between gap-4">
+          <div className="flex h-full flex-col justify-between">
+            <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
-                <p className="text-[10px] uppercase tracking-[0.32em] text-white/54">Cardholder</p>
-                <p className="flex flex-wrap gap-0.5 text-sm font-medium tracking-[0.24em] text-white">
-                  {formattedHolder.split("").map((letter, index) => (
-                    <motion.span
-                      key={`${letter}-${index}`}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.02 }}
-                    >
-                      {letter}
-                    </motion.span>
-                  ))}
-                </p>
+                <p className="text-[10px] uppercase tracking-[0.34em] text-white/58">Payment card</p>
+                <CardLogo brand={brand} />
               </div>
-              <div className="space-y-1 text-right">
-                <p className="text-[10px] uppercase tracking-[0.32em] text-white/54">Expiry</p>
-                <p className="text-sm font-medium tracking-[0.22em] text-white">{displayExpiry}</p>
+              <div className="flex items-center gap-3">
+                <ContactlessIcon />
+                <Chip />
+              </div>
+            </div>
+
+            <div className="space-y-5">
+              <div className="grid grid-cols-4 gap-2 text-[1.55rem] tracking-[0.2em]">
+                {groups.map((group, groupIndex) => (
+                  <div key={`${group}-${groupIndex}`} className="flex gap-1">
+                    {group.split("").map((digit, digitIndex) => (
+                      <motion.span
+                        key={`${digit}-${groupIndex}-${digitIndex}`}
+                        initial={{ y: 14, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{
+                          delay: (groupIndex * 4 + digitIndex) * 0.03,
+                          type: "spring",
+                          stiffness: 320,
+                          damping: 22,
+                        }}
+                      >
+                        {digit}
+                      </motion.span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-end justify-between gap-4">
+                <div className="space-y-1">
+                  <p className="text-[10px] uppercase tracking-[0.32em] text-white/54">Cardholder</p>
+                  <p className="flex flex-wrap gap-0.5 text-sm font-medium tracking-[0.24em] text-white">
+                    {formattedHolder.split("").map((letter, index) => (
+                      <motion.span
+                        key={`${letter}-${index}`}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.02 }}
+                      >
+                        {letter}
+                      </motion.span>
+                    ))}
+                  </p>
+                </div>
+                <div className="space-y-1 text-right">
+                  <p className="text-[10px] uppercase tracking-[0.32em] text-white/54">Expiry</p>
+                  <p className="text-sm font-medium tracking-[0.22em] text-white">{displayExpiry}</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <div
-          className="absolute inset-0 overflow-hidden rounded-[1.8rem] border border-white/12 bg-[linear-gradient(135deg,rgba(14,26,26,0.98),rgba(6,13,13,0.98)_55%,rgba(0,0,0,0.96))] p-5 text-white shadow-[0_30px_80px_rgba(0,0,0,0.45)]"
+          className="absolute inset-0 overflow-hidden rounded-[32px] border border-white/12 bg-[linear-gradient(135deg,rgba(14,26,26,0.98),rgba(6,13,13,0.98)_55%,rgba(0,0,0,0.96))] p-6 text-white shadow-2xl"
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
-          <div className="mt-3 h-12 w-full rounded-md bg-black/70" />
+          <div className="mt-3 h-12 w-full rounded-2xl bg-black/85" />
           <div className="mt-8 flex items-center gap-4">
             <div className="flex-1 rounded-md bg-white px-4 py-3 text-right text-sm font-semibold text-black">
               {cvv || "•••"}

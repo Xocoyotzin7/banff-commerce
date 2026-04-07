@@ -4,30 +4,30 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #060d0d;
-  --foreground: #f0ede4;
-  --card: rgba(14, 26, 26, 0.72);
-  --card-foreground: #f0ede4;
-  --surface: #0e1a1a;
-  --surface-2: #142222;
-  --popover: rgba(14, 26, 26, 0.96);
-  --popover-foreground: #f0ede4;
+  --background: #f7f4ef;
+  --foreground: #1a1208;
+  --card: rgba(255, 255, 255, 0.84);
+  --card-foreground: #1a1208;
+  --surface: #fcf9f3;
+  --surface-2: #f2ece3;
+  --popover: rgba(255, 255, 255, 0.96);
+  --popover-foreground: #1a1208;
   --primary: #0a6e6e;
   --primary-dark: #054545;
-  --primary-foreground: #f0ede4;
+  --primary-foreground: #f7f4ef;
   --secondary: #d4a017;
-  --secondary-foreground: #060d0d;
-  --muted: #142424;
-  --muted-foreground: #c9c4b7;
+  --secondary-foreground: #1a1208;
+  --muted: #ece4d7;
+  --muted-foreground: #6f6257;
   --accent: #e85d26;
-  --accent-foreground: #f0ede4;
+  --accent-foreground: #f7f4ef;
   --destructive: #c94131;
-  --destructive-foreground: #f0ede4;
-  --border: rgba(240, 237, 228, 0.12);
-  --input: rgba(240, 237, 228, 0.12);
+  --destructive-foreground: #f7f4ef;
+  --border: rgba(26, 18, 8, 0.12);
+  --input: rgba(26, 18, 8, 0.12);
   --ring: #d4a017;
-  --text: #f0ede4;
-  --text-muted: #9b9590;
+  --text: #1a1208;
+  --text-muted: #6f6257;
   --radius: 1rem;
   --radius-card: 1rem;
   --radius-pill: 9999px;
@@ -106,6 +106,11 @@
   html {
     scroll-behavior: smooth;
     background: var(--background);
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
   }
 
   body {

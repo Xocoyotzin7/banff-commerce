@@ -10,22 +10,68 @@ import { packages } from "../../lib/data/packages"
 import { MagneticButton } from "../shared/MagneticButton"
 import { Button } from "../../../components/ui/button"
 import { cn } from "../../lib/utils"
+import { staggerContainer } from "../shared/animations"
+import { getTravelCopy } from "@/lib/travel-copy"
+import type { Locale } from "../../lib/site-content"
 
 const tabs = [
   { id: "starter", label: "Starter" },
-  { id: "explorer", label: "Explorer" },
+  { id: "explorer", label: "Growth" },
   { id: "premium", label: "Premium" },
 ] as const
 
 type TabId = (typeof tabs)[number]["id"]
 
+const packageCardVariants = {
+  hidden: (index: number) => ({
+    opacity: 0,
+    y: index % 2 === 0 ? 32 : -32,
+    scale: 0.96,
+  }),
+  visible: (index: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 24,
+      delay: index * 0.08,
+    },
+  }),
+}
+
+const packageCardScrollVariants = {
+  hidden: (index: number) => ({
+    opacity: 0,
+    y: index % 2 === 0 ? 44 : -44,
+    scale: 0.97,
+  }),
+  visible: (index: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 26,
+      delay: index * 0.1,
+    },
+  }),
+}
+
 function tierMatches(packageId: string, tier: TabId) {
   return packageId.endsWith(`-${tier}`)
 }
 
-export function PackagesShowcase() {
+type PackagesShowcaseProps = {
+  locale: Locale
+}
+
+export function PackagesShowcase({ locale }: PackagesShowcaseProps) {
   const [activeTab, setActiveTab] = useState<TabId>("explorer")
   const reduceMotion = useReducedMotion() ?? false
+  const copy = getTravelCopy(locale)
 
   const activePackages = useMemo(() => {
     return packages.filter((travelPackage) => tierMatches(travelPackage.id, activeTab)).slice(0, 3)
@@ -35,15 +81,13 @@ export function PackagesShowcase() {
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:py-16">
       <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-3xl">
-          <p className="text-xs uppercase tracking-[0.32em] text-text-muted">Paquetes</p>
-          <h2 className="mt-2 font-display text-4xl leading-[0.96] text-text sm:text-5xl">Viajes listos para vender con una lógica clara.</h2>
-          <p className="mt-4 text-base leading-8 text-text-muted">
-            Cambia el nivel del paquete y la selección se reorganiza con transiciones compartidas para conservar contexto visual.
-          </p>
+          <p className="text-xs uppercase tracking-[0.32em] text-text-muted">{copy.home.packagesEyebrow}</p>
+          <h2 className="mt-2 font-display text-4xl leading-[0.96] text-text sm:text-5xl">{copy.home.packagesTitle}</h2>
+          <p className="mt-4 text-base leading-8 text-text-muted">{copy.home.packagesDescription}</p>
         </div>
 
         <Button asChild variant="outline" className="rounded-full border-border/70 bg-surface/40 text-text">
-          <Link href="/packages">Ver todos los paquetes</Link>
+          <Link href="/packages">{copy.home.packagesCta}</Link>
         </Button>
       </div>
 
@@ -62,23 +106,34 @@ export function PackagesShowcase() {
               )}
             >
               <Sparkles className="h-4 w-4" />
-              {tab.label}
+              {tab.id === "starter" ? copy.home.packageTabs.starter : tab.id === "explorer" ? copy.home.packageTabs.explorer : copy.home.packageTabs.premium}
             </button>
           )
         })}
       </div>
 
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
           key={activeTab}
-          initial={reduceMotion ? { opacity: 0 } : { opacity: 0, x: 36 }}
-          animate={reduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
+          variants={reduceMotion ? undefined : staggerContainer}
+          initial={reduceMotion ? false : "hidden"}
+          animate={reduceMotion ? undefined : "visible"}
           exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: -36 }}
           transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
           className="mt-6 grid gap-4 lg:grid-cols-3"
         >
           {activePackages.map((travelPackage) => (
-            <PackageCard key={travelPackage.id} travelPackage={travelPackage} />
+            <motion.div
+              key={travelPackage.id}
+              custom={activePackages.indexOf(travelPackage)}
+              variants={reduceMotion ? undefined : packageCardScrollVariants}
+              initial={reduceMotion ? false : "hidden"}
+              whileInView={reduceMotion ? undefined : "visible"}
+              viewport={{ once: true, margin: "-120px" }}
+              className="h-full"
+            >
+              <PackageCard travelPackage={travelPackage} locale={locale} />
+            </motion.div>
           ))}
         </motion.div>
       </AnimatePresence>

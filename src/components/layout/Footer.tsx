@@ -21,6 +21,8 @@ import { cn } from "../../lib/utils"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { fadeInUp, staggerContainer } from "../shared/animations"
+import { getTravelCopy } from "@/lib/travel-copy"
+import type { Locale } from "@/lib/site-content"
 
 const socialLinks = [
   { name: "Instagram", href: "https://instagram.com/latamviajes", icon: Instagram, hoverClass: "hover:text-[#E1306C]" },
@@ -49,7 +51,12 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
 }
 
-export function Footer() {
+type FooterProps = {
+  locale: Locale
+}
+
+export function Footer({ locale }: FooterProps) {
+  const copy = getTravelCopy(locale)
   const [newsletterEmail, setNewsletterEmail] = useState("")
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "error" | "success">("idle")
   const [shakeToken, setShakeToken] = useState(0)
@@ -80,9 +87,7 @@ export function Footer() {
                 <span className="font-serif text-xl tracking-[0.2em]">LATAM VIAJES</span>
               </Link>
 
-              <p className="max-w-sm text-sm leading-7 text-text-muted">
-                Luxury travel for Latin America, with a practical commerce layer that keeps discovery, booking and conversion in the same flow.
-              </p>
+              <p className="max-w-sm text-sm leading-7 text-text-muted">{copy.footer.description}</p>
 
               <div className="flex flex-wrap items-center gap-3">
                 {socialLinks.map(({ name, href, icon: Icon, hoverClass }) => (
@@ -108,7 +113,7 @@ export function Footer() {
 
           <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}>
             <motion.div variants={fadeInUp}>
-              <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-[color:var(--secondary)]">Destinos populares</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-[color:var(--secondary)]">{copy.footer.popularDestinationsTitle}</h3>
               <ul className="mt-5 space-y-3">
                 {popularDestinations.map((slug) => {
                   const destination = destinations.find((item) => item.slug === slug)
@@ -132,7 +137,7 @@ export function Footer() {
 
           <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}>
             <motion.div variants={fadeInUp}>
-              <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-[color:var(--secondary)]">Información</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-[color:var(--secondary)]">{copy.footer.infoTitle}</h3>
               <ul className="mt-5 space-y-3">
                 {informationLinks.map((link) => (
                   <li key={link.href}>
@@ -148,7 +153,7 @@ export function Footer() {
           <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}>
             <motion.div variants={fadeInUp} className="space-y-5">
               <div>
-                <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-[color:var(--secondary)]">Contacto</h3>
+                <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-[color:var(--secondary)]">{copy.footer.contactTitle}</h3>
                 <div className="mt-5 space-y-3 text-sm text-text-muted">
                   <a href="mailto:hello@latamviajes.com" className="flex items-center gap-2 transition-colors hover:text-text">
                     <Mail className="h-4 w-4 text-[color:var(--secondary)]" />
@@ -171,8 +176,8 @@ export function Footer() {
               </div>
 
               <div className="rounded-[1.6rem] border border-border/70 bg-background/35 p-4">
-                <p className="text-sm font-semibold text-text">Newsletter</p>
-                <p className="mt-2 text-sm leading-6 text-text-muted">Recibe rutas, aperturas y ofertas privadas sin ruido.</p>
+                <p className="text-sm font-semibold text-text">{copy.footer.newsletterTitle}</p>
+                <p className="mt-2 text-sm leading-6 text-text-muted">{copy.footer.newsletterDescription}</p>
 
                 <form onSubmit={handleNewsletterSubmit} className="mt-4 space-y-3">
                   <motion.div
@@ -188,12 +193,12 @@ export function Footer() {
                         setNewsletterEmail(event.target.value)
                         if (newsletterStatus !== "idle") setNewsletterStatus("idle")
                       }}
-                      placeholder="tu@email.com"
+                      placeholder={copy.footer.newsletterPlaceholder}
                       className="h-11 rounded-full border-border/70 bg-background/55"
                     />
                     <Button type="submit" className="h-11 rounded-full bg-[color:var(--primary)] px-5 text-white hover:bg-[color:var(--primary-dark)]">
                       <span className="inline-flex items-center gap-2">
-                        Suscribirme
+                        {copy.footer.subscribe}
                         <Send className="h-4 w-4" />
                       </span>
                     </Button>
@@ -208,7 +213,7 @@ export function Footer() {
                         exit={{ opacity: 0 }}
                         className="text-sm text-[color:var(--accent)]"
                       >
-                        Ingresa un correo válido.
+                        {copy.footer.invalidEmail}
                       </motion.p>
                     ) : null}
 
@@ -223,7 +228,7 @@ export function Footer() {
                         <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
                           <Check className="h-4 w-4" />
                         </motion.span>
-                        Gracias. Te avisaremos primero.
+                        {copy.footer.success}
                       </motion.p>
                     ) : null}
                   </AnimatePresence>

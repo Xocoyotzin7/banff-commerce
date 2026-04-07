@@ -8,6 +8,8 @@ import type { CSSProperties } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 
 import { destinations } from "../../lib/data/destinations"
+import { getTravelCopy } from "@/lib/travel-copy"
+import type { Locale } from "../../lib/site-content"
 import { MagneticButton } from "../shared/MagneticButton"
 import { cn } from "../../lib/utils"
 import { Button } from "../../../components/ui/button"
@@ -157,7 +159,12 @@ function FloatingChip({
   )
 }
 
-export function HeroSection() {
+type HeroSectionProps = {
+  locale: Locale
+}
+
+export function HeroSection({ locale }: HeroSectionProps) {
+  const copy = getTravelCopy(locale)
   const sectionRef = useRef<HTMLElement | null>(null)
   const counterRef = useRef<HTMLDivElement | null>(null)
   const prefersReducedMotion = useReducedMotion()
@@ -218,25 +225,25 @@ export function HeroSection() {
               className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/10 px-4 py-2 text-[10px] uppercase tracking-[0.35em] text-white/78 backdrop-blur-xl"
             >
               <Sparkles className="h-3.5 w-3.5 text-[color:var(--secondary)]" />
-              luxury travel e-commerce
+              {copy.home.eyebrow}
             </motion.div>
 
             <motion.h1
               variants={revealVariants}
               className="mt-6 font-display text-5xl font-normal uppercase tracking-widest text-[color:var(--text)] sm:text-6xl lg:text-7xl xl:text-8xl"
             >
-              DESCUBRE
+              {copy.home.titleLineOne}
             </motion.h1>
 
             <motion.h2
               variants={revealVariants}
               className="mt-2 max-w-5xl font-display text-6xl font-bold uppercase leading-[0.9] tracking-tight text-[color:var(--secondary)] sm:text-7xl lg:text-8xl"
             >
-              LATINOAMÉRICA
+              {copy.home.titleLineTwo}
             </motion.h2>
 
             <motion.p variants={fadeUpVariants} className="mt-6 max-w-2xl text-base leading-8 text-[color:var(--text)]/78 sm:text-lg">
-              20 destinos · Paquetes desde $599 USD · Vuelos incluidos
+              {copy.home.subtitle}
             </motion.p>
 
             <motion.div
@@ -256,11 +263,11 @@ export function HeroSection() {
               className="mt-8 grid max-w-xl gap-3 sm:grid-cols-2"
             >
               <MagneticButton href="/destinations" className="w-full bg-[color:var(--primary)] px-6 py-3 text-sm text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06)] hover:shadow-[0_0_30px_rgba(10,110,110,0.4)]">
-                Explorar destinos
+                {copy.home.primaryCta}
               </MagneticButton>
               <Button asChild variant="ghost" className="w-full rounded-full border border-white/12 bg-white/8 px-6 py-3 text-sm text-white backdrop-blur-xl hover:bg-white/12 hover:text-white">
                 <Link href="/packages" className="inline-flex items-center justify-center gap-2">
-                  Ver paquetes
+                  {copy.home.secondaryCta}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
@@ -271,21 +278,21 @@ export function HeroSection() {
               className="mt-10 grid max-w-2xl grid-cols-3 overflow-hidden rounded-[1.5rem] border border-white/12 bg-white/8 backdrop-blur-2xl"
             >
               <div className="px-4 py-4 sm:px-5">
-                <p className="text-[10px] uppercase tracking-[0.32em] text-white/54">Destinos</p>
+                <p className="text-[10px] uppercase tracking-[0.32em] text-white/54">{copy.home.counters.destinations}</p>
                 <div ref={counterRef} className="mt-3">
                   <Counter end={counters[0].value} active={isCounterVisible} />
                 </div>
               </div>
               <div className="flex items-stretch justify-center border-x border-white/10 px-4 py-4 sm:px-5">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.32em] text-white/54">Paquetes</p>
+                  <p className="text-[10px] uppercase tracking-[0.32em] text-white/54">{copy.home.counters.packages}</p>
                   <div className="mt-3">
                     <Counter end={counters[1].value} active={isCounterVisible} />
                   </div>
                 </div>
               </div>
               <div className="px-4 py-4 sm:px-5">
-                <p className="text-[10px] uppercase tracking-[0.32em] text-white/54">Viajeros</p>
+                <p className="text-[10px] uppercase tracking-[0.32em] text-white/54">{copy.home.counters.travelers}</p>
                 <div className="mt-3">
                   <Counter end={counters[2].value} suffix="+" active={isCounterVisible} />
                 </div>
@@ -305,8 +312,8 @@ export function HeroSection() {
             >
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.32em] text-white/54">Featured escape</p>
-                  <h3 className="mt-2 text-2xl font-semibold tracking-tight">Patagonia to Atacama loop</h3>
+                  <p className="text-[10px] uppercase tracking-[0.32em] text-white/54">{copy.home.featuredEyebrow}</p>
+                  <h3 className="mt-2 text-2xl font-semibold tracking-tight">{copy.home.featuredTitle}</h3>
                 </div>
                 <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/8">
                   <Mountain className="h-5 w-5 text-[color:var(--secondary)]" />
@@ -325,18 +332,13 @@ export function HeroSection() {
                   />
                   <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.7),rgba(0,0,0,0.12))]" />
                   <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <p className="text-[10px] uppercase tracking-[0.3em] text-white/62">Route 03</p>
-                    <p className="mt-2 text-lg font-semibold">Salar de Uyuni · Cusco · Cartagena</p>
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-white/62">{copy.home.featuredEyebrow}</p>
+                    <p className="mt-2 text-lg font-semibold">{copy.home.featuredDescription}</p>
                   </div>
                 </div>
 
                 <div className="grid gap-3">
-                  {[
-                    { label: "Stay", value: "5-star sanctuaries" },
-                    { label: "Transfer", value: "Private aircraft" },
-                    { label: "Support", value: "24/7 concierge" },
-                    { label: "Mood", value: "Slow luxury" },
-                  ].map((item) => (
+                  {copy.home.featurePanel.metrics.map((item) => (
                     <div key={item.label} className="rounded-[1.4rem] border border-white/10 bg-white/6 p-4 backdrop-blur-xl">
                       <p className="text-[10px] uppercase tracking-[0.3em] text-white/50">{item.label}</p>
                       <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
@@ -346,11 +348,7 @@ export function HeroSection() {
               </div>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                {[
-                  { title: "Private routes", body: "Mexico to the Caribbean" },
-                  { title: "Altitude breaks", body: "Cusco and the Andes" },
-                  { title: "Night programs", body: "Cartagena and beyond" },
-                ].map((card, index) => (
+                {copy.home.featurePanel.cards.map((card, index) => (
                   <motion.div
                     key={card.title}
                     initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 14 }}
@@ -361,7 +359,7 @@ export function HeroSection() {
                   >
                     <div className="flex items-center gap-2 text-[color:var(--secondary)]">
                       <MapPinned className="h-4 w-4" />
-                      <span className="text-[10px] uppercase tracking-[0.3em] text-white/54">Curated</span>
+                      <span className="text-[10px] uppercase tracking-[0.3em] text-white/54">{copy.home.featurePanel.curatedLabel}</span>
                     </div>
                     <p className="mt-3 text-sm font-semibold text-white">{card.title}</p>
                     <p className="mt-1 text-xs leading-6 text-white/62">{card.body}</p>

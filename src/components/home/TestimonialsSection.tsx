@@ -6,6 +6,8 @@ import { Star } from "lucide-react"
 import { useMemo, useState, type CSSProperties } from "react"
 
 import type { Testimonial } from "../../types/travel"
+import { getTravelCopy } from "@/lib/travel-copy"
+import type { Locale } from "../../lib/site-content"
 import { cn } from "../../lib/utils"
 
 const rowOne: Testimonial[] = [
@@ -108,9 +110,14 @@ function MarqueeRow({
   )
 }
 
-export function TestimonialsSection() {
+type TestimonialsSectionProps = {
+  locale: Locale
+}
+
+export function TestimonialsSection({ locale }: TestimonialsSectionProps) {
   const [paused, setPaused] = useState(false)
   const reduceMotion = useReducedMotion() ?? false
+  const copy = getTravelCopy(locale)
 
   return (
     <section
@@ -119,11 +126,9 @@ export function TestimonialsSection() {
       onMouseLeave={() => setPaused(false)}
     >
       <div className="mb-8 max-w-3xl">
-        <p className="text-xs uppercase tracking-[0.32em] text-text-muted">Testimonios</p>
-        <h2 className="mt-2 font-display text-4xl leading-[0.96] text-text sm:text-5xl">Prueba social que se mueve, pero no distrae.</h2>
-        <p className="mt-4 max-w-2xl text-base leading-8 text-text-muted">
-          El carrusel corre en dos direcciones y se pausa cuando el usuario interactúa con cualquier tarjeta.
-        </p>
+        <p className="text-xs uppercase tracking-[0.32em] text-text-muted">{copy.home.testimonialsEyebrow}</p>
+        <h2 className="mt-2 font-display text-4xl leading-[0.96] text-text sm:text-5xl">{copy.home.testimonialsTitle}</h2>
+        <p className="mt-4 max-w-2xl text-base leading-8 text-text-muted">{copy.home.testimonialsDescription}</p>
       </div>
 
       <div className="space-y-4">

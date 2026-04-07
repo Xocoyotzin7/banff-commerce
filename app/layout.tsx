@@ -7,6 +7,7 @@ import { Footer } from "../src/components/layout/Footer"
 import { Navbar } from "../src/components/layout/Navbar"
 import { PageTransition } from "../src/components/layout/PageTransition"
 import { ThemeProvider } from "@/components/theme-provider"
+import { getLocaleFromCookies } from "@/lib/locale"
 import { Toaster as AppToaster } from "@/components/ui/toaster"
 import { Toaster as SonnerToaster } from "@/components/ui/sonner"
 import "./globals.css"
@@ -51,8 +52,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const locale = await getLocaleFromCookies()
+
   return (
-    <html lang="es" className={`${playfair.variable} ${inter.variable} dark`} suppressHydrationWarning>
+    <html lang={locale} className={`${playfair.variable} ${inter.variable} dark`} suppressHydrationWarning>
       <body className="relative min-h-screen bg-background text-foreground antialiased">
         <a
           href="#main-content"
@@ -62,9 +65,9 @@ export default async function RootLayout({
         </a>
         <AppProviders>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-            <Navbar />
+            <Navbar locale={locale} />
             <PageTransition>{children}</PageTransition>
-            <Footer />
+            <Footer locale={locale} />
             <AppToaster />
             <SonnerToaster richColors closeButton />
           </ThemeProvider>

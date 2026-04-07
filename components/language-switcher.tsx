@@ -2,11 +2,10 @@
 
 import type { CSSProperties } from "react"
 import { Languages } from "lucide-react"
-import { usePathname } from "next/navigation"
+import { useRouter } from "next/navigation"
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { resolveLocalePath } from "@/lib/navigation"
 import { locales, type Locale } from "@/lib/site-content"
 
 const LABELS: Record<Locale, string> = {
@@ -26,11 +25,11 @@ type LanguageSwitcherProps = {
 }
 
 export function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
-  const pathname = usePathname()
+  const router = useRouter()
 
   const setLocale = (nextLocale: Locale) => {
     document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000; samesite=lax`
-    window.location.assign(resolveLocalePath(pathname, nextLocale))
+    router.refresh()
   }
 
   return (

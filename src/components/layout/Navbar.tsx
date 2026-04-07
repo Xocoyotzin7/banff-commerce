@@ -3,12 +3,15 @@
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion"
 import { ArrowUpRight, ChevronDown, Moon, PlaneTakeoff, SunMedium } from "lucide-react"
 import { useTheme } from "next-themes"
 
+import { LanguageSwitcher } from "@/components/language-switcher"
 import { destinations } from "../../lib/data/destinations"
+import { getTravelCopy } from "@/lib/travel-copy"
+import type { Locale } from "@/lib/site-content"
 import { cn } from "../../lib/utils"
 import { fadeInUp, staggerContainer } from "../shared/animations"
 import { MagneticButton } from "../shared/MagneticButton"
@@ -17,13 +20,6 @@ type MenuColumn = {
   title: string
   items: typeof destinations
 }
-
-const navLinks = [
-  { href: "/destinations", label: "Destinos" },
-  { href: "/packages", label: "Paquetes" },
-  { href: "/services", label: "Tours" },
-  { href: "/about", label: "Sobre nosotros" },
-] as const
 
 const popularDestinations = [
   "cancun-riviera-maya",
@@ -57,14 +53,21 @@ function getDestinationColumns(): MenuColumn[] {
   return groups
 }
 
-export function Navbar() {
+type NavbarProps = {
+  locale: Locale
+}
+
+export function Navbar({ locale }: NavbarProps) {
   const pathname = usePathname()
   const { resolvedTheme, setTheme } = useTheme()
+  const copy = useMemo(() => getTravelCopy(locale), [locale])
   const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [themeBurstKey, setThemeBurstKey] = useState(0)
   const scrollY = useMotionValue(0)
+  const themeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const megaMenuWrapperRef = useRef<HTMLDivElement | null>(null)
   const megaButtonRef = useRef<HTMLButtonElement | null>(null)
   const megaMenuRef = useRef<HTMLDivElement | null>(null)
@@ -75,6 +78,16 @@ export function Navbar() {
     scrollY,
     [0, 80],
     [isHomePage ? "rgba(14, 26, 26, 0)" : "rgba(14, 26, 26, 0.9)", "rgba(14, 26, 26, 0.92)"],
+  )
+
+  const navLinks = useMemo(
+    () => [
+      { href: "/destinations", label: copy.nav.destinations },
+      { href: "/packages", label: copy.nav.packages },
+      { href: "/services", label: copy.nav.tours },
+      { href: "/about", label: copy.nav.about },
+    ],
+    [copy],
   )
 
   const destinationColumns = useMemo(() => getDestinationColumns(), [])
@@ -108,6 +121,16 @@ export function Navbar() {
   }, [scrollY])
 
   useEffect(() => {
+    return () => {
+      if (themeTimerRef.current) {
+        clearTimeout(themeTimerRef.current)
+      }
+      document.documentElement.classList.remove("theme-transition")
+      document.documentElement.style.removeProperty("--theme-transition-duration")
+    }
+  }, [])
+
+  useEffect(() => {
     if (drawerOpen) {
       document.body.style.overflow = "hidden"
     } else {
@@ -124,10 +147,38 @@ export function Navbar() {
     setDrawerOpen(false)
   }, [pathname])
 
+  const syncThemeCookie = useCallback((value: "dark" | "light") => {
+    document.cookie = `NEXT_THEME=${value}; path=/; max-age=31536000; samesite=lax`
+  }, [])
+
   const toggleTheme = () => {
     const nextTheme = isDarkTheme ? "light" : "dark"
-    setTheme(nextTheme)
-    document.cookie = `NEXT_THEME=${nextTheme}; path=/; max-age=31536000; samesite=lax`
+    const root = document.documentElement
+    const isReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const duration = isReducedMotion ? 0 : 495
+
+    root.classList.add("theme-transition")
+    root.style.setProperty("--theme-transition-duration", `${duration}ms`)
+
+    if (themeTimerRef.current) {
+      clearTimeout(themeTimerRef.current)
+    }
+
+    themeTimerRef.current = window.setTimeout(() => {
+      root.classList.remove("theme-transition")
+      root.style.removeProperty("--theme-transition-duration")
+    }, duration)
+
+    if ("startViewTransition" in document && !isReducedMotion) {
+      ;(document as Document & { startViewTransition: (cb: () => void) => { finished: Promise<void> } }).startViewTransition(() => {
+        setTheme(nextTheme)
+      })
+    } else {
+      setTheme(nextTheme)
+    }
+
+    syncThemeCookie(nextTheme)
+    setThemeBurstKey((key) => key + 1)
   }
 
   return (
@@ -186,7 +237,7 @@ export function Navbar() {
                 isGlass ? "text-text/80 hover:bg-white/5 hover:text-text" : "text-white/80 hover:bg-white/10 hover:text-white",
               )}
             >
-              Destinos
+              {copy.nav.destinations}
               <ChevronDown className="h-4 w-4" />
             </button>
 
@@ -233,14 +284,14 @@ export function Navbar() {
                 >
                   <div className="mb-4 flex items-center justify-between gap-4">
                     <div>
-                      <p className="text-[0.72rem] uppercase tracking-[0.35em] text-text-muted">Explora por región</p>
-                      <h2 className="mt-1 text-xl font-semibold text-text">20 destinos curados para viajar en grande</h2>
+                      <p className="text-[0.72rem] uppercase tracking-[0.35em] text-text-muted">{copy.nav.exploreByRegion}</p>
+                      <h2 className="mt-1 text-xl font-semibold text-text">{copy.nav.highlightedDestinations}</h2>
                     </div>
                     <Link
                       href="/destinations"
                       className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/50 px-4 py-2 text-sm font-semibold text-text transition-colors hover:border-[color:var(--secondary)]/40 hover:text-[color:var(--secondary)]"
                     >
-                      Ver todos
+                      {copy.nav.viewAll}
                       <ArrowUpRight className="h-4 w-4" />
                     </Link>
                   </div>
@@ -322,10 +373,13 @@ export function Navbar() {
             aria-label="Cambiar tema"
             onClick={toggleTheme}
             className={cn(
-              "relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-white/12 bg-white/8 text-text transition-[transform,background-color,border-color] hover:scale-105 hover:border-white/20 hover:bg-white/12",
+              "group relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-white/12 bg-white/8 text-text transition-[transform,background-color,border-color] hover:scale-105 hover:border-white/20 hover:bg-white/12",
               isGlass ? "text-text" : "text-white",
             )}
           >
+            <span className="pointer-events-none absolute inset-0 theme-toggle-gradient" aria-hidden />
+            <span className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/12 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden />
+            <span key={themeBurstKey} className="pointer-events-none absolute inset-0 theme-burst" aria-hidden />
             <AnimatePresence mode="wait" initial={false}>
               <motion.span
                 key={mounted ? (isDarkTheme ? "dark" : "light") : "fallback"}
@@ -340,8 +394,12 @@ export function Navbar() {
             </AnimatePresence>
           </button>
 
+          <div className="hidden lg:block">
+            <LanguageSwitcher locale={locale} />
+          </div>
+
           <MagneticButton href="/checkout" className="hidden bg-[color:var(--primary)] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.04)] lg:inline-flex">
-            Reservar
+            {copy.nav.reserve}
           </MagneticButton>
 
           <button
@@ -411,7 +469,7 @@ export function Navbar() {
                   onClick={() => setDrawerOpen(false)}
                   className="rounded-full border border-border/70 bg-background/50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-text-muted"
                 >
-                  Cerrar
+                  {copy.nav.close}
                 </button>
               </div>
 
@@ -434,8 +492,12 @@ export function Navbar() {
                 ))}
               </motion.nav>
 
+              <div className="mt-6">
+                <LanguageSwitcher locale={locale} />
+              </div>
+
               <div className="mt-8 rounded-[1.6rem] border border-border/70 bg-background/35 p-4">
-                <p className="text-[0.72rem] uppercase tracking-[0.3em] text-text-muted">Destinos destacados</p>
+                <p className="text-[0.72rem] uppercase tracking-[0.3em] text-text-muted">{copy.nav.highlightedDestinations}</p>
                 <div className="mt-3 grid gap-2">
                   {popularDestinations.map((slug) => {
                     const destination = destinations.find((item) => item.slug === slug)
@@ -462,7 +524,7 @@ export function Navbar() {
 
               <div className="mt-8">
                 <MagneticButton href="/checkout" className="w-full justify-center bg-[color:var(--primary)] text-white">
-                  Reservar ahora
+                  {copy.nav.reserve}
                 </MagneticButton>
               </div>
             </motion.aside>

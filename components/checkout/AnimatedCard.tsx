@@ -83,14 +83,14 @@ export function AnimatedCard({
   const displayName = cardholderName.trim() || "CARDHOLDER NAME"
 
   return (
-    <div className={cn("w-full", className)} style={{ perspective: "1000px" }}>
+    <div className={cn("w-full", className)} style={{ perspective: 1200 }}>
       <motion.div
-        className="relative h-56 w-full [transform-style:preserve-3d]"
+        className="relative h-56 w-full rounded-[32px] transition-transform duration-700 [transform-style:preserve-3d]"
         animate={{ rotateY: cvvFocused ? 180 : 0 }}
-        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+        transition={{ type: "spring", stiffness: 260, damping: 20 }}
       >
         <div
-          className="absolute inset-0 overflow-hidden rounded-[1.75rem] border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-5 text-white shadow-[0_20px_60px_-30px_rgba(15,23,42,0.85)]"
+          className="absolute inset-0 overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-5 text-white shadow-[0_20px_60px_-30px_rgba(15,23,42,0.85)]"
           style={{ backfaceVisibility: "hidden" }}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.20),transparent_30%)]" />
@@ -128,7 +128,7 @@ export function AnimatedCard({
         </div>
 
         <div
-          className="absolute inset-0 overflow-hidden rounded-[1.75rem] border border-white/10 bg-gradient-to-br from-slate-800 via-slate-950 to-black p-5 text-white shadow-[0_20px_60px_-30px_rgba(15,23,42,0.85)]"
+          className="absolute inset-0 overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-800 via-slate-950 to-black p-5 text-white shadow-[0_20px_60px_-30px_rgba(15,23,42,0.85)]"
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
           <div className="absolute inset-x-0 top-6 h-10 bg-black/85" />
