@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { getLocaleFromCookies } from "@/lib/locale"
 import { renderMdxToHtml } from "@/lib/blog"
 import { readLocalizedMdx } from "@/lib/mdx"
+import { buildPageMetadata } from "@/lib/seo"
 import { getSiteCopy } from "@/lib/site-content"
 
 const blogSurfaces = [
@@ -15,6 +16,20 @@ const blogSurfaces = [
   "from-sky-400/20 via-background to-accent/15",
   "from-emerald-400/20 via-background to-accent/15",
 ] as const
+
+export async function generateMetadata() {
+  const locale = await getLocaleFromCookies()
+  const copy = getSiteCopy(locale)
+  const doc = readLocalizedMdx("blog", locale) ?? readLocalizedMdx("blog", "en")
+
+  return buildPageMetadata({
+    title: doc?.title ?? copy.blog.title,
+    description: doc?.excerpt ?? copy.blog.description,
+    pathname: "/blog",
+    locale,
+    keywords: [copy.blog.title, "blog", "seo", "web design"],
+  })
+}
 
 export default async function BlogPage() {
   const locale = await getLocaleFromCookies()

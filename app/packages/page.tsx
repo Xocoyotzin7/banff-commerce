@@ -1,8 +1,8 @@
-import { redirect } from "next/navigation"
+import type { Metadata } from "next"
 
-import { getLocaleFromCookies } from "@/lib/locale"
-
-export default async function PackagesRedirectPage() {
-  const locale = await getLocaleFromCookies()
-  redirect(`/${locale}/packages`)
+export const metadata: Metadata = {
+  title: "Paquetes",
+  description: "Compara Starter, Explorer y Premium para cada destino de Latinoamérica.",
 }
+
+export { default } from "@/src/app/packages/page"

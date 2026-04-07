@@ -139,7 +139,18 @@ function dispatch(action: Action) {
 
 type Toast = Omit<ToasterToast, 'id'>
 
-function toast({ ...props }: Toast) {
+type ToastTrigger = {
+  id: string
+  dismiss: () => void
+  update: (props: ToasterToast) => void
+}
+
+type ToastApi = {
+  (props: Toast): ToastTrigger
+  warning: (message: string, props?: Omit<Toast, 'title' | 'description'>) => ToastTrigger
+}
+
+const toast = (({ ...props }: Toast): ToastTrigger => {
   const id = genId()
 
   const update = (props: ToasterToast) =>
@@ -166,7 +177,13 @@ function toast({ ...props }: Toast) {
     dismiss,
     update,
   }
-}
+}) as ToastApi
+
+toast.warning = (message: string, props: Omit<Toast, 'title' | 'description'> = {}) =>
+  toast({
+    ...props,
+    title: message,
+  })
 
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState)

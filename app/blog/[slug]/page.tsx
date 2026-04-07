@@ -4,23 +4,43 @@ import { ArrowUpRight } from "lucide-react"
 
 import { HeadingTypewriter } from "@/components/heading-typewriter"
 import { BlogArticle } from "@/components/blog-article"
+import { Seo } from "@/components/seo/Seo"
 import { ScrollReveal } from "@/components/scroll-reveal"
 import { Button } from "@/components/ui/button"
 import { getLocaleFromCookies } from "@/lib/locale"
 import { getBlogPostBySlug, getAllBlogPosts, renderMdxToHtml } from "@/lib/blog"
+import { buildArticleJsonLd, buildBreadcrumbList, buildCanonicalUrl, buildPageMetadata } from "@/lib/seo"
 
 type PageProps = {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 export function generateStaticParams() {
   return getAllBlogPosts().map((post) => ({ slug: post.slug }))
 }
 
+export async function generateMetadata({ params }: PageProps) {
+  const { slug } = await params
+  const locale = await getLocaleFromCookies()
+  const post = getBlogPostBySlug(slug, locale)
+
+  if (!post) return {}
+
+  return buildPageMetadata({
+    title: post.title,
+    description: post.excerpt,
+    pathname: `/blog/${slug}`,
+    locale,
+    imageAlt: post.title,
+    type: "article",
+    keywords: [post.category, ...post.tags],
+  })
+}
+
 export default async function BlogPostPage({ params }: PageProps) {
-  const { slug } = params
+  const { slug } = await params
   const locale = await getLocaleFromCookies()
   const post = getBlogPostBySlug(slug, locale)
 
@@ -28,9 +48,27 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   const html = renderMdxToHtml(post.content)
   const ctaClassName = "rounded-full bg-[color:var(--foreground)] px-5 text-sm font-semibold text-white hover:bg-[color:var(--foreground)]/90 dark:text-black"
+  const jsonLd = [
+    buildBreadcrumbList([
+      { name: "Home", pathname: "/" },
+      { name: "Blog", pathname: "/blog" },
+      { name: post.title, pathname: `/blog/${post.slug}` },
+    ]),
+    buildArticleJsonLd({
+      headline: post.title,
+      description: post.excerpt,
+      url: buildCanonicalUrl(`/blog/${post.slug}`),
+      datePublished: post.date,
+      dateModified: post.date,
+      authorName: "Banff Studio",
+      articleType: "BlogPosting",
+      inLanguage: locale,
+    }),
+  ]
 
   return (
     <main id="blog-post-scope" className="mx-auto w-full max-w-4xl px-4 pb-8 pt-28 sm:px-6 lg:pt-32">
+      <Seo jsonLd={jsonLd} />
       <HeadingTypewriter scopeSelector="#blog-post-scope" />
 
       <section className="space-y-8">

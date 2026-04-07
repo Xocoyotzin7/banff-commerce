@@ -1,55 +1,29 @@
-import { NextResponse, type NextRequest } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
-import { locales } from "@/lib/site-content"
+import { ADMIN_COOKIE_NAME, verifyAdminToken } from "@/lib/admin-auth"
 
-function detectLocale(acceptLanguage: string | null | undefined) {
-  const header = acceptLanguage ?? ""
-  const preferredLocales = header
-    .split(",")
-    .map((part) => part.trim().split(";")[0]?.toLowerCase())
-    .filter(Boolean)
+export async function middleware(request: NextRequest) {
+  const token = request.cookies.get(ADMIN_COOKIE_NAME)?.value
+  const pathname = request.nextUrl.pathname
 
-  for (const preferred of preferredLocales) {
-    const base = preferred.split("-")[0]
-    if (locales.includes(base as (typeof locales)[number])) {
-      return base
+  if (pathname === "/admin/login") {
+    if (token && (await verifyAdminToken(token))) {
+      return NextResponse.redirect(new URL("/admin/products", request.url))
+    }
+    return NextResponse.next()
+  }
+
+  if (pathname.startsWith("/admin")) {
+    if (!token || !(await verifyAdminToken(token))) {
+      const url = new URL("/admin/login", request.url)
+      url.searchParams.set("next", pathname)
+      return NextResponse.redirect(url)
     }
   }
 
-  return "en"
-}
-
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
-  const firstSegment = pathname.split("/").filter(Boolean)[0]
-  const response = NextResponse.next()
-
-  if (firstSegment && locales.includes(firstSegment as (typeof locales)[number])) {
-    response.cookies.set("NEXT_LOCALE", firstSegment, {
-      path: "/",
-      maxAge: 60 * 60 * 24 * 365,
-      sameSite: "lax",
-    })
-  } else if (!request.cookies.get("NEXT_LOCALE")) {
-    response.cookies.set("NEXT_LOCALE", detectLocale(request.headers.get("accept-language")), {
-      path: "/",
-      maxAge: 60 * 60 * 24 * 365,
-      sameSite: "lax",
-    })
-  }
-
-  if (!request.cookies.get("NEXT_THEME")) {
-    const hintedTheme = request.headers.get("sec-ch-prefers-color-scheme")
-    response.cookies.set("NEXT_THEME", hintedTheme === "light" || hintedTheme === "dark" ? hintedTheme : "dark", {
-      path: "/",
-      maxAge: 60 * 60 * 24 * 365,
-      sameSite: "lax",
-    })
-  }
-
-  return response
+  return NextResponse.next()
 }
 
 export const config = {
-  matcher: ["/((?!_next|api|.*\\..*).*)"],
+  matcher: ["/admin/:path*"],
 }
