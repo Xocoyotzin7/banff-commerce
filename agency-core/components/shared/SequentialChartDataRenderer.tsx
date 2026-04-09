@@ -37,7 +37,7 @@ export function SequentialChartDataRenderer<T>({
     }
 
     let cancelled = false
-    let interval: ReturnType<typeof setInterval> | null = null
+      let interval: number | null = null
 
     setVisibleCount(0)
 

@@ -99,7 +99,7 @@ export function DestinationCard({ destination, className }: DestinationCardProps
         }}
         whileHover={reduceMotion ? undefined : { scale: 1.015 }}
         transition={{ type: "spring", stiffness: 220, damping: 24 }}
-        className="relative aspect-[4/5] h-full overflow-hidden rounded-[1.9rem] border border-white/12 bg-[color:var(--surface)] shadow-[0_24px_80px_rgba(0,0,0,0.28)] lg:h-[500px] lg:w-[400px]"
+        className="relative aspect-[4/5] min-h-[72svh] overflow-hidden rounded-[1.9rem] border border-white/12 bg-[color:var(--surface)] shadow-[0_24px_80px_rgba(0,0,0,0.28)] sm:min-h-[64svh] lg:h-[500px] lg:w-[400px] lg:min-h-0"
       >
         <div className={cn("absolute inset-0 bg-[linear-gradient(to_top,rgba(6,13,13,0.92)_0%,rgba(6,13,13,0.28)_42%,rgba(6,13,13,0)_100%)] transition-opacity duration-500", isHovered ? "opacity-100" : "opacity-95")} />
 
@@ -140,6 +140,25 @@ export function DestinationCard({ destination, className }: DestinationCardProps
                 <span className="text-sm font-semibold text-white">{destination.rating.toFixed(1)}</span>
               </div>
               <p className="mt-1 text-[10px] uppercase tracking-[0.24em] text-white/58">{destination.reviewCount} reseñas</p>
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-[1.5rem] border border-white/14 bg-white/8 p-4 text-white backdrop-blur-2xl md:hidden">
+            <div className="flex items-center gap-3">
+              <RatingStars rating={destination.rating} reduceMotion={reduceMotion} />
+              <span className="text-xs uppercase tracking-[0.28em] text-white/62">{destination.bestSeason}</span>
+            </div>
+            <p className="mt-3 line-clamp-4 text-sm leading-6 text-white/76">{destination.description}</p>
+            <div className="mt-4 flex items-center justify-between gap-3">
+              <span className="text-sm font-medium text-white/90">
+                Desde ${destination.startingPriceUsd.toLocaleString()} USD
+              </span>
+              <Button asChild size="sm" className="rounded-full bg-[color:var(--primary)] text-white shadow-[0_0_20px_rgba(10,110,110,0.35)]">
+                <Link href="/packages">
+                  Ver paquetes
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
             </div>
           </div>
 

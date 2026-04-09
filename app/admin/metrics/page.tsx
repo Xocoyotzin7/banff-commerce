@@ -8,6 +8,8 @@ import { getAdminTravelInsightsPayload } from "@/lib/admin/travel-insights"
 import { AdminReservationsPanel } from "@/components/admin/reservations/AdminReservationsPanel"
 import { getDemoAdminReservationsPayload } from "@/lib/admin/reservations-demo"
 import { getAdminReservationsPayload } from "@/lib/admin/reservations"
+import { getLocaleFromCookies } from "@/lib/locale.server"
+import type { Locale } from "@/lib/site-content"
 
 export const dynamic = "force-dynamic"
 
@@ -22,6 +24,7 @@ type PageProps = {
 }
 
 export default async function MetricsPage({ searchParams }: PageProps) {
+  const locale = (await getLocaleFromCookies()) as Locale
   const resolvedSearchParams = searchParams ? await searchParams : undefined
   const selectedMonth = resolvedSearchParams?.month ?? null
   const range = selectedMonth ? "month" : resolveMetricsWindow(resolvedSearchParams?.range).range
@@ -30,8 +33,8 @@ export default async function MetricsPage({ searchParams }: PageProps) {
     const reservationsInitialData = getDemoAdminReservationsPayload(range, selectedMonth)
     return (
       <div className="space-y-8">
-        <MetricsDashboard initialData={getDemoMetricsPayload(range, selectedMonth)} initialRange={range} />
-        <AdminTravelInsightsPanel initialData={travelInitialData} initialRange={travelInitialData.range} />
+        <MetricsDashboard initialData={getDemoMetricsPayload(range, selectedMonth)} initialRange={range} locale={locale} />
+        <AdminTravelInsightsPanel initialData={travelInitialData} initialRange={travelInitialData.range} locale={locale} />
         <AdminReservationsPanel initialData={reservationsInitialData} initialRange={reservationsInitialData.range} />
       </div>
     )
@@ -52,8 +55,8 @@ export default async function MetricsPage({ searchParams }: PageProps) {
 
     return (
       <div className="space-y-8">
-        <MetricsDashboard initialData={initialData} initialRange={range} />
-        <AdminTravelInsightsPanel initialData={travelInitialData} initialRange={travelInitialData.range} />
+        <MetricsDashboard initialData={initialData} initialRange={range} locale={locale} />
+        <AdminTravelInsightsPanel initialData={travelInitialData} initialRange={travelInitialData.range} locale={locale} />
         <AdminReservationsPanel initialData={reservationsInitialData} initialRange={reservationsInitialData.range} />
       </div>
     )
@@ -62,8 +65,8 @@ export default async function MetricsPage({ searchParams }: PageProps) {
     const reservationsInitialData = getDemoAdminReservationsPayload(range, selectedMonth)
     return (
       <div className="space-y-8">
-        <MetricsDashboard initialData={getDemoMetricsPayload(range, selectedMonth)} initialRange={range} />
-        <AdminTravelInsightsPanel initialData={travelInitialData} initialRange={travelInitialData.range} />
+        <MetricsDashboard initialData={getDemoMetricsPayload(range, selectedMonth)} initialRange={range} locale={locale} />
+        <AdminTravelInsightsPanel initialData={travelInitialData} initialRange={travelInitialData.range} locale={locale} />
         <AdminReservationsPanel initialData={reservationsInitialData} initialRange={reservationsInitialData.range} />
       </div>
     )

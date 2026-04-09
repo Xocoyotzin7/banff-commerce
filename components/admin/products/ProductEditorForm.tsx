@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useState } from "react"
 import { z } from "zod"
 import { toast } from "sonner"
+import { ChevronDown } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,7 +18,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { AdminProductRecord } from "@/lib/admin/products"
+import { getProductAdminCopy } from "@/lib/admin/product-copy"
+import { calculateVolumetricWeightKg } from "@/lib/shipping/cart-weight"
+import type { Locale } from "@/lib/site-content"
 import {
   type ProductPayload,
   useAdjustInventory,
@@ -24,28 +30,14 @@ import {
   useUpdateProduct,
 } from "@/hooks/use-admin-products"
 
-const ProductSchema = z.object({
-  name: z.string().min(1, "El nombre es obligatorio"),
-  category: z.string().min(1, "La categoría es obligatoria"),
-  subcategory: z.string().min(1, "La subcategoría es obligatoria"),
-  price: z.coerce.number().nonnegative("El precio no puede ser negativo"),
-  cost: z.coerce.number().nonnegative("El costo no puede ser negativo"),
-  imageUrl: z.string().url("Ingresa una URL válida"),
-  stock: z.coerce.number().int().min(0, "El stock no puede ser negativo"),
-  minStock: z.coerce.number().int().min(0, "El stock mínimo no puede ser negativo"),
-})
-
-const AdjustmentSchema = z.object({
-  amount: z.coerce.number().int().refine((value) => value !== 0, "La cantidad no puede ser cero"),
-  reason: z.enum(["restock", "damaged", "expired", "sold", "manual-adjustment"]),
-})
-
 type FieldErrors = Partial<Record<keyof ProductPayload | "amount" | "reason", string>>
 
 type ProductEditorFormProps = {
   mode: "create" | "edit"
   product?: AdminProductRecord | null
+  locale: Locale
   onSuccess?: (productId: string) => void
+  onShippingPreviewReady?: (productId: string) => void
   onCancel?: () => void
   submitLabel?: string
 }
@@ -56,6 +48,10 @@ const emptyValues: ProductPayload = {
   subcategory: "",
   price: 0,
   cost: 0,
+  weightKg: 0,
+  lengthCm: 0,
+  widthCm: 0,
+  heightCm: 0,
   imageUrl: "",
   stock: 0,
   minStock: 5,
@@ -72,19 +68,83 @@ function serializePayload(product?: AdminProductRecord | null): ProductPayload {
     subcategory: product.subcategory,
     price: Number(product.price),
     cost: Number(product.cost),
+    weightKg: Number(product.weightKg),
+    lengthCm: Number(product.lengthCm),
+    widthCm: Number(product.widthCm),
+    heightCm: Number(product.heightCm),
     imageUrl: product.imageUrl,
     stock: product.stock,
     minStock: product.minStock,
   }
 }
 
+function buildProductSchema(copy = getProductAdminCopy("en")) {
+  return z.object({
+    name: z.string().min(1, copy.form.validation.name),
+    category: z.string().min(1, copy.form.validation.category),
+    subcategory: z.string().min(1, copy.form.validation.subcategory),
+    price: z.coerce.number().nonnegative(copy.form.validation.price),
+    cost: z.coerce.number().nonnegative(copy.form.validation.cost),
+    weightKg: z.coerce.number().positive(copy.form.validation.weightKg),
+    lengthCm: z.coerce.number().positive(copy.form.validation.lengthCm),
+    widthCm: z.coerce.number().positive(copy.form.validation.widthCm),
+    heightCm: z.coerce.number().positive(copy.form.validation.heightCm),
+    imageUrl: z.string().url(copy.form.validation.imageUrl),
+    stock: z.coerce.number().int().min(0, copy.form.validation.stock),
+    minStock: z.coerce.number().int().min(0, copy.form.validation.minStock),
+  })
+}
+
+function buildAdjustmentSchema(copy = getProductAdminCopy("en")) {
+  return z.object({
+    amount: z.coerce.number().int().refine((value) => value !== 0, copy.form.validation.amountZero),
+    reason: z.enum(["restock", "damaged", "expired", "sold", "manual-adjustment"]),
+  })
+}
+
+function resolvePreviewCountry(locale: Locale): "MX" | "CA" {
+  return locale === "es" ? "MX" : "CA"
+}
+
+function buildMockShippingPreview(locale: Locale) {
+  const country = resolvePreviewCountry(locale)
+  const customer =
+    country === "MX"
+      ? {
+          fullName: "Andrea Gómez",
+          email: "andrea@demo.mx",
+          phone: "+52 55 5555 0101",
+          street: "126 Calle Banff",
+          city: "Ciudad de México",
+          region: "CDMX",
+          postalCode: "06600",
+        }
+      : {
+          fullName: "Mila Thompson",
+          email: "mila@demo.ca",
+          phone: "+1 416 555 0101",
+          street: "255 King St W",
+          city: "Toronto",
+          region: "Ontario",
+          postalCode: "M5V 3A8",
+        }
+
+  return {
+    country,
+    customer,
+  }
+}
+
 export function ProductEditorForm({
   mode,
   product,
+  locale,
   onSuccess,
+  onShippingPreviewReady,
   onCancel,
   submitLabel,
 }: ProductEditorFormProps) {
+  const copy = useMemo(() => getProductAdminCopy(locale), [locale])
   const createProduct = useCreateProduct()
   const updateProduct = useUpdateProduct()
   const adjustInventory = useAdjustInventory()
@@ -97,6 +157,8 @@ export function ProductEditorForm({
     "manual-adjustment",
   )
   const [adjustmentErrors, setAdjustmentErrors] = useState<FieldErrors>({})
+  const productSchema = useMemo(() => buildProductSchema(copy), [copy])
+  const adjustmentSchema = useMemo(() => buildAdjustmentSchema(copy), [copy])
 
   useEffect(() => {
     setValues(serializePayload(product))
@@ -114,12 +176,19 @@ export function ProductEditorForm({
     return "outline"
   }, [product])
 
+  const volumetricWeightKg = useMemo(
+    () => calculateVolumetricWeightKg(values.lengthCm, values.widthCm, values.heightCm),
+    [values.heightCm, values.lengthCm, values.widthCm],
+  )
+  const usesVolumetricWeight = volumetricWeightKg > values.weightKg
+  const mockShippingPreview = useMemo(() => buildMockShippingPreview(locale), [locale])
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setFormError(null)
     setFieldErrors({})
 
-    const parsed = ProductSchema.safeParse(values)
+    const parsed = productSchema.safeParse(values)
     if (!parsed.success) {
       const nextErrors: FieldErrors = {}
       for (const issue of parsed.error.issues) {
@@ -136,8 +205,9 @@ export function ProductEditorForm({
       const payload = parsed.data
       if (mode === "create") {
         const created = await createProduct.mutateAsync(payload)
-        toast.success("Producto creado")
+        toast.success(copy.form.toasts.created)
         onSuccess?.(created.id)
+        onShippingPreviewReady?.(created.id)
         return
       }
 
@@ -149,10 +219,11 @@ export function ProductEditorForm({
         id: product.id,
         payload,
       })
-      toast.success("Producto actualizado")
+      toast.success(copy.form.toasts.updated)
       onSuccess?.(updated.id)
+      onShippingPreviewReady?.(updated.id)
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : "No se pudo guardar el producto")
+      setFormError(error instanceof Error ? error.message : "Unable to save product")
     }
   }
 
@@ -163,7 +234,7 @@ export function ProductEditorForm({
     }
 
     setAdjustmentErrors({})
-    const parsed = AdjustmentSchema.safeParse({
+    const parsed = adjustmentSchema.safeParse({
       amount: adjustmentAmount,
       reason: adjustmentReason,
     })
@@ -187,12 +258,12 @@ export function ProductEditorForm({
         amount,
         reason,
       })
-      toast.success("Inventario actualizado")
+      toast.success(copy.form.toasts.adjusted)
       setAdjustmentAmount("")
       setAdjustmentReason("manual-adjustment")
     } catch (error) {
       setAdjustmentErrors({
-        amount: error instanceof Error ? error.message : "No se pudo ajustar el inventario",
+        amount: error instanceof Error ? error.message : copy.form.validation.amountZero,
       })
     }
   }
@@ -211,16 +282,18 @@ export function ProductEditorForm({
       {product ? (
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={currentStockTone === "destructive" ? "destructive" : currentStockTone === "secondary" ? "secondary" : "outline"}>
-            Stock actual: {product.stock}
+            {copy.edit.stockLabel}: {product.stock}
           </Badge>
-          <span className="text-sm text-muted-foreground">Min stock: {product.minStock}</span>
+          <span className="text-sm text-muted-foreground">
+            {copy.form.labels.minStock}: {product.minStock}
+          </span>
         </div>
       ) : null}
 
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="product-name">Name</Label>
+            <Label htmlFor="product-name">{copy.form.labels.name}</Label>
             <Input
               id="product-name"
               value={values.name}
@@ -229,7 +302,7 @@ export function ProductEditorForm({
             {fieldErrors.name ? <p className="text-xs text-destructive">{fieldErrors.name}</p> : null}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="product-category">Category</Label>
+            <Label htmlFor="product-category">{copy.form.labels.category}</Label>
             <Input
               id="product-category"
               value={values.category}
@@ -238,7 +311,7 @@ export function ProductEditorForm({
             {fieldErrors.category ? <p className="text-xs text-destructive">{fieldErrors.category}</p> : null}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="product-subcategory">Subcategory</Label>
+            <Label htmlFor="product-subcategory">{copy.form.labels.subcategory}</Label>
             <Input
               id="product-subcategory"
               value={values.subcategory}
@@ -247,7 +320,7 @@ export function ProductEditorForm({
             {fieldErrors.subcategory ? <p className="text-xs text-destructive">{fieldErrors.subcategory}</p> : null}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="product-image">Image URL</Label>
+            <Label htmlFor="product-image">{copy.form.labels.imageUrl}</Label>
             <Input
               id="product-image"
               type="url"
@@ -257,7 +330,7 @@ export function ProductEditorForm({
             {fieldErrors.imageUrl ? <p className="text-xs text-destructive">{fieldErrors.imageUrl}</p> : null}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="product-price">Price</Label>
+            <Label htmlFor="product-price">{copy.form.labels.price}</Label>
             <Input
               id="product-price"
               type="number"
@@ -268,8 +341,126 @@ export function ProductEditorForm({
             />
             {fieldErrors.price ? <p className="text-xs text-destructive">{fieldErrors.price}</p> : null}
           </div>
+          <div className="sm:col-span-2">
+            <Collapsible defaultOpen>
+              <div className="rounded-xl border border-border/70 bg-muted/20 p-4 shadow-none">
+                <CollapsibleTrigger className="group flex w-full items-center justify-between gap-4 text-left">
+                  <div className="space-y-1">
+                    <div className="text-sm font-semibold">📦 {copy.form.labels.shippingSection}</div>
+                    <p className="text-xs text-muted-foreground">{copy.form.labels.shippingHelp}</p>
+                  </div>
+                  <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="product-weight">{copy.form.labels.weightKg}</Label>
+                      <Input
+                        id="product-weight"
+                        type="number"
+                        inputMode="decimal"
+                        step="0.001"
+                        min="0.001"
+                        required
+                        value={values.weightKg}
+                        onChange={(event) => setValues((current) => ({ ...current, weightKg: Number(event.target.value) }))}
+                      />
+                      {fieldErrors.weightKg ? <p className="text-xs text-destructive">{fieldErrors.weightKg}</p> : null}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="product-length">{copy.form.labels.lengthCm}</Label>
+                      <Input
+                        id="product-length"
+                        type="number"
+                        inputMode="decimal"
+                        step="0.1"
+                        min="0.1"
+                        required
+                        value={values.lengthCm}
+                        onChange={(event) => setValues((current) => ({ ...current, lengthCm: Number(event.target.value) }))}
+                      />
+                      {fieldErrors.lengthCm ? <p className="text-xs text-destructive">{fieldErrors.lengthCm}</p> : null}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="product-width">{copy.form.labels.widthCm}</Label>
+                      <Input
+                        id="product-width"
+                        type="number"
+                        inputMode="decimal"
+                        step="0.1"
+                        min="0.1"
+                        required
+                        value={values.widthCm}
+                        onChange={(event) => setValues((current) => ({ ...current, widthCm: Number(event.target.value) }))}
+                      />
+                      {fieldErrors.widthCm ? <p className="text-xs text-destructive">{fieldErrors.widthCm}</p> : null}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="product-height">{copy.form.labels.heightCm}</Label>
+                      <Input
+                        id="product-height"
+                        type="number"
+                        inputMode="decimal"
+                        step="0.1"
+                        min="0.1"
+                        required
+                        value={values.heightCm}
+                        onChange={(event) => setValues((current) => ({ ...current, heightCm: Number(event.target.value) }))}
+                      />
+                      {fieldErrors.heightCm ? <p className="text-xs text-destructive">{fieldErrors.heightCm}</p> : null}
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    {usesVolumetricWeight ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Badge asChild variant="outline" className="cursor-help border-amber-500/30 bg-amber-500/15 text-amber-200">
+                              <button type="button" className="rounded-md px-2 py-0.5 text-xs font-medium">
+                                {copy.form.labels.volumetricWeight}: {volumetricWeightKg.toFixed(2)} kg
+                              </button>
+                            </Badge>
+                          </TooltipTrigger>
+                          <TooltipContent>{copy.form.labels.volumetricWarning}</TooltipContent>
+                        </Tooltip>
+                    ) : (
+                      <Badge variant="outline" className="border-border/70 bg-background text-foreground">
+                        {copy.form.labels.volumetricWeight}: {volumetricWeightKg.toFixed(2)} kg
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="mt-4 rounded-xl border border-border/60 bg-background/70 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">{copy.preview.customer}</p>
+                        <p className="mt-1 font-medium">{mockShippingPreview.customer.fullName}</p>
+                        <p className="text-xs text-muted-foreground">{mockShippingPreview.customer.email}</p>
+                      </div>
+                      <Badge variant="outline" className="rounded-full px-2.5 py-0.5 text-[11px]">
+                        {mockShippingPreview.country === "MX" ? copy.preview.countryLabelMX : copy.preview.countryLabelCA}
+                      </Badge>
+                    </div>
+                    <div className="mt-4 space-y-2 text-sm">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">{copy.preview.address}</p>
+                        <p className="mt-1 font-medium">{mockShippingPreview.customer.street}</p>
+                        <p className="text-muted-foreground">
+                          {mockShippingPreview.customer.city}, {mockShippingPreview.customer.region} {mockShippingPreview.customer.postalCode}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">{copy.preview.phone}</p>
+                        <p className="mt-1 text-muted-foreground">{mockShippingPreview.customer.phone}</p>
+                      </div>
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </div>
+            </Collapsible>
+          </div>
           <div className="space-y-2">
-            <Label htmlFor="product-cost">Cost</Label>
+            <Label htmlFor="product-cost">{copy.form.labels.cost}</Label>
             <Input
               id="product-cost"
               type="number"
@@ -281,7 +472,7 @@ export function ProductEditorForm({
             {fieldErrors.cost ? <p className="text-xs text-destructive">{fieldErrors.cost}</p> : null}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="product-stock">Stock</Label>
+            <Label htmlFor="product-stock">{copy.form.labels.stock}</Label>
             <Input
               id="product-stock"
               type="number"
@@ -293,7 +484,7 @@ export function ProductEditorForm({
             {fieldErrors.stock ? <p className="text-xs text-destructive">{fieldErrors.stock}</p> : null}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="product-min-stock">Min Stock</Label>
+            <Label htmlFor="product-min-stock">{copy.form.labels.minStock}</Label>
             <Input
               id="product-min-stock"
               type="number"
@@ -308,11 +499,11 @@ export function ProductEditorForm({
 
         <div className="flex flex-wrap gap-2 pt-2">
           <Button type="submit" disabled={isSaving}>
-            {submitLabel ?? (mode === "create" ? "Create product" : "Save changes")}
+            {submitLabel ?? (mode === "create" ? copy.form.actions.create : copy.form.actions.update)}
           </Button>
           {onCancel ? (
             <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving}>
-              Cancel
+              {copy.form.actions.cancel}
             </Button>
           ) : null}
         </div>
@@ -321,13 +512,13 @@ export function ProductEditorForm({
       {mode === "edit" && product ? (
         <Card className="border-border/70 bg-muted/20 shadow-none">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">Stock adjustment</CardTitle>
-            <CardDescription>Positive amounts restock. Negative amounts consume stock.</CardDescription>
+            <CardTitle className="text-base">{copy.form.labels.stockAdjustmentTitle}</CardTitle>
+            <CardDescription>{copy.form.labels.stockAdjustmentDescription}</CardDescription>
           </CardHeader>
           <CardContent>
             <form className="grid gap-4 sm:grid-cols-[1fr_1fr_auto]" onSubmit={handleAdjustmentSubmit}>
               <div className="space-y-2">
-                <Label htmlFor="adjustment-amount">Adjustment amount</Label>
+                <Label htmlFor="adjustment-amount">{copy.form.labels.adjustmentAmount}</Label>
                 <Input
                   id="adjustment-amount"
                   type="number"
@@ -339,17 +530,17 @@ export function ProductEditorForm({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="adjustment-reason">Reason</Label>
+                <Label htmlFor="adjustment-reason">{copy.form.labels.adjustmentReason}</Label>
                 <Select value={adjustmentReason} onValueChange={(value) => setAdjustmentReason(value as typeof adjustmentReason)}>
                   <SelectTrigger id="adjustment-reason" className="w-full">
-                    <SelectValue placeholder="Reason" />
+                    <SelectValue placeholder={copy.form.labels.adjustmentReason} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="restock">restock</SelectItem>
-                    <SelectItem value="damaged">damaged</SelectItem>
-                    <SelectItem value="expired">expired</SelectItem>
-                    <SelectItem value="sold">sold</SelectItem>
-                    <SelectItem value="manual-adjustment">manual-adjustment</SelectItem>
+                    <SelectItem value="restock">{copy.form.options.restock}</SelectItem>
+                    <SelectItem value="damaged">{copy.form.options.damaged}</SelectItem>
+                    <SelectItem value="expired">{copy.form.options.expired}</SelectItem>
+                    <SelectItem value="sold">{copy.form.options.sold}</SelectItem>
+                    <SelectItem value="manual-adjustment">{copy.form.options.manualAdjustment}</SelectItem>
                   </SelectContent>
                 </Select>
                 {adjustmentErrors.reason ? <p className="text-xs text-destructive">{adjustmentErrors.reason}</p> : null}
@@ -357,7 +548,7 @@ export function ProductEditorForm({
 
               <div className="flex items-end">
                 <Button type="submit" disabled={isAdjusting}>
-                  Apply
+                  {copy.form.labels.applyAdjustment}
                 </Button>
               </div>
             </form>

@@ -1,25 +1,20 @@
 "use client"
 
 import Link from "next/link"
-import { useState, type FormEvent } from "react"
-import { AnimatePresence, motion } from "framer-motion"
+import { motion } from "framer-motion"
 import {
   ArrowUpRight,
-  Check,
   Facebook,
   Instagram,
   Mail,
   MessageCircleMore,
   PhoneCall,
-  Send,
   Twitter,
   Youtube,
 } from "lucide-react"
 
 import { destinations } from "../../lib/data/destinations"
 import { cn } from "../../lib/utils"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
 import { fadeInUp, staggerContainer } from "@banff/agency-core/components/shared/animations"
 import { getTravelCopy } from "@/lib/travel-copy"
 import type { Locale } from "@/lib/site-content"
@@ -47,32 +42,12 @@ const informationLinks = [
   { href: "/about#privacy", label: "Privacidad" },
 ] as const
 
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
-}
-
 type FooterProps = {
   locale: Locale
 }
 
 export function Footer({ locale }: FooterProps) {
   const copy = getTravelCopy(locale)
-  const [newsletterEmail, setNewsletterEmail] = useState("")
-  const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "error" | "success">("idle")
-  const [shakeToken, setShakeToken] = useState(0)
-
-  const handleNewsletterSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-
-    if (!isValidEmail(newsletterEmail)) {
-      setNewsletterStatus("error")
-      setShakeToken((current) => current + 1)
-      return
-    }
-
-    setNewsletterStatus("success")
-    setNewsletterEmail("")
-  }
 
   return (
     <footer className="border-t border-border/70 bg-surface/70">
@@ -154,11 +129,11 @@ export function Footer({ locale }: FooterProps) {
             <motion.div variants={fadeInUp} className="space-y-5">
               <div>
                 <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-[color:var(--secondary)]">{copy.footer.contactTitle}</h3>
-                <div className="mt-5 space-y-3 text-sm text-text-muted">
-                  <a href="mailto:hello@latamviajes.com" className="flex items-center gap-2 transition-colors hover:text-text">
-                    <Mail className="h-4 w-4 text-[color:var(--secondary)]" />
-                    hello@latamviajes.com
-                  </a>
+              <div className="mt-5 space-y-3 text-sm text-text-muted">
+                <a href="mailto:hello@latamviajes.com" className="flex items-center gap-2 transition-colors hover:text-text">
+                  <Mail className="h-4 w-4 text-[color:var(--secondary)]" />
+                  hello@latamviajes.com
+                </a>
                   <a
                     href="https://wa.me/5215555555555"
                     target="_blank"
@@ -173,66 +148,6 @@ export function Footer({ locale }: FooterProps) {
                     +52 1 555 555 5555
                   </a>
                 </div>
-              </div>
-
-              <div className="rounded-[1.6rem] border border-border/70 bg-background/35 p-4">
-                <p className="text-sm font-semibold text-text">{copy.footer.newsletterTitle}</p>
-                <p className="mt-2 text-sm leading-6 text-text-muted">{copy.footer.newsletterDescription}</p>
-
-                <form onSubmit={handleNewsletterSubmit} className="mt-4 space-y-3">
-                  <motion.div
-                    key={shakeToken}
-                    animate={newsletterStatus === "error" ? { x: [0, -8, 8, -6, 6, 0] } : { x: 0 }}
-                    transition={{ duration: 0.35 }}
-                    className="flex flex-col gap-3 sm:flex-row"
-                  >
-                    <Input
-                      type="email"
-                      value={newsletterEmail}
-                      onChange={(event) => {
-                        setNewsletterEmail(event.target.value)
-                        if (newsletterStatus !== "idle") setNewsletterStatus("idle")
-                      }}
-                      placeholder={copy.footer.newsletterPlaceholder}
-                      className="h-11 rounded-full border-border/70 bg-background/55"
-                    />
-                    <Button type="submit" className="h-11 rounded-full bg-[color:var(--primary)] px-5 text-white hover:bg-[color:var(--primary-dark)]">
-                      <span className="inline-flex items-center gap-2">
-                        {copy.footer.subscribe}
-                        <Send className="h-4 w-4" />
-                      </span>
-                    </Button>
-                  </motion.div>
-
-                  <AnimatePresence mode="wait" initial={false}>
-                    {newsletterStatus === "error" ? (
-                      <motion.p
-                        key="newsletter-error"
-                        initial={{ opacity: 0, y: -6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className="text-sm text-[color:var(--accent)]"
-                      >
-                        {copy.footer.invalidEmail}
-                      </motion.p>
-                    ) : null}
-
-                    {newsletterStatus === "success" ? (
-                      <motion.p
-                        key="newsletter-success"
-                        initial={{ opacity: 0, y: -6, scale: 0.96 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="inline-flex items-center gap-2 text-sm text-emerald-300"
-                      >
-                        <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-                          <Check className="h-4 w-4" />
-                        </motion.span>
-                        {copy.footer.success}
-                      </motion.p>
-                    ) : null}
-                  </AnimatePresence>
-                </form>
               </div>
             </motion.div>
           </motion.div>

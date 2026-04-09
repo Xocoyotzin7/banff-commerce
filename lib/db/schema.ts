@@ -1,5 +1,6 @@
 import {
   date,
+  jsonb,
   integer,
   numeric,
   pgEnum,
@@ -8,11 +9,22 @@ import {
   timestamp,
   uuid,
   varchar,
+  boolean,
 } from "drizzle-orm/pg-core"
+import { sql } from "drizzle-orm"
 
 export const reservationStatusEnum = pgEnum("reservation_status", ["pending", "confirmed", "cancelled", "completed"])
 export const reservationTypeEnum = pgEnum("reservation_type", ["appointment", "travel"])
-export const orderStatusEnum = pgEnum("order_status", ["pending", "confirmed", "cancelled", "completed"])
+export const orderStatusEnum = pgEnum("order_status", [
+  "pending",
+  "processing",
+  "shipped",
+  "out_for_delivery",
+  "delivered",
+  "confirmed",
+  "cancelled",
+  "completed",
+])
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -72,6 +84,13 @@ export const products = pgTable("products", {
   subcategory: text("subcategory").notNull(),
   price: numeric("price", { precision: 12, scale: 2 }).notNull(),
   cost: numeric("cost", { precision: 12, scale: 2 }).notNull(),
+  weightKg: numeric("weight_kg", { precision: 6, scale: 3 }).notNull(),
+  lengthCm: numeric("length_cm", { precision: 6, scale: 1 }).notNull(),
+  widthCm: numeric("width_cm", { precision: 6, scale: 1 }).notNull(),
+  heightCm: numeric("height_cm", { precision: 6, scale: 1 }).notNull(),
+  volumetricWeightKg: numeric("volumetric_weight_kg", { precision: 6, scale: 3 })
+    .generatedAlwaysAs(sql`((length_cm * width_cm * height_cm) / 5000)`)
+    .notNull(),
   stock: integer("stock").notNull().default(0),
   minStock: integer("min_stock").notNull().default(5),
   imageUrl: text("image_url").notNull(),
@@ -84,10 +103,28 @@ export const orders = pgTable("orders", {
   userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
   orderNumber: varchar("order_number", { length: 64 }).notNull(),
   status: orderStatusEnum("status").notNull().default("pending"),
+  country: varchar("country", { length: 8 }),
+  selectedCarrier: varchar("selected_carrier", { length: 64 }),
+  carrier: varchar("carrier", { length: 64 }),
+  trackingId: varchar("tracking_id", { length: 128 }),
+  trackingUrl: text("tracking_url"),
+  shippedAt: timestamp("shipped_at", { withTimezone: true }),
+  outForDeliveryAt: timestamp("out_for_delivery_at", { withTimezone: true }),
+  deliveredAt: timestamp("delivered_at", { withTimezone: true }),
+  outForDeliveryNotifiedAt: timestamp("out_for_delivery_notified_at", { withTimezone: true }),
+  quotedRates: jsonb("quoted_rates").$type<unknown[]>().notNull().default(sql`'[]'::jsonb`),
+  shippingAddress: jsonb("shipping_address").$type<Record<string, unknown> | null>().default(null),
+  grossTotal: numeric("gross_total", { precision: 12, scale: 2 }).notNull().default("0"),
+  taxAmount: numeric("tax_amount", { precision: 12, scale: 2 }).notNull().default("0"),
+  shippingAmount: numeric("shipping_amount", { precision: 12, scale: 2 }).notNull().default("0"),
+  netSales: numeric("net_sales", { precision: 12, scale: 2 }).notNull().default("0"),
   total: numeric("total", { precision: 12, scale: 2 }).notNull(),
   subtotal: numeric("subtotal", { precision: 12, scale: 2 }).notNull(),
   vatAmount: numeric("vat_amount", { precision: 12, scale: 2 }).notNull(),
   tipAmount: numeric("tip_amount", { precision: 12, scale: 2 }).notNull(),
+  reviewRating: integer("review_rating"),
+  reviewComment: text("review_comment"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
   sourceType: varchar("source_type", { length: 32 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 })
@@ -112,6 +149,24 @@ export const payments = pgTable("payments", {
   method: varchar("method", { length: 32 }).notNull(),
   amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
   status: varchar("status", { length: 32 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+})
+
+export const paymentMethods = pgTable("payment_methods", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  country: varchar("country", { length: 2 }).notNull(),
+  stripePaymentMethodId: varchar("stripe_payment_method_id", { length: 50 }),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 50 }),
+  openpayCardId: varchar("openpay_card_id", { length: 50 }),
+  openpayCustomerId: varchar("openpay_customer_id", { length: 50 }),
+  cardBrand: varchar("card_brand", { length: 20 }).notNull(),
+  cardLast4: varchar("card_last4", { length: 4 }).notNull(),
+  cardExpMonth: integer("card_exp_month").notNull(),
+  cardExpYear: integer("card_exp_year").notNull(),
+  isDefault: boolean("is_default").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 })
 
@@ -175,6 +230,7 @@ export const dbSchema = {
   orders,
   orderItems,
   payments,
+  paymentMethods,
   pageAnalytics,
   inventoryItems,
   inventoryStock,

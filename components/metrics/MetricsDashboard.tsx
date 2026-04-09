@@ -21,11 +21,13 @@ import { SequentialBarShape } from "@banff/agency-core/components/shared/Sequent
 import { ScrollRevealStagger } from "@banff/agency-core/components/shared/ScrollRevealStagger"
 import { SequentialChartDataRenderer } from "@banff/agency-core/components/shared/SequentialChartDataRenderer"
 import { buildMetricsCsv, buildMetricsWorkbook } from "@/lib/metrics/export"
+import type { Locale } from "@/lib/site-content"
 import type { MetricsPayload, MetricsRange } from "@/lib/metrics/types"
 
 type MetricsDashboardProps = {
   initialData: MetricsPayload
   initialRange: MetricsRange
+  locale?: Locale
 }
 
 type MetricsResponse = {
@@ -48,33 +50,76 @@ function createSequentialBarShape(shouldReduceMotion: boolean, orientation: "ver
   }
 }
 
-const salesChartConfig = {
-  revenue: {
-    label: "Revenue",
-    color: "hsl(var(--primary))",
-  },
-} as const
-
-const productChartConfig = {
-  units: {
-    label: "Units",
-    color: "hsl(var(--accent))",
-  },
-} as const
-
-const branchChartConfig = {
-  revenue: {
-    label: "Revenue",
-    color: "hsl(var(--secondary))",
-  },
-} as const
-
-const restockChartConfig = {
-  days: {
-    label: "Days remaining",
-    color: "hsl(var(--primary))",
-  },
-} as const
+function getMetricsCopy(locale: Locale = "en") {
+  return {
+    badge: locale === "es" ? "Métricas admin" : locale === "fr" ? "Métriques admin" : "Admin metrics",
+    title:
+      locale === "es"
+        ? "Panel avanzado de métricas"
+        : locale === "fr"
+          ? "Tableau de bord analytique avancé"
+          : "Advanced metrics dashboard",
+    description:
+      locale === "es"
+        ? "Vista operativa para el dueño del negocio. Los paneles siguen ingresos, ticket promedio, presión de stock y señales de tráfico."
+        : locale === "fr"
+          ? "Vue opérationnelle pour le propriétaire. Les panneaux suivent le revenu, le panier moyen, la pression sur le stock et les signaux de trafic."
+          : "Operational view for the store owner. The panels track revenue, ticket size, stock pressure, and traffic signals.",
+    salesChartTitle:
+      locale === "es" ? "Desglose de ventas" : locale === "fr" ? "Répartition des ventes" : "Revenue breakdown",
+    salesChartDescription:
+      locale === "es"
+        ? "Ventas brutas, impuestos, envíos y neto para el periodo seleccionado."
+        : locale === "fr"
+          ? "Ventes brutes, taxes, expédition et net pour la période sélectionnée."
+          : "Gross sales, taxes, shipping, and net sales for the selected period.",
+    topProductsTitle: locale === "es" ? "Productos top" : locale === "fr" ? "Produits phares" : "Top products",
+    topProductsDescription:
+      locale === "es" ? "Top 5 por unidades vendidas." : locale === "fr" ? "Top 5 par unités vendues." : "Top 5 by units sold.",
+    branchTitle: locale === "es" ? "Ingresos por sucursal" : locale === "fr" ? "Revenus par succursale" : "Revenue by branch",
+    branchDescription:
+      locale === "es"
+        ? "Demanda agregada desde ventanas de forecast."
+        : locale === "fr"
+          ? "Demande agrégée à partir des fenêtres de prévision."
+          : "Aggregated demand from forecast windows.",
+    restockTitle: locale === "es" ? "Presión de reabastecimiento" : locale === "fr" ? "Pression de réassort" : "Restock pressure",
+    restockDescription:
+      locale === "es"
+        ? "Días restantes por cada artículo con stock bajo."
+        : locale === "fr"
+          ? "Jours restants par article en faible stock."
+          : "Days remaining per low-stock item.",
+    insightsTitle: locale === "es" ? "Insights IA" : locale === "fr" ? "Insights IA" : "AI Insights",
+    insightsTrigger: locale === "es" ? "Abrir insights" : locale === "fr" ? "Ouvrir les insights" : "Open insights",
+    salesClusters: locale === "es" ? "Clusters de ventas" : locale === "fr" ? "Clusters de ventes" : "Sales clusters",
+    csv: locale === "es" ? "CSV" : locale === "fr" ? "CSV" : "CSV",
+    excel: locale === "es" ? "Excel" : locale === "fr" ? "Excel" : "Excel",
+    exporting: locale === "es" ? "Exportando..." : locale === "fr" ? "Exportation..." : "Exporting...",
+    noSalesData: locale === "es" ? "No hay datos de ventas para este periodo." : locale === "fr" ? "Aucune donnée de ventes pour cette période." : "No sales data for this range.",
+    noProductsData: locale === "es" ? "Todavía no hay productos vendidos." : locale === "fr" ? "Aucun produit vendu pour l’instant." : "No sold products yet.",
+    noBranchData: locale === "es" ? "No hay datos por sucursal." : locale === "fr" ? "Aucune donnée par succursale." : "No branch data available.",
+    noRestockData: locale === "es" ? "No se detectaron problemas de reabastecimiento." : locale === "fr" ? "Aucun problème de réassort détecté." : "No restock issues detected.",
+    topCountries: locale === "es" ? "Países top" : locale === "fr" ? "Pays principaux" : "Top countries",
+    views: locale === "es" ? "vistas" : locale === "fr" ? "vues" : "views",
+    destination: locale === "es" ? "Destino" : locale === "fr" ? "Destination" : "Destination",
+    country: locale === "es" ? "País" : locale === "fr" ? "Pays" : "Country",
+    peak: locale === "es" ? "Pico" : locale === "fr" ? "Pic" : "Peak",
+    low: locale === "es" ? "Bajo" : locale === "fr" ? "Bas" : "Low",
+    reservations: locale === "es" ? "Reservas" : locale === "fr" ? "Réservations" : "Reservations",
+    score: locale === "es" ? "puntuación" : locale === "fr" ? "score" : "score",
+    clients: locale === "es" ? "clientes" : locale === "fr" ? "clients" : "clients",
+    totalPoints: locale === "es" ? "puntos totales" : locale === "fr" ? "points totaux" : "total points",
+    markovTitle: locale === "es" ? "Transiciones de landing" : locale === "fr" ? "Transitions de landing" : "Landing transitions",
+    anomaliesTitle: locale === "es" ? "Anomalías" : locale === "fr" ? "Anomalies" : "Anomalies",
+    noOutliers: locale === "es" ? "No se detectaron valores atípicos." : locale === "fr" ? "Aucune anomalie détectée." : "No outliers detected.",
+    sectionOverview: locale === "es" ? "Resumen por sección" : locale === "fr" ? "Vue par section" : "Section overview",
+    liveMock: locale === "es" ? "Mock en vivo" : locale === "fr" ? "Mock en direct" : "Live mock",
+    empty: locale === "es" ? "Vacío" : locale === "fr" ? "Vide" : "Empty",
+    restockForecast: locale === "es" ? "Pronóstico de reabastecimiento" : locale === "fr" ? "Prévision de réassort" : "Restock forecast",
+    qty: locale === "es" ? "Cant." : locale === "fr" ? "Qté" : "Qty",
+  }
+}
 
 async function fetchMetrics(range: MetricsRange, month: string | null, signal?: AbortSignal): Promise<MetricsPayload | null> {
   const params = new URLSearchParams({ range })
@@ -96,7 +141,7 @@ async function fetchMetrics(range: MetricsRange, month: string | null, signal?: 
   return json.data
 }
 
-export function MetricsDashboard({ initialData, initialRange }: MetricsDashboardProps) {
+export function MetricsDashboard({ initialData, initialRange, locale = "en" }: MetricsDashboardProps) {
   const [range, setRange] = useState<MetricsRange>(initialRange)
   const [useRange, setUseRange] = useState(initialRange !== "month")
   const [selectedMonth, setSelectedMonth] = useState<string | null>(initialData.selectedMonth ?? null)
@@ -155,6 +200,43 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
     quantity: item.quantity,
   }))
   const chartExportSuffix = data.selectedMonth ? `${data.range}-${data.selectedMonth}` : data.range
+  const copy = getMetricsCopy(locale)
+  const salesChartConfig = {
+    grossTotal: {
+      label: locale === "es" ? "Ventas brutas" : locale === "fr" ? "Ventes brutes" : "Gross sales",
+      color: "hsl(var(--primary))",
+    },
+    taxAmount: {
+      label: locale === "es" ? "Taxes" : locale === "fr" ? "Taxes" : "Taxes",
+      color: "hsl(var(--destructive))",
+    },
+    shippingAmount: {
+      label: locale === "es" ? "Envíos" : locale === "fr" ? "Expédition" : "Shipping",
+      color: "hsl(var(--secondary))",
+    },
+    netSales: {
+      label: locale === "es" ? "Ventas netas" : locale === "fr" ? "Ventes nettes" : "Net sales",
+      color: "hsl(var(--accent))",
+    },
+  }
+  const productChartConfig = {
+    units: {
+      label: locale === "es" ? "Unidades" : locale === "fr" ? "Unités" : "Units",
+      color: "hsl(var(--accent))",
+    },
+  }
+  const branchChartConfig = {
+    revenue: {
+      label: locale === "es" ? "Ingresos" : locale === "fr" ? "Revenu" : "Revenue",
+      color: "hsl(var(--secondary))",
+    },
+  }
+  const restockChartConfig = {
+    days: {
+      label: locale === "es" ? "Días restantes" : locale === "fr" ? "Jours restants" : "Days remaining",
+      color: "hsl(var(--primary))",
+    },
+  }
 
   async function downloadMetrics(format: "csv" | "xlsx") {
     setExporting(format)
@@ -181,7 +263,19 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
         link.click()
         URL.revokeObjectURL(url)
       }
-      toast.success(format === "csv" ? "CSV exportado" : "Excel exportado")
+      toast.success(
+        format === "csv"
+          ? locale === "es"
+            ? "CSV exportado"
+            : locale === "fr"
+              ? "CSV exporté"
+              : "CSV exported"
+          : locale === "es"
+            ? "Excel exportado"
+            : locale === "fr"
+              ? "Excel exporté"
+              : "Excel exported",
+      )
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No pudimos exportar los datos")
     } finally {
@@ -189,7 +283,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
     }
   }
 
-  const periodOptions = [
+  const periodOptions: Array<{ value: MetricsRange; label: string }> = [
     { value: "1d", label: "24h" },
     { value: "7d", label: "7d" },
     { value: "30d", label: "30d" },
@@ -204,12 +298,10 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
         <div className="flex flex-col gap-4 border-b border-border/60 pb-5 md:flex-row md:items-end md:justify-between">
           <div className="space-y-2">
             <Badge variant="outline" className="w-fit rounded-full border-border/70 px-3 py-1 text-[11px] uppercase tracking-[0.28em]">
-              Admin metrics
+              {copy.badge}
             </Badge>
-            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Advanced metrics dashboard</h1>
-            <p className="max-w-3xl text-sm leading-7 text-muted-foreground">
-              Operational view for the store owner. The panels below track revenue, ticket size, stock pressure, and traffic signals without adding a premium veneer.
-            </p>
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{copy.title}</h1>
+            <p className="max-w-3xl text-sm leading-7 text-muted-foreground">{copy.description}</p>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -222,7 +314,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
               disabled={exporting !== null}
             >
               <FileText className="mr-2 h-4 w-4" />
-              {exporting === "csv" ? "Exportando..." : "CSV"}
+              {exporting === "csv" ? copy.exporting : copy.csv}
             </Button>
             <Button
               type="button"
@@ -233,7 +325,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
               disabled={exporting !== null}
             >
               <FileSpreadsheet className="mr-2 h-4 w-4" />
-              {exporting === "xlsx" ? "Exportando..." : "Excel"}
+              {exporting === "xlsx" ? copy.exporting : copy.excel}
             </Button>
           </div>
         </div>
@@ -282,8 +374,8 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
             <Card className="border-border/70 bg-card/90 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between gap-3">
                 <div>
-                  <CardTitle className="text-base font-semibold">Sales chart</CardTitle>
-                  <p className="text-sm text-muted-foreground">Daily revenue for the selected period.</p>
+                  <CardTitle className="text-base font-semibold">{copy.salesChartTitle}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{copy.salesChartDescription}</p>
                 </div>
                 <ChartPngButton targetRef={salesChartRef} filename={`sales-chart-${chartExportSuffix}`} className="hidden md:inline-flex" />
               </CardHeader>
@@ -295,7 +387,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
                         <SequentialChartDataRenderer data={salesSeries} active={isVisible} reduceMotion={shouldReduceMotion} stepMs={110}>
                           {({ data: chartData }) => (
                             <ChartContainer config={salesChartConfig} className="h-full w-full">
-                              <LineChart key={`sales-line-${chartData.length}`} data={chartData} margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
+                              <LineChart key={`sales-line-${chartData.length}`} data={[...chartData]} margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                                 <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={10} />
                                 <YAxis
@@ -305,24 +397,17 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
                                   tickFormatter={(value) => `$${Number(value).toLocaleString("es-MX")}`}
                                 />
                                 <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
-                                <Line
-                                  type="monotone"
-                                  dataKey="revenue"
-                                  stroke="var(--color-revenue)"
-                                  strokeWidth={3}
-                                  dot={{ r: 4, fill: "var(--color-revenue)", strokeWidth: 0 }}
-                                  baseLine={0}
-                                  isAnimationActive={!shouldReduceMotion}
-                                  animationBegin={0}
-                                  animationDuration={900}
-                                />
+                                <Line type="monotone" dataKey="grossTotal" stroke="var(--color-grossTotal)" strokeWidth={3} dot={{ r: 3, fill: "var(--color-grossTotal)", strokeWidth: 0 }} baseLine={0} isAnimationActive={!shouldReduceMotion} animationBegin={0} animationDuration={900} />
+                                <Line type="monotone" dataKey="taxAmount" stroke="var(--color-taxAmount)" strokeWidth={2} dot={false} baseLine={0} isAnimationActive={!shouldReduceMotion} animationBegin={100} animationDuration={900} />
+                                <Line type="monotone" dataKey="shippingAmount" stroke="var(--color-shippingAmount)" strokeWidth={2} dot={false} baseLine={0} isAnimationActive={!shouldReduceMotion} animationBegin={150} animationDuration={900} />
+                                <Line type="monotone" dataKey="netSales" stroke="var(--color-netSales)" strokeWidth={2.5} dot={false} baseLine={0} isAnimationActive={!shouldReduceMotion} animationBegin={200} animationDuration={900} />
                               </LineChart>
                             </ChartContainer>
                           )}
                         </SequentialChartDataRenderer>
                       ) : (
                         <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-border/70 text-sm text-muted-foreground">
-                          No sales data for this range.
+                          {copy.noSalesData}
                         </div>
                       )}
                     </ChartHoverDownloadArea>
@@ -336,8 +421,8 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
             <Card className="border-border/70 bg-card/90 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between gap-3">
                 <div>
-                  <CardTitle className="text-base font-semibold">Top products</CardTitle>
-                  <p className="text-sm text-muted-foreground">Top 5 by units sold.</p>
+                  <CardTitle className="text-base font-semibold">{copy.topProductsTitle}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{copy.topProductsDescription}</p>
                 </div>
                 <ChartPngButton targetRef={topProductsChartRef} filename={`top-products-${chartExportSuffix}`} className="hidden md:inline-flex" />
               </CardHeader>
@@ -354,7 +439,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
                         >
                           {({ data: chartData, complete }) => (
                             <ChartContainer config={productChartConfig} className="h-full w-full">
-                              <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
+                              <BarChart data={[...chartData]} layout="vertical" margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
                                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                                 <XAxis type="number" tickLine={false} axisLine={false} />
                                 <YAxis dataKey="name" type="category" width={120} tickLine={false} axisLine={false} />
@@ -364,7 +449,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
                                   fill="var(--color-units)"
                                   radius={[0, 8, 8, 0]}
                                   isAnimationActive={false}
-                                  shape={createSequentialBarShape(shouldReduceMotion, "horizontal")}
+                                  shape={createSequentialBarShape(shouldReduceMotion, "horizontal") as any}
                                 />
                               </BarChart>
                             </ChartContainer>
@@ -372,7 +457,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
                         </SequentialChartDataRenderer>
                       ) : (
                         <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-border/70 text-sm text-muted-foreground">
-                          No sold products yet.
+                          {copy.noProductsData}
                         </div>
                       )}
                     </ChartHoverDownloadArea>
@@ -388,8 +473,8 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
             <Card className="border-border/70 bg-card/90 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between gap-3">
                 <div>
-                  <CardTitle className="text-base font-semibold">Revenue by branch</CardTitle>
-                  <p className="text-sm text-muted-foreground">Aggregated demand from forecast windows.</p>
+                  <CardTitle className="text-base font-semibold">{copy.branchTitle}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{copy.branchDescription}</p>
                 </div>
                 <ChartPngButton targetRef={branchRevenueChartRef} filename={`revenue-by-branch-${chartExportSuffix}`} className="hidden md:inline-flex" />
               </CardHeader>
@@ -406,7 +491,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
                         >
                           {({ data: chartData }) => (
                             <ChartContainer config={branchChartConfig} className="h-full w-full">
-                              <BarChart data={chartData} margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
+                              <BarChart data={[...chartData]} margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                                 <XAxis dataKey="branch" tickLine={false} axisLine={false} tickMargin={10} />
                                 <YAxis
@@ -421,7 +506,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
                                   fill="var(--color-revenue)"
                                   radius={[8, 8, 0, 0]}
                                   isAnimationActive={false}
-                                  shape={createSequentialBarShape(shouldReduceMotion, "vertical")}
+                                  shape={createSequentialBarShape(shouldReduceMotion, "vertical") as any}
                                 />
                               </BarChart>
                             </ChartContainer>
@@ -429,7 +514,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
                         </SequentialChartDataRenderer>
                       ) : (
                         <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-border/70 text-sm text-muted-foreground">
-                          No branch data available.
+                          {copy.noBranchData}
                         </div>
                       )}
                     </ChartHoverDownloadArea>
@@ -443,8 +528,8 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
             <Card className="border-border/70 bg-card/90 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between gap-3">
                 <div>
-                  <CardTitle className="text-base font-semibold">Restock pressure</CardTitle>
-                  <p className="text-sm text-muted-foreground">Days remaining per low-stock item.</p>
+                  <CardTitle className="text-base font-semibold">{copy.restockTitle}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{copy.restockDescription}</p>
                 </div>
                 <ChartPngButton targetRef={restockChartRef} filename={`restock-pressure-${chartExportSuffix}`} className="hidden md:inline-flex" />
               </CardHeader>
@@ -461,7 +546,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
                         >
                           {({ data: chartData }) => (
                             <ChartContainer config={restockChartConfig} className="h-full w-full">
-                              <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
+                              <BarChart data={[...chartData]} layout="vertical" margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
                                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                                 <XAxis type="number" tickLine={false} axisLine={false} />
                                 <YAxis dataKey="name" type="category" width={140} tickLine={false} axisLine={false} />
@@ -471,7 +556,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
                                   fill="var(--color-days)"
                                   radius={[0, 8, 8, 0]}
                                   isAnimationActive={false}
-                                  shape={createSequentialBarShape(shouldReduceMotion, "horizontal")}
+                                  shape={createSequentialBarShape(shouldReduceMotion, "horizontal") as any}
                                 />
                               </BarChart>
                             </ChartContainer>
@@ -479,7 +564,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
                         </SequentialChartDataRenderer>
                       ) : (
                         <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-border/70 text-sm text-muted-foreground">
-                          No restock issues detected.
+                          {copy.noRestockData}
                         </div>
                       )}
                     </ChartHoverDownloadArea>
@@ -490,33 +575,42 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
           </div>
         </div>
 
-        <InventoryAlert items={lowStockItems} />
+        <InventoryAlert items={lowStockItems} locale={locale} />
 
         <Card className="border-border/70 bg-card/90 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base font-semibold">AI Insights</CardTitle>
-            <p className="text-sm text-muted-foreground">Collapsed by default. Operational heuristics for the owner.</p>
+            <CardTitle className="text-base font-semibold">{copy.insightsTitle}</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {locale === "es"
+                ? "Colapsado por defecto. Heurísticas operativas para el dueño."
+                : locale === "fr"
+                  ? "Replié par défaut. Heuristiques opérationnelles pour le propriétaire."
+                  : "Collapsed by default. Operational heuristics for the owner."}
+            </p>
           </CardHeader>
           <CardContent>
             <Accordion type="single" collapsible>
               <AccordionItem value="insights">
-                <AccordionTrigger>Open insights</AccordionTrigger>
+                <AccordionTrigger>{copy.insightsTrigger}</AccordionTrigger>
                 <AccordionContent>
                   <div className="grid gap-6 lg:grid-cols-2">
                     <div className="space-y-3">
                       <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                        Sales clusters
+                        {copy.salesClusters}
                       </h3>
                       <div className="space-y-2">
                         {data.marketing.salesClusters.map((cluster) => (
                           <div key={cluster.name} className="rounded-2xl border border-border/70 bg-background/80 p-3">
                             <div className="flex items-center justify-between gap-3">
                               <div className="font-medium">{cluster.name}</div>
-                              <div className="text-xs text-muted-foreground">{cluster.count} clients</div>
+                              <div className="text-xs text-muted-foreground">
+                                {cluster.count} {copy.clients}
+                              </div>
                             </div>
                             <p className="mt-1 text-sm text-muted-foreground">{cluster.description}</p>
                             <div className="mt-2 text-sm">
-                              Avg ticket: <span className="font-medium">${cluster.avgTicket.toLocaleString("es-MX")}</span>
+                              {locale === "es" ? "Ticket promedio" : locale === "fr" ? "Ticket moyen" : "Avg ticket"}:{" "}
+                              <span className="font-medium">${cluster.avgTicket.toLocaleString("es-MX")}</span>
                             </div>
                           </div>
                         ))}
@@ -525,7 +619,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
 
                     <div className="space-y-3">
                       <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                        Markov chain landing transitions
+                        {locale === "es" ? "Transiciones de landing" : locale === "fr" ? "Transitions de landing" : "Landing transitions"}
                       </h3>
                       <div className="space-y-2">
                         {data.marketing.orderInference.slice(0, 5).map((transition) => (
@@ -543,7 +637,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
 
                     <div className="space-y-3">
                       <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                        Anomalies
+                        {locale === "es" ? "Anomalías" : locale === "fr" ? "Anomalies" : "Anomalies"}
                       </h3>
                       <div className="space-y-2">
                         {data.marketing.anomalies.length ? (
@@ -555,7 +649,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
                           ))
                         ) : (
                           <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 p-3 text-sm text-muted-foreground">
-                            No outliers detected.
+                            {locale === "es" ? "No se detectaron valores atípicos." : locale === "fr" ? "Aucune anomalie détectée." : "No outliers detected."}
                           </div>
                         )}
                       </div>
@@ -563,7 +657,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
 
                     <div className="space-y-3 lg:col-span-2">
                       <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                        Section overview
+                        {locale === "es" ? "Resumen por sección" : locale === "fr" ? "Vue par section" : "Section overview"}
                       </h3>
                       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                         {Object.entries(data.sections).map(([key, section]) => {
@@ -572,7 +666,19 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
                             <div key={key} className="rounded-2xl border border-border/70 bg-background/80 p-3">
                               <div className="flex items-center justify-between gap-3">
                                 <div className="font-medium">{section.title}</div>
-                                <div className="text-xs text-muted-foreground">{section.hasData ? "Live mock" : "Empty"}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {section.hasData
+                                    ? locale === "es"
+                                      ? "Mock en vivo"
+                                      : locale === "fr"
+                                        ? "Mock en direct"
+                                        : "Live mock"
+                                    : locale === "es"
+                                      ? "Vacío"
+                                      : locale === "fr"
+                                        ? "Vide"
+                                        : "Empty"}
+                                </div>
                               </div>
                               <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
                                 <div
@@ -580,7 +686,9 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
                                   style={{ width: `${Math.max(8, Math.min(100, total))}%` }}
                                 />
                               </div>
-                              <div className="mt-2 text-xs text-muted-foreground">{total} total points</div>
+                              <div className="mt-2 text-xs text-muted-foreground">
+                                {total} {locale === "es" ? "puntos totales" : locale === "fr" ? "points totaux" : "total points"}
+                              </div>
                             </div>
                           )
                         })}
@@ -589,7 +697,7 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
 
                     <div className="space-y-3">
                       <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                        Restock forecast
+                        {locale === "es" ? "Pronóstico de reabastecimiento" : locale === "fr" ? "Prévision de réassort" : "Restock forecast"}
                       </h3>
                       <div className="space-y-2">
                         {data.forecasts.restock.map((item) => (
@@ -597,11 +705,14 @@ export function MetricsDashboard({ initialData, initialRange }: MetricsDashboard
                             <div className="flex items-center justify-between gap-3">
                               <div className="font-medium">{item.name}</div>
                               <div className="text-xs text-muted-foreground">
-                                {item.daysRemaining !== null ? `${item.daysRemaining} days` : "N/A"}
+                                {item.daysRemaining !== null
+                                  ? `${item.daysRemaining} ${locale === "es" ? "días" : locale === "fr" ? "jours" : "days"}`
+                                  : "N/A"}
                               </div>
                             </div>
                             <div className="mt-1 text-sm text-muted-foreground">
-                              Qty {item.quantity} · Avg daily use {item.avgDailyUse}
+                              {locale === "es" ? "Cant." : locale === "fr" ? "Qté" : "Qty"} {item.quantity} ·{" "}
+                              {locale === "es" ? "Uso diario promedio" : locale === "fr" ? "Utilisation quotidienne moyenne" : "Avg daily use"} {item.avgDailyUse}
                             </div>
                           </div>
                         ))}

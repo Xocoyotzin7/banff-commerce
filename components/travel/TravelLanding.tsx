@@ -406,7 +406,7 @@ export function TravelLanding() {
                 <Link href="/packages">Reserve a route</Link>
               </Button>
               <Button asChild variant="outline" className="rounded-full border-white/15 bg-white/6 px-6 text-white backdrop-blur-xl hover:bg-white/12">
-                <Link href="/admin/login">Owner console</Link>
+                <Link href="/admin/login?entry=flight">Owner console</Link>
               </Button>
             </div>
           </Card>

@@ -7,6 +7,8 @@ export type TravelCopy = {
     tours: string
     about: string
     login: string
+    admin: string
+    client: string
     reserve: string
     viewAll: string
     close: string
@@ -151,6 +153,8 @@ const travelCopyEn: TravelCopy = {
     tours: "Tours",
     about: "About us",
     login: "Login",
+    admin: "Admin",
+    client: "Client",
     reserve: "Reserve",
     viewAll: "View all",
     close: "Close",
@@ -161,7 +165,7 @@ const travelCopyEn: TravelCopy = {
     eyebrow: "Luxury travel e-commerce",
     titleLineOne: "DISCOVER",
     titleLineTwo: "LATIN AMERICA",
-    subtitle: "20 destinations · Packages from $599 USD · Flights included",
+    subtitle: "8 destinations · Packages from $599 USD · Flights included",
     primaryCta: "Explore destinations",
     secondaryCta: "View packages",
     appointmentCta: "Book appointment",
@@ -244,6 +248,8 @@ const travelCopyFr: TravelCopy = {
     tours: "Circuits",
     about: "À propos",
     login: "Connexion",
+    admin: "Admin",
+    client: "Client",
     reserve: "Réserver",
     viewAll: "Tout voir",
     close: "Fermer",
@@ -254,7 +260,7 @@ const travelCopyFr: TravelCopy = {
     eyebrow: "E-commerce de voyages premium",
     titleLineOne: "DÉCOUVREZ",
     titleLineTwo: "L’AMÉRIQUE LATINE",
-    subtitle: "20 destinations · Forfaits à partir de 599 USD · Vols inclus",
+    subtitle: "8 destinations · Forfaits à partir de 599 USD · Vols inclus",
     primaryCta: "Explorer les destinations",
     secondaryCta: "Voir les forfaits",
     appointmentCta: "Réserver un rendez-vous",
@@ -366,6 +372,8 @@ const travelCopyEs: TravelCopy = {
     tours: "Tours",
     about: "Sobre nosotros",
     login: "Entrar",
+    admin: "Admin",
+    client: "Cliente",
     reserve: "Reservar",
     viewAll: "Ver todos",
     close: "Cerrar",
@@ -376,7 +384,7 @@ const travelCopyEs: TravelCopy = {
     eyebrow: "E-commerce de viajes premium",
     titleLineOne: "DESCUBRE",
     titleLineTwo: "LATINOAMÉRICA",
-    subtitle: "20 destinos · Paquetes desde $599 USD · Vuelos incluidos",
+    subtitle: "8 destinos · Paquetes desde $599 USD · Vuelos incluidos",
     primaryCta: "Explorar destinos",
     secondaryCta: "Ver paquetes",
     appointmentCta: "Reservar cita",

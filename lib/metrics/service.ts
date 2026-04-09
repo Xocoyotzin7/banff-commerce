@@ -341,15 +341,36 @@ function getRowNumber(row: DbRow, keys: string[]): number {
   return 0
 }
 
+function getOrderGrossTotal(order: DbRow): number {
+  return getRowNumber(order, ["grossTotal", "gross_total", "total"])
+}
+
+function getOrderTaxAmount(order: DbRow): number {
+  return getRowNumber(order, ["taxAmount", "tax_amount", "vatAmount", "vat_amount"])
+}
+
+function getOrderShippingAmount(order: DbRow): number {
+  return getRowNumber(order, ["shippingAmount", "shipping_amount"])
+}
+
+function getOrderNetSales(order: DbRow): number {
+  const stored = getRowNumber(order, ["netSales", "net_sales"])
+  if (stored > 0) return stored
+  return round(getOrderGrossTotal(order) - getOrderTaxAmount(order))
+}
+
 function buildSeries(rows: DbRow[]): MetricsSeriesPoint[] {
-  const dayMap = new Map<string, { label: string; revenue: number }>()
+  const dayMap = new Map<string, { label: string; grossTotal: number; taxAmount: number; shippingAmount: number; netSales: number }>()
 
   for (const order of rows) {
     const createdAt = getRowDate(order, ["createdAt", "created_at"])
     if (!createdAt) continue
     const day = keyFromDate(createdAt)
-    const entry = dayMap.get(day) ?? { label: dayLabelFromDate(createdAt), revenue: 0 }
-    entry.revenue += getRowNumber(order, ["total"])
+    const entry = dayMap.get(day) ?? { label: dayLabelFromDate(createdAt), grossTotal: 0, taxAmount: 0, shippingAmount: 0, netSales: 0 }
+    entry.grossTotal += getOrderGrossTotal(order)
+    entry.taxAmount += getOrderTaxAmount(order)
+    entry.shippingAmount += getOrderShippingAmount(order)
+    entry.netSales += getOrderNetSales(order)
     dayMap.set(day, entry)
   }
 
@@ -358,7 +379,10 @@ function buildSeries(rows: DbRow[]): MetricsSeriesPoint[] {
     .map(([date, entry]) => ({
       date,
       label: entry.label,
-      revenue: round(entry.revenue),
+      grossTotal: round(entry.grossTotal),
+      taxAmount: round(entry.taxAmount),
+      shippingAmount: round(entry.shippingAmount),
+      netSales: round(entry.netSales),
     }))
 }
 
@@ -418,8 +442,8 @@ function buildKpis(current: Snapshot, previous: Snapshot): MetricsKpi[] {
   const currentOrders = current.orders.filter((order) => getRowString(order, ["status"]) !== "cancelled")
   const previousOrders = previous.orders.filter((order) => getRowString(order, ["status"]) !== "cancelled")
 
-  const currentSales = currentOrders.reduce((sum, order) => sum + getRowNumber(order, ["total"]), 0)
-  const previousSales = previousOrders.reduce((sum, order) => sum + getRowNumber(order, ["total"]), 0)
+  const currentSales = currentOrders.reduce((sum, order) => sum + getOrderGrossTotal(order), 0)
+  const previousSales = previousOrders.reduce((sum, order) => sum + getOrderGrossTotal(order), 0)
   const currentAvgTicket = currentOrders.length ? currentSales / currentOrders.length : 0
   const previousAvgTicket = previousOrders.length ? previousSales / previousOrders.length : 0
 
@@ -484,7 +508,7 @@ function buildClientsSection(current: Snapshot): SectionPayload {
     const name = `${getRowString(user ?? {}, ["firstName", "first_name"])} ${getRowString(user ?? {}, ["lastName", "last_name"])}`.trim() || userId
     const entry = clientStats.get(userId) ?? { name, orders: 0, reservations: 0, spent: 0 }
     entry.orders += 1
-    entry.spent += getRowNumber(order, ["total"])
+    entry.spent += getOrderGrossTotal(order)
     clientStats.set(userId, entry)
   }
 
@@ -531,17 +555,22 @@ function buildClientsSection(current: Snapshot): SectionPayload {
 
 function buildSalesSection(current: Snapshot, series: MetricsSeriesPoint[], topProducts: MetricsProductPoint[]): SectionPayload {
   const completedOrders = current.orders.filter((order) => getRowString(order, ["status"]) !== "cancelled")
-  const salesTotal = completedOrders.reduce((sum, order) => sum + getRowNumber(order, ["total"]), 0)
+  const salesTotal = completedOrders.reduce((sum, order) => sum + getOrderGrossTotal(order), 0)
+  const taxTotal = completedOrders.reduce((sum, order) => sum + getOrderTaxAmount(order), 0)
+  const shippingTotal = completedOrders.reduce((sum, order) => sum + getOrderShippingAmount(order), 0)
+  const netSalesTotal = completedOrders.reduce((sum, order) => sum + getOrderNetSales(order), 0)
   const avgTicket = completedOrders.length ? salesTotal / completedOrders.length : 0
   const cards = [
-    { label: "Ventas totales", value: `$${round(salesTotal)}` },
+    { label: "Ventas brutas", value: `$${round(salesTotal)}` },
+    { label: "Taxes", value: `$${round(taxTotal)}` },
+    { label: "Envíos", value: `$${round(shippingTotal)}` },
+    { label: "Ventas netas", value: `$${round(netSalesTotal)}` },
     { label: "Ticket promedio", value: `$${round(avgTicket)}` },
     { label: "Pedidos", value: completedOrders.length },
-    { label: "Líneas vendidas", value: current.orderItems.reduce((sum, item) => sum + getRowNumber(item, ["quantity"]), 0) },
   ]
   const bars: ChartBar[] = series.slice(-5).map((point) => ({
     label: point.label,
-    value: point.revenue,
+    value: point.grossTotal,
   }))
   const table = {
     columns: ["Producto", "Unidades", "Ingresos"],
@@ -739,14 +768,14 @@ function buildSalesWindows(current: Snapshot): ForecastSummary[] {
       const createdAt = getRowDate(order, ["createdAt", "created_at"])
       return createdAt ? createdAt >= cutoff : false
     })
-    const revenue = filtered.reduce((sum, order) => sum + getRowNumber(order, ["total"]), 0)
+    const revenue = filtered.reduce((sum, order) => sum + getOrderGrossTotal(order), 0)
     const buckets = new Map<string, { revenue: number; orders: number }>()
     for (const order of filtered) {
       const createdAt = getRowDate(order, ["createdAt", "created_at"])
       if (!createdAt) continue
       const label = dayLabelFromDate(createdAt)
       const entry = buckets.get(label) ?? { revenue: 0, orders: 0 }
-      entry.revenue += getRowNumber(order, ["total"])
+      entry.revenue += getOrderGrossTotal(order)
       entry.orders += 1
       buckets.set(label, entry)
     }
@@ -832,7 +861,7 @@ function buildMarketingInsights(current: Snapshot): MarketingInsights {
     const userId = getRowString(order, ["userId", "user_id"]) || "guest"
     const entry = salesByClient.get(userId) ?? { orders: 0, spent: 0 }
     entry.orders += 1
-    entry.spent += getRowNumber(order, ["total"])
+    entry.spent += getOrderGrossTotal(order)
     salesByClient.set(userId, entry)
   }
 
@@ -938,7 +967,7 @@ function buildMarketingInsights(current: Snapshot): MarketingInsights {
     const createdAt = getRowDate(order, ["createdAt", "created_at"])
     if (!createdAt) continue
     const day = keyFromDate(createdAt)
-    dailySales.set(day, (dailySales.get(day) ?? 0) + getRowNumber(order, ["total"]))
+    dailySales.set(day, (dailySales.get(day) ?? 0) + getOrderGrossTotal(order))
   }
   const salesValues = Array.from(dailySales.values())
   const salesMean = mean(salesValues)

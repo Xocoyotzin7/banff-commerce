@@ -2,19 +2,19 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion"
 import { ArrowUpRight, ChevronDown, Moon, PlaneTakeoff, SunMedium } from "lucide-react"
 import { useTheme } from "next-themes"
 
+import { EntryFlightTransition } from "@/components/entry-flight-transition"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { destinations } from "../../lib/data/destinations"
 import { getTravelCopy } from "@/lib/travel-copy"
 import type { Locale } from "@/lib/site-content"
 import { cn } from "../../lib/utils"
 import { fadeInUp, staggerContainer } from "@banff/agency-core/components/shared/animations"
-import { MagneticButton } from "@banff/agency-core/components/shared/MagneticButton"
 
 type MenuColumn = {
   title: string
@@ -59,12 +59,14 @@ type NavbarProps = {
 
 export function Navbar({ locale }: NavbarProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const { resolvedTheme, setTheme } = useTheme()
   const copy = useMemo(() => getTravelCopy(locale), [locale])
   const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [adminFlighting, setAdminFlighting] = useState(false)
   const [themeBurstKey, setThemeBurstKey] = useState(0)
   const scrollY = useMotionValue(0)
   const themeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -147,6 +149,16 @@ export function Navbar({ locale }: NavbarProps) {
     setDrawerOpen(false)
   }, [pathname])
 
+  useEffect(() => {
+    if (!adminFlighting) return undefined
+
+    const timer = window.setTimeout(() => {
+      router.push("/admin/login")
+    }, 1700)
+
+    return () => window.clearTimeout(timer)
+  }, [adminFlighting, router])
+
   const syncThemeCookie = useCallback((value: "dark" | "light") => {
     document.cookie = `NEXT_THEME=${value}; path=/; max-age=31536000; samesite=lax`
   }, [])
@@ -183,7 +195,8 @@ export function Navbar({ locale }: NavbarProps) {
   }
 
   return (
-    <motion.header
+    <>
+      <motion.header
       className={cn(
         "fixed inset-x-0 top-0 z-50 border-b border-transparent transition-[border-color,box-shadow] duration-300",
         isGlass && "border-border/70 shadow-sm backdrop-blur-xl",
@@ -369,16 +382,29 @@ export function Navbar({ locale }: NavbarProps) {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link
-            href="/admin/login"
-            className={cn(
-              "hidden items-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-2 text-sm font-medium transition-colors hover:border-white/20 hover:bg-white/12 sm:inline-flex",
-              isGlass ? "text-text" : "text-white",
-            )}
-          >
-            <ArrowUpRight className="h-4 w-4" />
-            {copy.nav.login}
-          </Link>
+          <div className="hidden items-center gap-2 sm:flex">
+            <button
+              type="button"
+              onClick={() => setAdminFlighting(true)}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-2 text-sm font-medium transition-colors hover:border-white/20 hover:bg-white/12",
+                isGlass ? "text-text" : "text-white",
+              )}
+            >
+              <ArrowUpRight className="h-4 w-4" />
+              {copy.nav.admin}
+            </button>
+            <Link
+              href="/account/orders?entry=flight"
+              className={cn(
+                "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                "border-[color:var(--secondary)]/25 bg-[color:var(--secondary)]/12 hover:border-[color:var(--secondary)]/40 hover:bg-[color:var(--secondary)]/18",
+                isGlass ? "text-text" : "text-white",
+              )}
+            >
+              {copy.nav.client}
+            </Link>
+          </div>
 
           <button
             type="button"
@@ -409,10 +435,6 @@ export function Navbar({ locale }: NavbarProps) {
           <div className="hidden lg:block">
             <LanguageSwitcher locale={locale} />
           </div>
-
-          <MagneticButton href="/checkout" className="hidden bg-[color:var(--primary)] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.04)] lg:inline-flex">
-            {copy.nav.reserve}
-          </MagneticButton>
 
           <button
             type="button"
@@ -508,6 +530,23 @@ export function Navbar({ locale }: NavbarProps) {
                 <LanguageSwitcher locale={locale} />
               </div>
 
+              <div className="mt-6 grid grid-cols-2 gap-2 sm:hidden">
+                <button
+                  type="button"
+                  onClick={() => setAdminFlighting(true)}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-3 text-sm font-medium text-white transition-colors hover:border-white/20 hover:bg-white/12"
+                >
+                  <ArrowUpRight className="h-4 w-4" />
+                  {copy.nav.admin}
+                </button>
+                <Link
+                  href="/account/orders?entry=flight"
+                  className="inline-flex items-center justify-center rounded-full border border-[color:var(--secondary)]/25 bg-[color:var(--secondary)]/12 px-4 py-3 text-sm font-medium text-white transition-colors hover:border-[color:var(--secondary)]/40 hover:bg-[color:var(--secondary)]/18"
+                >
+                  {copy.nav.client}
+                </Link>
+              </div>
+
               <div className="mt-8 rounded-[1.6rem] border border-border/70 bg-background/35 p-4">
                 <p className="text-[0.72rem] uppercase tracking-[0.3em] text-text-muted">{copy.nav.highlightedDestinations}</p>
                 <div className="mt-3 grid gap-2">
@@ -534,15 +573,17 @@ export function Navbar({ locale }: NavbarProps) {
                 </div>
               </div>
 
-              <div className="mt-8">
-                <MagneticButton href="/checkout" className="w-full justify-center bg-[color:var(--primary)] text-white">
-                  {copy.nav.reserve}
-                </MagneticButton>
-              </div>
-            </motion.aside>
-          </>
+        </motion.aside>
+      </>
         ) : null}
       </AnimatePresence>
-    </motion.header>
+      </motion.header>
+
+      {adminFlighting ? (
+        <EntryFlightTransition enabled={adminFlighting} destination="admin">
+          <div aria-hidden className="fixed inset-0 pointer-events-none" />
+        </EntryFlightTransition>
+      ) : null}
+    </>
   )
 }

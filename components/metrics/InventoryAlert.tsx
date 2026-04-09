@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table"
 import { toast as appToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+import type { Locale } from "@/lib/site-content"
 
 export type InventoryAlertItem = {
   name: string
@@ -28,6 +29,7 @@ type InventoryAlertProps = {
   surface?: "admin" | "storefront"
   renderTable?: boolean
   className?: string
+  locale?: Locale
 }
 
 function getBadgeTone(quantity: number, minStock: number) {
@@ -45,6 +47,7 @@ export function InventoryAlert({
   surface = "admin",
   renderTable = true,
   className,
+  locale = "en",
 }: InventoryAlertProps) {
   const notifiedKeys = useRef(new Set<string>())
 
@@ -76,21 +79,54 @@ export function InventoryAlert({
   }
 
   const visibleItems = items.filter((item) => item.quantity <= item.minStock)
+  const copy =
+    locale === "es"
+      ? {
+          title: "Alertas de inventario",
+          item: "Artículo",
+          stock: "Stock",
+          min: "Mín",
+          status: "Estado",
+          action: "Acción",
+          reorder: "Reordenar",
+          empty: "No hay artículos con stock bajo por ahora.",
+        }
+      : locale === "fr"
+        ? {
+            title: "Alertes de stock",
+            item: "Article",
+            stock: "Stock",
+            min: "Min",
+            status: "Statut",
+            action: "Action",
+            reorder: "Réapprovisionner",
+            empty: "Aucun article en faible stock pour le moment.",
+          }
+        : {
+            title: "Inventory Alerts",
+            item: "Item",
+            stock: "Stock",
+            min: "Min",
+            status: "Status",
+            action: "Action",
+            reorder: "Reorder",
+            empty: "No low-stock items right now.",
+          }
 
   return (
     <Card className={cn("border-border/70 bg-card/90 shadow-sm", className)}>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-semibold">Inventory Alerts</CardTitle>
+        <CardTitle className="text-base font-semibold">{copy.title}</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Item</TableHead>
-              <TableHead className="text-right">Stock</TableHead>
-              <TableHead className="text-right">Min</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Action</TableHead>
+              <TableHead>{copy.item}</TableHead>
+              <TableHead className="text-right">{copy.stock}</TableHead>
+              <TableHead className="text-right">{copy.min}</TableHead>
+              <TableHead>{copy.status}</TableHead>
+              <TableHead className="text-right">{copy.action}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -109,7 +145,7 @@ export function InventoryAlert({
                     </TableCell>
                     <TableCell className="text-right">
                       <Button type="button" variant="outline" size="sm">
-                        Reorder
+                        {copy.reorder}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -118,7 +154,7 @@ export function InventoryAlert({
             ) : (
               <TableRow>
                 <TableCell colSpan={5} className="py-8 text-center text-sm text-muted-foreground">
-                  No low-stock items right now.
+                  {copy.empty}
                 </TableCell>
               </TableRow>
             )}

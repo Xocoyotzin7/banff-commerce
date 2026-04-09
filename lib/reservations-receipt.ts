@@ -103,7 +103,7 @@ export function buildReservationQrPayload(source: ReservationReceiptSource) {
 export function buildReservationReceipt(source: ReservationReceiptSource): ReservationReceiptPayload {
   const destinationName = getDestinationName(source.destinationSlug, source.packageId)
   const packageName = getPackageName(source.packageId)
-  const qrPayload = source.reservationType === "appointment" ? buildReservationQrPayload(source) : null
+  const qrPayload = buildReservationQrPayload(source)
 
   return {
     reservationId: source.id,

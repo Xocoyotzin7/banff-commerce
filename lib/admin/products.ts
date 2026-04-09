@@ -21,6 +21,11 @@ export type AdminProductRecord = {
   subcategory: string
   price: string
   cost: string
+  weightKg: string
+  lengthCm: string
+  widthCm: string
+  heightCm: string
+  volumetricWeightKg: string
   stock: number
   minStock: number
   imageUrl: string
@@ -50,6 +55,11 @@ export async function listAdminProducts(database: AdminSelectDatabase): Promise<
       subcategory: products.subcategory,
       price: products.price,
       cost: products.cost,
+      weightKg: products.weightKg,
+      lengthCm: products.lengthCm,
+      widthCm: products.widthCm,
+      heightCm: products.heightCm,
+      volumetricWeightKg: products.volumetricWeightKg,
       stock: sql<unknown>`coalesce(${inventoryStock.quantity}, ${products.stock})`,
       minStock: products.minStock,
       imageUrl: products.imageUrl,
@@ -69,6 +79,11 @@ export async function listAdminProducts(database: AdminSelectDatabase): Promise<
     subcategory: row.subcategory,
     price: String(row.price),
     cost: String(row.cost),
+    weightKg: String(row.weightKg),
+    lengthCm: String(row.lengthCm),
+    widthCm: String(row.widthCm),
+    heightCm: String(row.heightCm),
+    volumetricWeightKg: String(row.volumetricWeightKg),
     stock: toNumber(row.stock),
     minStock: Number(row.minStock),
     imageUrl: row.imageUrl,
@@ -89,6 +104,11 @@ export async function getAdminProductById(
       subcategory: products.subcategory,
       price: products.price,
       cost: products.cost,
+      weightKg: products.weightKg,
+      lengthCm: products.lengthCm,
+      widthCm: products.widthCm,
+      heightCm: products.heightCm,
+      volumetricWeightKg: products.volumetricWeightKg,
       stock: sql<unknown>`coalesce(${inventoryStock.quantity}, ${products.stock})`,
       minStock: products.minStock,
       imageUrl: products.imageUrl,
@@ -114,6 +134,11 @@ export async function getAdminProductById(
     subcategory: row.subcategory,
     price: String(row.price),
     cost: String(row.cost),
+    weightKg: String(row.weightKg),
+    lengthCm: String(row.lengthCm),
+    widthCm: String(row.widthCm),
+    heightCm: String(row.heightCm),
+    volumetricWeightKg: String(row.volumetricWeightKg),
     stock: toNumber(row.stock),
     minStock: Number(row.minStock),
     imageUrl: row.imageUrl,

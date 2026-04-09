@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 
+import { DestinationMobileRail } from "../../components/destinations/DestinationMobileRail"
 import { DestinationCard } from "../../components/destinations/DestinationCard"
 import { destinations } from "../../lib/data/destinations"
 import { StaggeredGrid } from "@banff/agency-core/components/shared/StaggeredGrid"
@@ -23,13 +24,17 @@ export default async function DestinationsPage() {
 
   return (
     <main id="main-content" className="mx-auto max-w-7xl px-4 pb-20 pt-28 sm:px-6 lg:pt-32">
-      <div className="max-w-3xl">
+      <div className="hidden max-w-3xl md:block">
         <p className="text-xs uppercase tracking-[0.3em] text-text-muted">{copy.destinationsPage.eyebrow}</p>
         <h1 className="mt-3 text-5xl leading-[0.95] tracking-tight text-text">{copy.destinationsPage.title}</h1>
         <p className="mt-4 max-w-2xl text-base leading-8 text-text-muted">{copy.destinationsPage.description}</p>
       </div>
 
-      <StaggeredGrid className="mt-10">
+      <div className="md:hidden">
+        <DestinationMobileRail />
+      </div>
+
+      <StaggeredGrid className="mt-10 hidden md:grid">
         {destinations.map((destination) => (
           <DestinationCard key={destination.id} destination={destination} />
         ))}

@@ -15,6 +15,7 @@ import type { TravelPackage } from "../../types/travel"
 import { cn } from "../../lib/utils"
 import { AnimatedPaymentCard } from "./AnimatedPaymentCard"
 import { CheckoutStepper } from "./CheckoutStepper"
+import { ShippingSelector } from "../../../components/checkout/ShippingSelector"
 import { GeoPaymentSelector, type CheckoutGateway, type GeoCountry } from "./GeoPaymentSelector"
 import { Badge } from "../../../components/ui/badge"
 import { Button } from "../../../components/ui/button"
@@ -24,6 +25,7 @@ import { Input } from "../../../components/ui/input"
 import { Label } from "../../../components/ui/label"
 import { RadioGroup, RadioGroupItem } from "../../../components/ui/radio-group"
 import { toast } from "sonner"
+import { useCheckoutStore } from "@/lib/stores/checkout"
 
 const travelerSchema = z.object({
   firstName: z.string().min(2, "Ingresa tu nombre"),
@@ -71,6 +73,20 @@ function formatMoney(value: number) {
   return new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 0,
   }).format(Math.round(value))
+}
+
+function buildDemoShippingParcel(packageDays: number, adults: number, children: number) {
+  const weightKg = Number((1.8 + packageDays * 0.34 + adults * 0.42 + children * 0.2).toFixed(3))
+  const lengthCm = Math.round(34 + packageDays * 2)
+  const widthCm = Math.round(22 + adults * 2)
+  const heightCm = Math.round(12 + children * 1.5)
+
+  return {
+    weight_kg: weightKg,
+    length_cm: lengthCm,
+    width_cm: widthCm,
+    height_cm: heightCm,
+  }
 }
 
 function AnimatedMoney({ value, currency }: { value: number; currency: "CAD" | "MXN" }) {
@@ -356,6 +372,7 @@ export function CheckoutFlow() {
   const [expiry, setExpiry] = useState("12/28")
   const [cvv, setCvv] = useState("")
   const [cvvFocused, setCvvFocused] = useState(false)
+  const selectedShippingRate = useCheckoutStore((state) => state.shippingRate)
 
   const travelerForm = useForm<TravelerFormValues>({
     resolver: zodResolver(travelerSchema),
@@ -375,6 +392,11 @@ export function CheckoutFlow() {
   const travelFactor = useMemo(() => 1 + Math.max(0, adults - 1) * 0.18 + children * 0.12, [adults, children])
   const cabinFactor = 1 + cabinPriceDelta[cabin]
   const totalUsd = useMemo(() => selectedPackage.price * travelFactor * cabinFactor, [cabinFactor, selectedPackage.price, travelFactor])
+  const shippingCountry = country === "MX" ? "MX" : "CA"
+  const shippingParcel = useMemo(
+    () => buildDemoShippingParcel(selectedPackage.days, adults, children),
+    [adults, children, selectedPackage.days],
+  )
 
   function sendConversionEvent() {
     // Conversion analytics stays decoupled from checkout confirmation so the payment UX remains stable.
@@ -616,11 +638,17 @@ export function CheckoutFlow() {
                       <Button type="button" variant="outline" className="rounded-full border-white/10 bg-white/7 text-white" onClick={() => setStep(1)}>
                         Back
                       </Button>
-                      <Button type="submit" className="rounded-full bg-[color:var(--primary)] text-white">
+                      <Button type="submit" className="rounded-full bg-[color:var(--primary)] text-white" disabled={!selectedShippingRate}>
                         Continue to payment
                       </Button>
                     </div>
                   </form>
+
+                  <ShippingSelector
+                    country={shippingCountry}
+                    parcel={shippingParcel}
+                    destinationPostalCode={shippingCountry === "MX" ? "44100" : "H2Y1C6"}
+                  />
                 </Card>
               </motion.section>
             ) : null}

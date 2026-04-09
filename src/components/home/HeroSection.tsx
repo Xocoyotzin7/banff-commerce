@@ -92,6 +92,12 @@ const counters = [
   { label: "Viajeros", value: 10000, suffix: "+" },
 ] as const
 
+const featurePanelBlogLinks = [
+  { slug: "cancun-riviera-maya", title: "Private routes", body: "Mexico to the Caribbean" },
+  { slug: "cusco", title: "Altitude breaks", body: "Cusco and the Andes" },
+  { slug: "cartagena", title: "Night programs", body: "Cartagena and beyond" },
+] as const
+
 function Counter({
   end,
   suffix = "",
@@ -391,21 +397,27 @@ export function HeroSection({ locale }: HeroSectionProps) {
 
               <motion.div variants={prefersReducedMotion ? undefined : panelItemVariants} className="mt-4 grid gap-3 sm:grid-cols-3">
                 {copy.home.featurePanel.cards.map((card, index) => (
-                  <motion.div
+                  <Link
                     key={card.title}
-                    variants={prefersReducedMotion ? undefined : panelItemVariants}
-                    initial={false}
-                    animate={prefersReducedMotion || isPanelVisible ? "show" : "hidden"}
-                    transition={{ delay: index * 0.08, type: "spring", stiffness: 280, damping: 26 }}
-                    className="rounded-[1.4rem] border border-white/10 bg-white/7 p-4 backdrop-blur-2xl"
+                    href={`/blog/${featurePanelBlogLinks[index]?.slug ?? "seo-for-bilingual-websites"}`}
+                    aria-label={`Leer blog de ${card.title}`}
+                    className="group block rounded-[1.4rem] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--secondary)]/60"
                   >
-                    <div className="flex items-center gap-2 text-[color:var(--secondary)]">
-                      <MapPinned className="h-4 w-4" />
-                      <span className="text-[10px] uppercase tracking-[0.3em] text-white/54">{copy.home.featurePanel.curatedLabel}</span>
-                    </div>
-                    <p className="mt-3 text-sm font-semibold text-white">{card.title}</p>
-                    <p className="mt-1 text-xs leading-6 text-white/62">{card.body}</p>
-                  </motion.div>
+                    <motion.div
+                      variants={prefersReducedMotion ? undefined : panelItemVariants}
+                      initial={false}
+                      animate={prefersReducedMotion || isPanelVisible ? "show" : "hidden"}
+                      transition={{ delay: index * 0.08, type: "spring", stiffness: 280, damping: 26 }}
+                      className="rounded-[1.4rem] border border-white/10 bg-white/7 p-4 backdrop-blur-2xl transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:border-white/20 group-hover:bg-white/10"
+                    >
+                      <div className="flex items-center gap-2 text-[color:var(--secondary)]">
+                        <MapPinned className="h-4 w-4" />
+                        <span className="text-[10px] uppercase tracking-[0.3em] text-white/54">{copy.home.featurePanel.curatedLabel}</span>
+                      </div>
+                      <p className="mt-3 text-sm font-semibold text-white">{card.title}</p>
+                      <p className="mt-1 text-xs leading-6 text-white/62">{card.body}</p>
+                    </motion.div>
+                  </Link>
                 ))}
               </motion.div>
             </motion.div>

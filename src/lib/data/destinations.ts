@@ -5,22 +5,22 @@ const imageIds = [
   ["1519046904884-53103b34b206", "1528127269322-5389ec865e53", "1519608487953-e999c86e7455", "1500375592092-40eb2168fd21"],
   ["1504593811423-6dd665756598", "1500648767791-00dcc994a43e", "1488716820095-cbe80883c496", "1519821172141-b5d8fb9b86b9"],
   ["1506744038136-46273834b3fb", "1507525428034-b723cf961d3e", "1519608487953-e999c86e7455", "1519821172141-b5d8fb9b86b9"],
-  ["aqD-ozhRRe8", "aqD-ozhRRe8", "1506744038136-46273834b3fb", "1519608487953-e999c86e7455"],
-  ["1522199710521-72d69614c702", "1528127269322-5389ec865e53", "1500375592092-40eb2168fd21", "1507525428034-b723cf961d3e"],
-  ["1522199710521-72d69614c702", "1528127269322-5389ec865e53", "1519608487953-e999c86e7455", "1500375592092-40eb2168fd21"],
-  ["9dmycbFE7mQ", "e2Jiqrl4n_g", "UoKfSYSq0Rk", "zrBl_1XPpaA"],
-  ["e2Jiqrl4n_g", "UoKfSYSq0Rk", "zrBl_1XPpaA", "9dmycbFE7mQ"],
-  ["1507525428034-b723cf961d3e", "1519046904884-53103b34b206", "1506744038136-46273834b3fb", "1519608487953-e999c86e7455"],
-  ["1504593811423-6dd665756598", "1500648767791-00dcc994a43e", "1488716820095-cbe80883c496", "1519821172141-b5d8fb9b86b9"],
-  ["1507525428034-b723cf961d3e", "1500375592092-40eb2168fd21", "1519046904884-53103b34b206", "1506744038136-46273834b3fb"],
-  ["1522199710521-72d69614c702", "1519046904884-53103b34b206", "1500375592092-40eb2168fd21", "1528127269322-5389ec865e53"],
-  ["1528127269322-5389ec865e53", "1522199710521-72d69614c702", "1519608487953-e999c86e7455", "1500375592092-40eb2168fd21"],
+  ["btMkMSJQxMc", "aqD-ozhRRe8", "1506744038136-46273834b3fb", "1519608487953-e999c86e7455"],
+  ["ZpP6ZuASNoo", "AWmFgRtRUTs", "YBezA2gnNzc", "1528127269322-5389ec865e53"],
+  ["MPT2q1dte-E", "1528127269322-5389ec865e53", "1500375592092-40eb2168fd21", "1507525428034-b723cf961d3e"],
+  ["UoKfSYSq0Rk", "9dmycbFE7mQ", "e2Jiqrl4n_g", "zrBl_1XPpaA"],
+  ["t647pktBeLo", "RwxwLv_tCYY", "6a2CQg04v8c", "S9ZsdGHkWeQ"],
+  ["A6QSIJHVyAs", "dGfPbZVVg6o", "1504593811423-6dd665756598", "1500648767791-00dcc994a43e"],
+  ["7rlZ1yodrHY", "0YxRKlwNZVw", "Zc-QP1HxYjw", "1519821172141-b5d8fb9b86b9"],
+  ["QYmj--XjtUA", "xQk7g6HB5iE", "1507525428034-b723cf961d3e", "1500375592092-40eb2168fd21"],
+  ["USR0DSFxz6c", "gIx7nZ5PRnA", "2sC_ZzDWiOg", "L-DugFVqGFs"],
+  ["f9Niqm-59z0", "--SHlKj08xJM", "v9Bf6kV81aA", "1Ai2L8JvLIA"],
+  ["1507525428034-b723cf961d3e", "fcszYUXRTcQ", "1519046904884-53103b34b206", "1506744038136-46273834b3fb"],
   ["1507525428034-b723cf961d3e", "1500375592092-40eb2168fd21", "1519046904884-53103b34b206", "1519608487953-e999c86e7455"],
-  ["1500375592092-40eb2168fd21", "1507525428034-b723cf961d3e", "1519046904884-53103b34b206", "1519608487953-e999c86e7455"],
-  ["1506744038136-46273834b3fb", "1519608487953-e999c86e7455", "1519821172141-b5d8fb9b86b9", "1522199710521-72d69614c702"],
-  ["r6EhNvqAXFc", "5wEOxYhCm2U", "AheSMRAVY44", "r6EhNvqAXFc"],
-  ["cFPTHl6s5uY", "R0t-YRIot0Q", "cFPTHl6s5uY", "R0t-YRIot0Q"],
-  ["KzAOPQ8j4UA", "wGron63O8fw", "F0BWVl3pRoE", "KzAOPQ8j4UA"],
+  ["OXSsx9HT-Ac", "zNxFBeg9lyM", "04HA3mIDASM", "ezcwkDzXDVc"],
+  ["1ng2_3p9tFk", "gZFU9o91S64", "mcRrdPEPtKk", "b3GCeaV5CWg"],
+  ["9uOtPTh-x04", "b3GCeaV5CWg", "LSV0CXDMQ3Y", "FexUMo0ztn8"],
+  ["ekA3fTefJMA", "ziemmfFkUTg", "PtX674rCdBs", "QYmj--XjtUA"],
 ] as const
 
 function destinationImage(seed: number, variant: number) {
@@ -56,7 +56,7 @@ function tour(
   }
 }
 
-export const destinations: Destination[] = [
+const allDestinations: Destination[] = [
   {
     id: "playas-cancun",
     slug: "cancun-riviera-maya",
@@ -1219,4 +1219,21 @@ export const destinations: Destination[] = [
   },
 ]
 
-export const tours: Tour[] = destinations.flatMap((destination) => destination.tours)
+const featuredDestinationSlugs = [
+  "cancun-riviera-maya",
+  "chichen-itza",
+  "ciudad-de-mexico",
+  "rio-de-janeiro",
+  "machu-picchu",
+  "cartagena",
+  "salar-uyuni",
+  "buenos-aires",
+] as const
+
+const destinationBySlug = new Map(allDestinations.map((destination) => [destination.slug, destination]))
+
+export const destinations: Destination[] = featuredDestinationSlugs
+  .map((slug) => destinationBySlug.get(slug))
+  .filter((destination): destination is Destination => Boolean(destination))
+
+export const tours: Tour[] = allDestinations.flatMap((destination) => destination.tours)

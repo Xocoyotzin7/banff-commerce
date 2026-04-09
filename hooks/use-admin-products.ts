@@ -10,6 +10,10 @@ type ProductPayload = {
   subcategory: string
   price: number
   cost: number
+  weightKg: number
+  lengthCm: number
+  widthCm: number
+  heightCm: number
   imageUrl: string
   stock: number
   minStock: number

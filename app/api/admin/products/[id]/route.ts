@@ -20,6 +20,10 @@ const ProductInputSchema = z.object({
   subcategory: z.string().min(1),
   price: z.coerce.number().nonnegative(),
   cost: z.coerce.number().nonnegative(),
+  weightKg: z.coerce.number().positive(),
+  lengthCm: z.coerce.number().positive(),
+  widthCm: z.coerce.number().positive(),
+  heightCm: z.coerce.number().positive(),
   imageUrl: z.string().url(),
   stock: z.coerce.number().int().min(0),
   minStock: z.coerce.number().int().min(0).default(5),
@@ -119,6 +123,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id?: s
           subcategory: body.subcategory,
           price: body.price.toFixed(2),
           cost: body.cost.toFixed(2),
+          weightKg: body.weightKg.toFixed(3),
+          lengthCm: body.lengthCm.toFixed(1),
+          widthCm: body.widthCm.toFixed(1),
+          heightCm: body.heightCm.toFixed(1),
           stock: body.stock,
           minStock: body.minStock,
           imageUrl: body.imageUrl,
@@ -151,7 +159,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id?: s
       const stockUpdate = await tx
         .update(inventoryStock)
         .set({
-          quantity: body.stock,
+          quantity: String(body.stock),
         })
         .where(eq(inventoryStock.itemId, id))
         .returning({ id: inventoryStock.id })
@@ -161,7 +169,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id?: s
           id: randomUUID(),
           itemId: id,
           branchId: null,
-          quantity: body.stock,
+          quantity: String(body.stock),
         })
       }
 

@@ -18,6 +18,10 @@ const ProductInputSchema = z.object({
   subcategory: z.string().min(1),
   price: z.coerce.number().nonnegative(),
   cost: z.coerce.number().nonnegative(),
+  weightKg: z.coerce.number().positive(),
+  lengthCm: z.coerce.number().positive(),
+  widthCm: z.coerce.number().positive(),
+  heightCm: z.coerce.number().positive(),
   imageUrl: z.string().url(),
   stock: z.coerce.number().int().min(0),
   minStock: z.coerce.number().int().min(0).default(5),
@@ -108,6 +112,10 @@ export async function POST(request: NextRequest) {
         subcategory: body.subcategory,
         price: body.price.toFixed(2),
         cost: body.cost.toFixed(2),
+        weightKg: body.weightKg.toFixed(3),
+        lengthCm: body.lengthCm.toFixed(1),
+        widthCm: body.widthCm.toFixed(1),
+        heightCm: body.heightCm.toFixed(1),
         stock: body.stock,
         minStock: body.minStock,
         imageUrl: body.imageUrl,
@@ -123,7 +131,7 @@ export async function POST(request: NextRequest) {
       await tx.insert(inventoryStock).values({
         itemId: productId,
         branchId: null,
-        quantity: body.stock,
+        quantity: String(body.stock),
       })
     })
 

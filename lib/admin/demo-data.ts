@@ -28,6 +28,10 @@ export type AdminProductPayload = {
   subcategory: string
   price: number
   cost: number
+  weightKg: number
+  lengthCm: number
+  widthCm: number
+  heightCm: number
   imageUrl: string
   stock: number
   minStock: number
@@ -55,6 +59,10 @@ function isoNow(offsetDays = 0): string {
 
 function money(value: number): string {
   return value.toFixed(2)
+}
+
+function decimal(value: number, digits: number): string {
+  return value.toFixed(digits)
 }
 
 type DemoRangeProfile = {
@@ -259,6 +267,11 @@ function seedProducts(): SeedProduct[] {
       subcategory: "Starter",
       price: "1180.00",
       cost: "860.00",
+      weightKg: "8.500",
+      lengthCm: "45.0",
+      widthCm: "32.0",
+      heightCm: "18.0",
+      volumetricWeightKg: "5.184",
       stock: 12,
       minStock: 4,
       imageUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=90",
@@ -273,6 +286,11 @@ function seedProducts(): SeedProduct[] {
       subcategory: "Explorer",
       price: "1829.00",
       cost: "1260.00",
+      weightKg: "9.100",
+      lengthCm: "52.0",
+      widthCm: "34.0",
+      heightCm: "20.0",
+      volumetricWeightKg: "7.072",
       stock: 5,
       minStock: 5,
       imageUrl: "https://images.unsplash.com/photo-IfCTrY-dZA8?auto=format&fit=crop&w=1920&q=90",
@@ -287,6 +305,11 @@ function seedProducts(): SeedProduct[] {
       subcategory: "Premium",
       price: "3009.00",
       cost: "2280.00",
+      weightKg: "11.200",
+      lengthCm: "60.0",
+      widthCm: "40.0",
+      heightCm: "24.0",
+      volumetricWeightKg: "11.520",
       stock: 2,
       minStock: 4,
       imageUrl: "https://images.unsplash.com/photo-wGron63O8fw?auto=format&fit=crop&w=1920&q=90",
@@ -301,6 +324,11 @@ function seedProducts(): SeedProduct[] {
       subcategory: "Cultural",
       price: "80.00",
       cost: "32.00",
+      weightKg: "1.500",
+      lengthCm: "28.0",
+      widthCm: "20.0",
+      heightCm: "12.0",
+      volumetricWeightKg: "1.344",
       stock: 16,
       minStock: 6,
       imageUrl: "https://images.unsplash.com/photo-FJUrd_BKsWM?auto=format&fit=crop&w=1920&q=90",
@@ -315,6 +343,11 @@ function seedProducts(): SeedProduct[] {
       subcategory: "Adventure",
       price: "75.00",
       cost: "28.00",
+      weightKg: "1.200",
+      lengthCm: "30.0",
+      widthCm: "20.0",
+      heightCm: "10.0",
+      volumetricWeightKg: "1.200",
       stock: 7,
       minStock: 6,
       imageUrl: "https://images.unsplash.com/photo-qrNjBApCZBM?auto=format&fit=crop&w=1920&q=90",
@@ -329,6 +362,11 @@ function seedProducts(): SeedProduct[] {
       subcategory: "Gastronómico",
       price: "70.00",
       cost: "26.00",
+      weightKg: "1.100",
+      lengthCm: "26.0",
+      widthCm: "18.0",
+      heightCm: "10.0",
+      volumetricWeightKg: "0.936",
       stock: 9,
       minStock: 4,
       imageUrl: "https://images.unsplash.com/photo-1SAdcv9Nnxo?auto=format&fit=crop&w=1920&q=90",
@@ -402,6 +440,11 @@ export function createDemoAdminProduct(payload: AdminProductPayload): AdminProdu
     subcategory: payload.subcategory,
     price: money(payload.price),
     cost: money(payload.cost),
+    weightKg: decimal(payload.weightKg, 3),
+    lengthCm: decimal(payload.lengthCm, 1),
+    widthCm: decimal(payload.widthCm, 1),
+    heightCm: decimal(payload.heightCm, 1),
+    volumetricWeightKg: decimal((payload.lengthCm * payload.widthCm * payload.heightCm) / 5000, 3),
     stock: payload.stock,
     minStock: payload.minStock,
     imageUrl: payload.imageUrl,
@@ -432,6 +475,11 @@ export function updateDemoAdminProduct(productId: string, payload: AdminProductP
     subcategory: payload.subcategory,
     price: money(payload.price),
     cost: money(payload.cost),
+    weightKg: decimal(payload.weightKg, 3),
+    lengthCm: decimal(payload.lengthCm, 1),
+    widthCm: decimal(payload.widthCm, 1),
+    heightCm: decimal(payload.heightCm, 1),
+    volumetricWeightKg: decimal((payload.lengthCm * payload.widthCm * payload.heightCm) / 5000, 3),
     stock: payload.stock,
     minStock: payload.minStock,
     imageUrl: payload.imageUrl,

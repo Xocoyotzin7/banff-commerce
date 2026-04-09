@@ -137,7 +137,10 @@ export type MetricsKpi = {
 export type MetricsSeriesPoint = {
   date: string
   label: string
-  revenue: number
+  grossTotal: number
+  taxAmount: number
+  shippingAmount: number
+  netSales: number
 }
 
 export type MetricsProductPoint = {
