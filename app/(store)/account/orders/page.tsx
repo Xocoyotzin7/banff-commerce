@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { ClientProfileCard } from "@/components/account/ClientProfileCard"
 import { AccountOrderDetailSheet } from "@/components/orders/AccountOrderDetailSheet"
 import type { AccountOrderListItem, AccountOrderStatus } from "@/lib/account/orders"
 import { getBrowserAccountToken } from "@/lib/account/browser-session"
@@ -176,6 +177,8 @@ export default function AccountOrdersPage() {
   return (
     <EntryFlightTransition enabled={entryEnabled} destination="client">
     <section className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-10 sm:px-6 lg:px-8">
+      <ClientProfileCard />
+
       <div className="flex flex-col gap-4 rounded-[28px] border border-border/60 bg-background/70 p-6 shadow-[0_20px_80px_rgba(0,0,0,0.08)] backdrop-blur sm:p-8">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-2">
