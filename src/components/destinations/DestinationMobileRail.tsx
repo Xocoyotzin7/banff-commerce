@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { motion, useReducedMotion, type Variants } from "framer-motion"
-import { ArrowRight, ChevronDown } from "lucide-react"
+import { ArrowRight, BookOpenText, ChevronDown } from "lucide-react"
 
 import { destinations } from "../../lib/data/destinations"
 import { cn } from "../../lib/utils"
@@ -66,7 +66,7 @@ export function DestinationMobileRail() {
             key={destination.id}
             variants={reduceMotion ? undefined : itemVariants}
             className={cn(
-              "relative flex min-h-[calc(100svh-4rem)] snap-start items-end overflow-hidden border-b border-white/8",
+              "relative flex min-h-[calc(92svh-4rem)] snap-start items-end overflow-hidden border-b border-white/8",
               index % 2 === 0 ? "bg-[color:var(--surface)]" : "bg-[color:var(--surface-2)]",
             )}
           >
@@ -80,7 +80,7 @@ export function DestinationMobileRail() {
             />
             <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(6,13,13,0.96)_6%,rgba(6,13,13,0.22)_52%,rgba(6,13,13,0.08)_100%)]" />
 
-            <div className="relative z-10 w-full p-4 pb-6">
+            <div className="relative z-10 w-full p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <span className="rounded-full border border-white/12 bg-black/30 px-3 py-1.5 text-[10px] uppercase tracking-[0.28em] text-white/80 backdrop-blur-xl">
                   {destination.country}
@@ -92,27 +92,35 @@ export function DestinationMobileRail() {
 
               <div className="rounded-[1.8rem] border border-white/12 bg-black/42 p-4 text-white shadow-[0_30px_90px_rgba(0,0,0,0.35)] backdrop-blur-2xl">
                 <p className="text-[10px] uppercase tracking-[0.34em] text-white/58">{destination.region}</p>
-                <h3 className="mt-2 max-w-[12ch] font-display text-4xl leading-[0.92] tracking-tight">{destination.name}</h3>
-                <p className="mt-3 line-clamp-4 text-sm leading-7 text-white/78">{destination.description}</p>
+                <h3 className="mt-2 max-w-[12ch] font-display text-3xl leading-[0.92] tracking-tight sm:text-4xl">{destination.name}</h3>
+                <p className="mt-3 line-clamp-2 text-sm leading-6 text-white/76">{destination.description}</p>
+
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <Link
+                    href={`/destinations/${destination.slug}`}
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--primary)] px-4 py-2.5 text-sm font-medium text-white shadow-[0_0_24px_rgba(10,110,110,0.32)] transition-transform duration-200 active:scale-[0.98]"
+                  >
+                    Ver destino
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    href={`/blog/${destination.slug}`}
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-2.5 text-sm font-medium text-white/90 transition-transform duration-200 active:scale-[0.98]"
+                  >
+                    <BookOpenText className="h-4 w-4" />
+                    Ver blog
+                  </Link>
+                </div>
 
                 <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-white/76">
-                  {destination.highlights.slice(0, 4).map((highlight) => (
+                  {destination.highlights.slice(0, 2).map((highlight) => (
                     <div key={highlight} className="rounded-2xl border border-white/10 bg-white/6 px-3 py-2">
                       {highlight}
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-5 flex items-center justify-between gap-3">
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-white/58">{mobileCopy(destination.country)}</p>
-                  <Link
-                    href={`/destinations/${destination.slug}`}
-                    className="inline-flex items-center gap-2 rounded-full bg-[color:var(--primary)] px-4 py-2.5 text-sm font-medium text-white shadow-[0_0_24px_rgba(10,110,110,0.32)] transition-transform duration-200 active:scale-[0.98]"
-                  >
-                    Ver destino
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
+                <p className="mt-4 text-[10px] uppercase tracking-[0.28em] text-white/58">{mobileCopy(destination.country)}</p>
               </div>
             </div>
           </motion.article>

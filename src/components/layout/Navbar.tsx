@@ -16,6 +16,7 @@ import type { Locale } from "@/lib/site-content"
 import { cn } from "../../lib/utils"
 import { fadeInUp, staggerContainer } from "@banff/agency-core/components/shared/animations"
 import { MobileDock } from "./MobileDock"
+import { LoginDropdown } from "./LoginDropdown"
 
 type MenuColumn = {
   title: string
@@ -66,7 +67,6 @@ export function Navbar({ locale }: NavbarProps) {
   const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [drawerOpen, setDrawerOpen] = useState(false)
   const [adminFlightSequence, setAdminFlightSequence] = useState(0)
   const [themeBurstKey, setThemeBurstKey] = useState(0)
   const scrollY = useMotionValue(0)
@@ -95,7 +95,7 @@ export function Navbar({ locale }: NavbarProps) {
   )
 
   const destinationColumns = useMemo(() => getDestinationColumns(), [])
-  const isGlass = scrolled || !isHomePage || menuOpen || drawerOpen
+  const isGlass = scrolled || !isHomePage || menuOpen
   const isDarkTheme = (resolvedTheme ?? "dark") === "dark"
 
   const focusMenuItem = (direction: 1 | -1) => {
@@ -135,20 +135,7 @@ export function Navbar({ locale }: NavbarProps) {
   }, [])
 
   useEffect(() => {
-    if (drawerOpen) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = ""
-    }
-
-    return () => {
-      document.body.style.overflow = ""
-    }
-  }, [drawerOpen])
-
-  useEffect(() => {
     setMenuOpen(false)
-    setDrawerOpen(false)
   }, [pathname])
 
   useEffect(() => {
@@ -217,18 +204,18 @@ export function Navbar({ locale }: NavbarProps) {
       )}
       style={reduceMotion ? undefined : { backgroundColor }}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
         <Link
           href="/"
           className={cn(
-            "group inline-flex items-center gap-3 text-[0.85rem] font-semibold tracking-[0.28em]",
+            "group inline-flex min-w-0 items-center gap-3 text-[0.85rem] font-semibold tracking-[0.28em]",
             isGlass ? "text-text" : "text-white",
           )}
         >
           <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 text-[color:var(--secondary)] shadow-[0_10px_30px_rgba(0,0,0,0.16)] backdrop-blur">
             <PlaneTakeoff className="h-4 w-4" />
           </span>
-          <span className="font-serif text-base tracking-[0.22em]">LATAM VIAJES</span>
+          <span className="truncate font-serif text-base tracking-[0.22em]">latam</span>
         </Link>
 
         <nav className="hidden items-center gap-2 lg:flex">
@@ -396,6 +383,10 @@ export function Navbar({ locale }: NavbarProps) {
         </nav>
 
         <div className="flex items-center gap-2">
+          <div className="lg:hidden">
+            <LanguageSwitcher locale={locale} />
+          </div>
+
           <div className="hidden items-center gap-2 sm:flex">
             <button
               type="button"
@@ -450,147 +441,14 @@ export function Navbar({ locale }: NavbarProps) {
             <LanguageSwitcher locale={locale} />
           </div>
 
-          <button
-            type="button"
-            aria-label={drawerOpen ? "Cerrar menú" : "Abrir menú"}
-            onClick={() => setDrawerOpen((current) => !current)}
-            className={cn(
-              "relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-white/8 transition-colors hover:border-white/20 hover:bg-white/12 lg:hidden",
-              isGlass ? "text-text" : "text-white",
-            )}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5 overflow-visible" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-              <motion.path
-                d="M4 7H20"
-                initial={false}
-                animate={drawerOpen ? { y: 5.5, rotate: 45, pathLength: 1 } : { y: 0, rotate: 0, pathLength: 1 }}
-                transition={{ type: "spring", stiffness: 420, damping: 28 }}
-              />
-              <motion.path
-                d="M4 12H20"
-                initial={false}
-                animate={drawerOpen ? { opacity: 0, pathLength: 0 } : { opacity: 1, pathLength: 1 }}
-                transition={{ duration: 0.2 }}
-              />
-              <motion.path
-                d="M4 17H20"
-                initial={false}
-                animate={drawerOpen ? { y: -5.5, rotate: -45, pathLength: 1 } : { y: 0, rotate: 0, pathLength: 1 }}
-                transition={{ type: "spring", stiffness: 420, damping: 28 }}
-              />
-            </svg>
-          </button>
+          <div className="lg:hidden">
+            <LoginDropdown
+              onClient={() => router.push("/account/orders?entry=flight")}
+              onAdmin={triggerAdminFlight}
+            />
+          </div>
         </div>
       </div>
-
-      <AnimatePresence>
-        {drawerOpen ? (
-          <>
-            <motion.button
-              key="drawer-backdrop"
-              type="button"
-              aria-label="Cerrar navegación"
-              onClick={() => setDrawerOpen(false)}
-              className="fixed inset-0 z-40 bg-background/70 backdrop-blur-sm lg:hidden"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-
-            <motion.aside
-              key="drawer"
-              className="fixed right-0 top-0 z-50 h-dvh w-[min(88vw,24rem)] border-l border-border/70 bg-surface/95 px-5 pb-8 pt-6 shadow-[0_30px_100px_-40px_rgba(0,0,0,0.55)] lg:hidden"
-              initial={reduceMotion ? { opacity: 0 } : { x: "100%", opacity: 0 }}
-              animate={reduceMotion ? { opacity: 1 } : { x: 0, opacity: 1 }}
-              exit={reduceMotion ? { opacity: 0 } : { x: "100%", opacity: 0 }}
-              transition={reduceMotion ? { duration: 0.15 } : { type: "spring", stiffness: 360, damping: 34 }}
-            >
-              <div className="flex items-center justify-between">
-                <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold tracking-[0.24em] text-text">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-background/60 text-[color:var(--secondary)]">
-                    <PlaneTakeoff className="h-4 w-4" />
-                  </span>
-                  LATAM VIAJES
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => setDrawerOpen(false)}
-                  className="rounded-full border border-border/70 bg-background/50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-text-muted"
-                >
-                  {copy.nav.close}
-                </button>
-              </div>
-
-              <motion.nav
-                className="mt-8 space-y-4"
-                variants={staggerContainer}
-                initial="hidden"
-                animate="visible"
-              >
-                {navLinks.map((link) => (
-                  <motion.div key={link.href} variants={fadeInUp}>
-                    <Link
-                      href={link.href}
-                      className="flex items-center justify-between rounded-2xl border border-border/70 bg-background/35 px-4 py-4 text-base font-medium text-text transition-colors hover:border-[color:var(--primary)]/30 hover:bg-[color:var(--primary)]/10"
-                    >
-                      {link.label}
-                      <span className="text-[color:var(--secondary)]">→</span>
-                    </Link>
-                  </motion.div>
-                ))}
-              </motion.nav>
-
-              <div className="mt-6">
-                <LanguageSwitcher locale={locale} />
-              </div>
-
-              <div className="mt-6 grid grid-cols-2 gap-2 sm:hidden">
-                <button
-                  type="button"
-                  onClick={triggerAdminFlight}
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-3 text-sm font-medium text-white transition-colors hover:border-white/20 hover:bg-white/12"
-                >
-                  <ArrowUpRight className="h-4 w-4" />
-                  {copy.nav.admin}
-                </button>
-                <Link
-                  href="/account/orders?entry=flight"
-                  className="inline-flex items-center justify-center rounded-full border border-[color:var(--secondary)]/25 bg-[color:var(--secondary)]/12 px-4 py-3 text-sm font-medium text-white transition-colors hover:border-[color:var(--secondary)]/40 hover:bg-[color:var(--secondary)]/18"
-                >
-                  {copy.nav.client}
-                </Link>
-              </div>
-
-              <div className="mt-8 rounded-[1.6rem] border border-border/70 bg-background/35 p-4">
-                <p className="text-[0.72rem] uppercase tracking-[0.3em] text-text-muted">{copy.nav.highlightedDestinations}</p>
-                <div className="mt-3 grid gap-2">
-                  {popularDestinations.map((slug) => {
-                    const destination = destinations.find((item) => item.slug === slug)
-                    if (!destination) return null
-
-                    return (
-                      <Link
-                        key={destination.id}
-                        href={`/destinations/${destination.slug}`}
-                        className="flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/5"
-                      >
-                        <span className="relative h-12 w-12 overflow-hidden rounded-lg">
-                          <Image src={destination.heroImage} alt={destination.name} fill sizes="48px" className="object-cover" />
-                        </span>
-                        <span>
-                          <span className="block text-sm font-semibold text-text">{destination.name}</span>
-                          <span className="block text-xs text-text-muted">{destination.country}</span>
-                        </span>
-                      </Link>
-                    )
-                  })}
-                </div>
-              </div>
-
-        </motion.aside>
-      </>
-        ) : null}
-      </AnimatePresence>
       </motion.header>
 
       <MobileDock
