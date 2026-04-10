@@ -249,7 +249,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
         ))}
       </AnimatePresence>
 
-      <div className="relative mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-between px-4 pb-8 pt-28 sm:px-6 lg:px-8 lg:pb-10 lg:pt-32">
+      <div className="relative mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-between px-4 pb-24 pt-24 sm:px-6 sm:pb-10 sm:pt-28 lg:px-8 lg:pb-10 lg:pt-32">
         <motion.div
           variants={heroVariants}
           initial="hidden"
@@ -267,19 +267,19 @@ export function HeroSection({ locale }: HeroSectionProps) {
 
             <motion.h1
               variants={revealVariants}
-              className="mt-6 font-display text-5xl font-normal uppercase tracking-widest text-[color:var(--text)] sm:text-6xl lg:text-7xl xl:text-8xl"
+              className="mt-6 max-w-[12ch] font-display text-[clamp(2.9rem,11vw,5.5rem)] font-normal uppercase leading-[0.92] tracking-[0.12em] text-[color:var(--text)] sm:max-w-none sm:text-6xl lg:text-7xl xl:text-8xl"
             >
               {copy.home.titleLineOne}
             </motion.h1>
 
             <motion.h2
               variants={revealVariants}
-              className="mt-2 max-w-5xl font-display text-6xl font-bold uppercase leading-[0.9] tracking-tight text-[color:var(--secondary)] sm:text-7xl lg:text-8xl"
+              className="mt-2 max-w-[12ch] break-words font-display text-[clamp(3rem,12.5vw,6.8rem)] font-bold uppercase leading-[0.88] tracking-tight text-[color:var(--secondary)] sm:max-w-5xl sm:break-normal sm:text-7xl lg:text-8xl"
             >
               {copy.home.titleLineTwo}
             </motion.h2>
 
-            <motion.p variants={fadeUpVariants} className="mt-6 max-w-2xl text-base leading-8 text-[color:var(--text)]/78 sm:text-lg">
+            <motion.p variants={fadeUpVariants} className="mt-6 max-w-xl text-sm leading-7 text-[color:var(--text)]/78 sm:max-w-2xl sm:text-lg sm:leading-8">
               {copy.home.subtitle}
             </motion.p>
 
@@ -318,7 +318,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
 
             <motion.div
               variants={fadeUpVariants}
-              className="mt-10 grid max-w-2xl grid-cols-3 overflow-hidden rounded-[1.5rem] border border-white/12 bg-white/8 backdrop-blur-2xl"
+              className="mt-10 grid max-w-2xl grid-cols-1 overflow-hidden rounded-[1.5rem] border border-white/12 bg-white/8 backdrop-blur-2xl sm:grid-cols-3"
             >
               <div className="px-4 py-4 sm:px-5">
                 <p className="text-[10px] uppercase tracking-[0.32em] text-white/54">{copy.home.counters.destinations}</p>
@@ -326,7 +326,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
                   <Counter end={counters[0].value} active={isCounterVisible} />
                 </div>
               </div>
-              <div className="flex items-stretch justify-center border-x border-white/10 px-4 py-4 sm:px-5">
+              <div className="flex items-stretch justify-center border-y border-white/10 px-4 py-4 sm:border-x sm:border-y-0 sm:px-5">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.32em] text-white/54">{copy.home.counters.packages}</p>
                   <div className="mt-3">
@@ -343,7 +343,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
             </motion.div>
           </div>
 
-          <motion.div style={prefersReducedMotion ? undefined : { y: foregroundY }} className="relative mx-auto w-full max-w-[560px]">
+          <motion.div style={prefersReducedMotion ? undefined : { y: foregroundY }} className="relative mx-auto hidden w-full max-w-[560px] lg:block">
             <div className="absolute -left-8 top-8 h-24 w-24 rounded-full bg-[rgba(212,160,23,0.18)] blur-3xl" />
             <div className="absolute -right-8 bottom-10 h-28 w-28 rounded-full bg-[rgba(232,93,38,0.2)] blur-3xl" />
 
@@ -429,7 +429,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.9, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           className={cn(
-            "mx-auto flex w-full max-w-2xl items-center justify-center gap-3 rounded-full border border-white/12 bg-white/7 px-4 py-3 text-white/80 backdrop-blur-2xl transition-all duration-300",
+            "mx-auto hidden w-full max-w-2xl items-center justify-center gap-3 rounded-full border border-white/12 bg-white/7 px-4 py-3 text-white/80 backdrop-blur-2xl transition-all duration-300 sm:flex",
             showScrollHint ? "opacity-100" : "pointer-events-none opacity-0",
           )}
         >

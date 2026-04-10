@@ -24,6 +24,19 @@ https://github.com/Chatbase-co/nextjs-marketplace-template
 - Reservation flows with a darkened receipt popup, QR code, and copy-code action.
 - Header and CTA cleanup for a more focused browsing flow.
 
+### Mobile experience
+
+- Mobile header collapses into a compact drawer instead of showing the desktop nav inline.
+- The mobile drawer includes the same core options as desktop:
+  - Destinations
+  - Packages
+  - Tours
+  - About us
+  - Admin access
+  - Client access
+- The mobile home view keeps the hero, primary CTAs, and destination previews readable on iPhone-sized screens.
+- Customer panels and reservation/order detail views are stacked for narrow screens instead of forcing desktop columns.
+
 ### Reservations
 
 - Recent reservations table in admin.
@@ -221,3 +234,4 @@ npm run build
 - Delivery and fulfillment are demo-friendly by default, with provider mocks available for safe previews.
 - Admin shipping previews default to Canada unless the locale or browser signal clearly indicates Mexico.
 - Public location reference: Banff, Alberta, Canada.
+- If Vercel shows an older release, verify the project is linked to the current GitHub repo and the `main` branch, then trigger a fresh deployment from the latest commit.

@@ -15,6 +15,7 @@ import { getTravelCopy } from "@/lib/travel-copy"
 import type { Locale } from "@/lib/site-content"
 import { cn } from "../../lib/utils"
 import { fadeInUp, staggerContainer } from "@banff/agency-core/components/shared/animations"
+import { MobileDock } from "./MobileDock"
 
 type MenuColumn = {
   title: string
@@ -66,10 +67,11 @@ export function Navbar({ locale }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const [adminFlighting, setAdminFlighting] = useState(false)
+  const [adminFlightSequence, setAdminFlightSequence] = useState(0)
   const [themeBurstKey, setThemeBurstKey] = useState(0)
   const scrollY = useMotionValue(0)
   const themeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const adminFlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const megaMenuWrapperRef = useRef<HTMLDivElement | null>(null)
   const megaButtonRef = useRef<HTMLButtonElement | null>(null)
   const megaMenuRef = useRef<HTMLDivElement | null>(null)
@@ -150,14 +152,26 @@ export function Navbar({ locale }: NavbarProps) {
   }, [pathname])
 
   useEffect(() => {
-    if (!adminFlighting) return undefined
+    if (adminFlightSequence === 0) return undefined
 
-    const timer = window.setTimeout(() => {
+    if (adminFlightTimerRef.current) {
+      window.clearTimeout(adminFlightTimerRef.current)
+    }
+
+    adminFlightTimerRef.current = window.setTimeout(() => {
       router.push("/admin/login")
     }, 1700)
 
-    return () => window.clearTimeout(timer)
-  }, [adminFlighting, router])
+    return () => {
+      if (adminFlightTimerRef.current) {
+        window.clearTimeout(adminFlightTimerRef.current)
+      }
+    }
+  }, [adminFlightSequence, router])
+
+  const triggerAdminFlight = useCallback(() => {
+    setAdminFlightSequence((current) => current + 1)
+  }, [])
 
   const syncThemeCookie = useCallback((value: "dark" | "light") => {
     document.cookie = `NEXT_THEME=${value}; path=/; max-age=31536000; samesite=lax`
@@ -385,7 +399,7 @@ export function Navbar({ locale }: NavbarProps) {
           <div className="hidden items-center gap-2 sm:flex">
             <button
               type="button"
-              onClick={() => setAdminFlighting(true)}
+              onClick={triggerAdminFlight}
               className={cn(
                 "inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-2 text-sm font-medium transition-colors hover:border-white/20 hover:bg-white/12",
                 isGlass ? "text-text" : "text-white",
@@ -533,7 +547,7 @@ export function Navbar({ locale }: NavbarProps) {
               <div className="mt-6 grid grid-cols-2 gap-2 sm:hidden">
                 <button
                   type="button"
-                  onClick={() => setAdminFlighting(true)}
+                  onClick={triggerAdminFlight}
                   className="inline-flex items-center justify-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-3 text-sm font-medium text-white transition-colors hover:border-white/20 hover:bg-white/12"
                 >
                   <ArrowUpRight className="h-4 w-4" />
@@ -579,8 +593,16 @@ export function Navbar({ locale }: NavbarProps) {
       </AnimatePresence>
       </motion.header>
 
-      {adminFlighting ? (
-        <EntryFlightTransition enabled={adminFlighting} destination="admin">
+      <MobileDock
+        destinationsLabel={copy.nav.destinations}
+        packagesLabel={copy.nav.packages}
+        toursLabel={copy.nav.tours}
+        reservationsLabel={copy.nav.reserve}
+        aboutLabel={copy.nav.about}
+      />
+
+      {adminFlightSequence > 0 ? (
+        <EntryFlightTransition key={adminFlightSequence} enabled destination="admin">
           <div aria-hidden className="fixed inset-0 pointer-events-none" />
         </EntryFlightTransition>
       ) : null}
